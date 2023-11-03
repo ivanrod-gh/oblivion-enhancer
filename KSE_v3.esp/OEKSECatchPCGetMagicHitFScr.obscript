@@ -1,0 +1,12 @@
+﻿scn OEKSECatchPCGetMagicHitFScr
+
+ref Self
+
+ref TargetRef
+int EffectCode
+
+begin function { TargetRef EffectCode }
+
+let OEKSERestrictFunctionsQ.OEKSERestrictFunctionsMustPCFullRecalc := 1
+
+end

@@ -1,0 +1,99 @@
+﻿scn OEAddFireResistValueFScr
+
+ref ScriptTarget
+
+short ActorHasFireImmune
+
+short FireResistLowTokenCount
+short FireResistMidTokenCount
+short FireResistHighTokenCount
+short FireImmuneTokenCount
+
+float ResistFireMagSum
+
+float FireResistExisted
+float FireResistNormal
+float FireResistMod
+
+float ActorGlobalNormalResistLow
+float ActorGlobalNormalResistHigh
+
+float ResistFireNew
+
+begin function { ScriptTarget }
+
+set ResistFireMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSFI + ScriptTarget.GetTotalAEAbilityMagnitude WKFI + ScriptTarget.GetTotalAEAbilityMagnitude FISH + ScriptTarget.GetTotalAELesserPowerMagnitude RSFI + ScriptTarget.GetTotalAELesserPowerMagnitude WKFI + ScriptTarget.GetTotalAELesserPowerMagnitude FISH + ScriptTarget.GetTotalAEPowerMagnitude RSFI + ScriptTarget.GetTotalAEPowerMagnitude WKFI + ScriptTarget.GetTotalAEPowerMagnitude FISH
+
+set FireImmuneTokenCount to ScriptTarget.getitemcount OEFireImmuneToken
+
+;debugprint "Актер [%n], ResistFireMagSum = %g, ResistFrostMagSum = %g, ResistShockMagSum = %g" ScriptTarget ResistFireMagSum ResistFrostMagSum ResistShockMagSum
+
+if ResistFireMagSum >= 100
+	;debugprint "У актера [%n] есть врожденный иммунитет к огню" ScriptTarget
+	set ActorHasFireImmune to 1
+elseif FireImmuneTokenCount > 0
+	;debugprint "У актера [%n] есть токен иммунитета к огню" ScriptTarget
+	set ActorHasFireImmune to 1
+endif
+
+if ActorHasFireImmune == 1
+	set FireResistMod to 200
+	;debugprint "Актер [%n], FireResistMod = %g" ScriptTarget FireResistMod
+elseif ActorHasFireImmune == 0
+	set ActorGlobalNormalResistLow to OEActorGlobalNormalResist - (OEActorResistElementalMax - OEActorGlobalNormalResist)*(sqrt OEAdditionalElementalResistDifference - 1)
+	set ActorGlobalNormalResistHigh to OEActorGlobalNormalResist + (OEActorResistElementalMax - OEActorGlobalNormalResist)*(1 - 1/sqrt OEAdditionalElementalResistDifference)
+	set FireResistNormal to ScriptTarget.GetTotalActiveEffectMagnitude RSFI + ScriptTarget.GetTotalActiveEffectMagnitude FISH + ScriptTarget.GetTotalActiveEffectMagnitude WKFI + -(ScriptTarget.GetTotalAESpellMagnitude WKFI)	+ -(ScriptTarget.GetTotalAEEnchantmentMagnitude WKFI) + -(ScriptTarget.GetTotalAEAlchemyMagnitude WKFI)	;игнорирование уязвимости к огню, полученной посредством заклинаний, зачарований или алхимии
+	;debugprint "Актер [%n], FireResistNormal до диминишинга = %g" ScriptTarget FireResistNormal
+	
+	if FireResistNormal <= 50
+		set FireResistMod to FireResistNormal
+	elseif FireResistNormal > 50 && FireResistNormal <= 100
+		set FireResistMod to ( FireResistNormal - 50  ) / 2 + 50
+	elseif FireResistNormal > 100 && FireResistNormal <= 200
+		set FireResistMod to ( FireResistNormal - 100 ) / 8 + 75
+	elseif FireResistNormal > 200 && FireResistNormal <= 600
+		set FireResistMod to ( FireResistNormal - 200 ) / 32 + 87.5
+	elseif FireResistNormal > 600
+		set FireResistMod to 100
+	endif
+	if FireResistMod > OEActorResistElementalMax
+		set FireResistMod to OEActorResistElementalMax
+	endif
+	
+	set FireResistNormal to FireResistMod					;теперь нормальным значением сопротивления является такое, которое прошло через диминишинг
+	
+	set FireResistLowTokenCount to ScriptTarget.getitemcount OEFireResistLowToken
+	set FireResistMidTokenCount to ScriptTarget.getitemcount OEFireResistMidToken
+	set FireResistHighTokenCount to ScriptTarget.getitemcount OEFireResistHighToken
+	
+	if FireResistLowTokenCount > 0
+		set FireResistMod to FireResistMod + (OEActorResistElementalMax - FireResistMod) * ActorGlobalNormalResistLow / 100
+	elseif FireResistMidTokenCount > 0
+		set FireResistMod to FireResistMod + (OEActorResistElementalMax - FireResistMod) * OEActorGlobalNormalResist / 100
+	elseif 	FireResistHighTokenCount > 0
+		set FireResistMod to FireResistMod + (OEActorResistElementalMax - FireResistMod) * ActorGlobalNormalResistHigh / 100
+	endif
+
+	;debugprint "Актер [%n], FireResistMod = %g, FireResistNormal = %g" ScriptTarget FireResistMod FireResistNormal
+
+	;if FireResistMod < FireResistNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
+	;	set FireResistMod to FireResistNormal
+	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, FireResistMod = %g" ScriptTarget FireResistMod
+	;endif
+endif
+
+set FireResistMod to FireResistMod - ScriptTarget.getbaseav resistfire; - ScriptTarget.GetAVModC 61 script
+ScriptTarget.SetAVModC 61 max FireResistMod
+set FireResistExisted to ScriptTarget.getav resistfire
+
+;debugprint "Актер [%n], назначенный резист FireResistMod = %g, FireResistExisted = %g" ScriptTarget FireResistMod FireResistExisted
+
+
+set ResistFireNew to FireResistExisted
+;debugprint "Вывод переменной ResistFireNew = %g из функции обратно в скрипт" ResistFireNew
+SetFunctionValue ResistFireNew
+
+;debugprint "конец функции"
+
+
+end

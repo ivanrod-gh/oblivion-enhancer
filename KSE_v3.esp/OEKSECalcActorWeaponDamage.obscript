@@ -1,0 +1,81 @@
+﻿scn OEKSECalcActorWeaponDamage
+
+; Функция расчета урона оружия актера
+; Должна вызываться от его имени
+
+; Option:
+; 0		грубый полный расчет
+; 1		грубый полный расчет за исключение лука (лук считается без стрелы)
+; 2		точный полный расчет
+; 3		точный полный расчет за исключение лука (лук считается без стрелы)
+
+short CurrentHealth
+short MaxHealth
+short Skill
+short Attribute
+short Option
+float BaseWeaponDamage
+float WeaponState
+float WeaponDamage
+
+ref WeaponRef
+ref ArrowRef
+ref Self
+
+begin function { Option }
+
+let Self := GetSelf
+
+let WeaponDamage := 0
+if Self == 0 || IsFormValid Self == 0 || GetDead == 1 || GetDisabled == 1
+	SetFunctionValue WeaponDamage
+	return
+endif
+
+let WeaponRef := GetEquippedObject 16
+if WeaponRef != 0
+	if GetWeaponType WeaponRef == 4
+		SetFunctionValue WeaponDamage
+		return
+	elseif GetWeaponType WeaponRef < 4
+		let BaseWeaponDamage := GetAttackDamage WeaponRef
+		if GetWeaponType WeaponRef < 2
+			let Skill := GetAV blade
+		else
+			let Skill := GetAV blunt
+		endif
+		if Option > 1
+			let Attribute := GetAV strength
+			let Skill := Skill + 0.4 * (( GetAV luck ) - 50 )
+		endif
+	elseif GetWeaponType WeaponRef == 5
+		if Option == 0 || Option == 2
+			let ArrowRef :=  GetEquippedObject 17
+			let BaseWeaponDamage := ( GetAttackDamage WeaponRef ) + ( GetAttackDamage ArrowRef )
+		elseif Option == 1 || Option == 3
+			let BaseWeaponDamage := GetAttackDamage WeaponRef
+		endif
+		let Skill := GetAV marksman
+		if Option > 1
+			let Attribute := GetAV agility
+			let Skill := Skill + 0.4 * (( GetAV luck ) - 50 )
+		endif
+	endif
+	
+	let CurrentHealth := GetEquippedCurrentHealth 16
+	let MaxHealth := GetObjectHealth WeaponRef
+	if CurrentHealth == 0 || MaxHealth == 0
+		let WeaponState := 1
+	else
+		let WeaponState := ( CurrentHealth / MaxHealth + 1) / 2
+	endif
+	if Option > 1
+		let WeaponDamage := BaseWeaponDamage * OEKSEInitQ.GSDamageWeaponMult * ( OEKSEInitQ.GSDamageStrengthBase + Attribute / 100 * OEKSEInitQ.GSDamageStrengthMult ) * ( OEKSEInitQ.GSDamageSkillBase + Skill / 100 * OEKSEInitQ.GSDamageSkillMult ) * WeaponState * Self.Call OEKSEGetActorFatigueRatio
+	else
+		let WeaponDamage := BaseWeaponDamage * OEKSEInitQ.GSDamageWeaponMult * ( OEKSEInitQ.GSDamageSkillBase + Skill / 100 * OEKSEInitQ.GSDamageSkillMult ) * WeaponState * Self.Call OEKSEGetActorFatigueRatio
+	endif
+endif
+
+SetFunctionValue WeaponDamage
+
+end

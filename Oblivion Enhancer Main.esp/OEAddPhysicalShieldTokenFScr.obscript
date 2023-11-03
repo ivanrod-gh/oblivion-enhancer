@@ -1,0 +1,95 @@
+﻿scn OEAddPhysicalShieldTokenFScr
+
+ref ScriptTarget
+
+short RandomDice
+
+short PhysicalShieldStrength
+float PhysicalShieldmagsum
+short PhysicalShield100TokenCount
+short MaximumPhysicalShieldTokenCount
+short ActorHasPhysicalShieldToken
+float PhysicalShieldtChance
+float MaximumPhysicalShieldtChance
+short IsPhysicalShieldMaximum
+short PhysicalShieldLowTokenCount
+short PhysicalShieldMidTokenCount
+short PhysicalShieldHighTokenCount
+short PhysicalShieldNoneTokenCount
+
+begin function { ScriptTarget }
+
+set RandomDice to rand 1, 3.99
+
+if RandomDice == 1
+	set PhysicalShieldStrength to -1
+elseif RandomDice == 2
+	set PhysicalShieldStrength to 0
+elseif RandomDice == 3
+	set PhysicalShieldStrength to 1
+endif
+
+set PhysicalShieldtChance to OEAdditionalPhysicalShieldChance + 0.99
+set MaximumPhysicalShieldtChance to OEAdditionalMaximumPhysicalShieldChance + 0.99
+
+set PhysicalShieldmagsum to ScriptTarget.GetTotalAEAbilityMagnitude SHLD + ScriptTarget.GetTotalAEAbilityMagnitude FISH + ScriptTarget.GetTotalAEAbilityMagnitude FRSH + ScriptTarget.GetTotalAEAbilityMagnitude LISH
+set PhysicalShieldmagsum to PhysicalShieldmagsum + ScriptTarget.GetTotalAELesserPowerMagnitude SHLD + ScriptTarget.GetTotalAELesserPowerMagnitude FISH + ScriptTarget.GetTotalAELesserPowerMagnitude FRSH + ScriptTarget.GetTotalAELesserPowerMagnitude LISH
+set PhysicalShieldmagsum to PhysicalShieldmagsum + ScriptTarget.GetTotalAEPowerMagnitude SHLD + ScriptTarget.GetTotalAEPowerMagnitude FISH + ScriptTarget.GetTotalAEPowerMagnitude FRSH + ScriptTarget.GetTotalAEPowerMagnitude LISH
+
+;;debugprint "Актер [%n], PhysicalShieldmagsum = %g" ScriptTarget PhysicalShieldmagsum
+
+if PhysicalShieldmagsum >= 100
+	set PhysicalShield100TokenCount to ScriptTarget.getitemcount OEPhysicalShield100Token
+	ScriptTarget.removeitem OEPhysicalShield100Token PhysicalShield100TokenCount
+	ScriptTarget.additem OEPhysicalShield100Token 1
+	set ActorHasPhysicalShieldToken to 1
+	;debugprint "Актеру [%n] выдан токен 100-процентного щита, т.к. у него есть врожденный 100-процентный щит" ScriptTarget
+endif
+if ActorHasPhysicalShieldToken == 0
+	set RandomDice to rand 1, PhysicalShieldtChance
+	if RandomDice == 1
+		if (OEAdditionalMaximumPhysicalShield == 1) && (OEAdditionalMaximumPhysicalShieldLevel <= player.getlevel)
+			set RandomDice to rand 1, MaximumPhysicalShieldtChance
+			if RandomDice == 1
+				set IsPhysicalShieldMaximum to 1
+				set MaximumPhysicalShieldTokenCount to ScriptTarget.getitemcount OEPhysicalShieldMaximumToken 
+				ScriptTarget.removeitem OEPhysicalShieldMaximumToken MaximumPhysicalShieldTokenCount
+				ScriptTarget.additem OEPhysicalShieldMaximumToken 1
+				;debugprint "Актеру [%n] выдан токен максимального щита" ScriptTarget
+			endif
+		endif
+		if IsPhysicalShieldMaximum != 1
+			if PhysicalShieldStrength == -1
+				set PhysicalShieldLowTokenCount to ScriptTarget.getitemcount OEPhysicalShieldLowToken
+				ScriptTarget.removeitem OEPhysicalShieldLowToken PhysicalShieldLowTokenCount
+				ScriptTarget.additem OEPhysicalShieldLowToken 1
+				;debugprint "Актеру [%n] выдан токен щита пониженного уровня" ScriptTarget
+			elseif PhysicalShieldStrength == 0
+				set PhysicalShieldMidTokenCount to ScriptTarget.getitemcount OEPhysicalShieldMidToken
+				ScriptTarget.removeitem OEPhysicalShieldMidToken PhysicalShieldMidTokenCount
+				ScriptTarget.additem OEPhysicalShieldMidToken 1
+				;debugprint "Актеру [%n] выдан токен щита среднего уровня" ScriptTarget
+			elseif PhysicalShieldStrength == 1
+				set PhysicalShieldHighTokenCount to ScriptTarget.getitemcount OEPhysicalShieldHighToken
+				ScriptTarget.removeitem OEPhysicalShieldHighToken PhysicalShieldHighTokenCount
+				ScriptTarget.additem OEPhysicalShieldHighToken 1
+				;debugprint "Актеру [%n] выдан токен щита повышенного уровня" ScriptTarget
+			endif
+		endif
+	else
+		set PhysicalShieldNoneTokenCount to ScriptTarget.getitemcount OEPhysicalShieldNoneToken
+		ScriptTarget.removeitem OEPhysicalShieldNoneToken PhysicalShieldNoneTokenCount
+		ScriptTarget.additem OEPhysicalShieldNoneToken 1
+		;debugprint "Актеру [%n] выдан токен отсутствия щита" ScriptTarget
+	endif
+endif
+
+;debugprint "Актеру [%n] выдан токен щита" ScriptTarget
+ScriptTarget.additem OEPhysicalShieldToken 1
+
+
+
+;debugprint "конец функции"
+
+
+end

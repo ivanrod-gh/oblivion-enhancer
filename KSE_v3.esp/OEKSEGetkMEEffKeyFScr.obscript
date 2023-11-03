@@ -1,0 +1,64 @@
+﻿scn OEKSEGetkMEEffKeyFScr
+
+array_var ArrayElem
+
+short kMEEffKey
+short Arrsize
+
+ref EffectRef
+ref ScriptRef
+ref kMEEffectRef
+ref kMEScriptRef
+
+; ScriptRef - только для скриптовых саммонов из ОЕ, для всех нормальных эффектов ScriptRef должен быть == 0
+
+begin function { EffectRef, ScriptRef }
+
+if OEKSEInitQ.OEKSEGetkMEEffKeyFScrDebugMode == 1
+	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+endif
+
+debugprint "Вызов функции OEKSEGetkMEEffKeyFScr - поиск эффекта в массиве kME и возврат ключа ячейки при его нахождении"
+
+if ScriptRef == 0
+	debugprint "Запрос ключа ячейки массива kME для эффекта [%n][%i]" EffectRef EffectRef
+else
+	debugprint "Запрос ключа ячейки массива kME для эффекта [%n][%i], [%n][%i]" EffectRef EffectRef ScriptRef ScriptRef
+endif
+
+let kMEEffKey := -1
+
+foreach ArrayElem <- keaEffectExtender.kME
+	let kMEEffectRef := keaEffectExtender.kME[#ArrayElem["key"]][2]
+	let Arrsize := ar_size keaEffectExtender.kME[#ArrayElem["key"]]
+	if Arrsize == 3
+		if EffectRef == kMEEffectRef
+			let kMEEffKey := #ArrayElem["key"]
+			debugprint "В массиве kME обнаружен эффект [%n][%i], его ключ - [%g]" EffectRef EffectRef kMEEffKey
+			break
+		endif
+	else
+		let kMEScriptRef := keaEffectExtender.kME[#ArrayElem["key"]][3]
+		if EffectRef == kMEEffectRef && ScriptRef == kMEScriptRef
+			let kMEEffKey := #ArrayElem["key"]
+			debugprint "В массиве kME обнаружен эффект [%n][%i], [%n][%i], его ключ - [%g]" EffectRef EffectRef ScriptRef ScriptRef kMEEffKey
+			break
+		endif
+	endif
+loop
+
+if kMEEffKey == -1
+	if ScriptRef == 0
+		debugprint "Эффект [%n][%i] не найден в массиве kME" EffectRef EffectRef
+	else
+		debugprint "Эффект [%n][%i], [%n][%i] не найден в массиве kME" EffectRef EffectRef ScriptRef ScriptRef
+	endif
+endif
+
+setfunctionvalue kMEEffKey
+
+if OEKSEInitQ.OEKSEGetkMEEffKeyFScrDebugMode == 1
+	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+endif
+
+end

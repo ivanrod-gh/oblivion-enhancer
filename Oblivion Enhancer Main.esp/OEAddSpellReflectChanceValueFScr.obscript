@@ -1,0 +1,102 @@
+﻿scn OEAddSpellReflectChanceValueFScr
+
+ref ScriptTarget
+
+short SpellReflectChance100TokenCount
+short MaximumSpellReflectChanceTokenCount
+
+short SpellReflectChanceLowTokenCount
+short SpellReflectChanceMidTokenCount
+short SpellReflectChanceHighTokenCount
+
+short ActorHasSpellReflectChance100
+short ActorHasMaximumSpellReflectChance
+
+float SpellReflectChancemagsum
+
+float SpellReflectChanceMod
+float SpellReflectChanceNormal
+float SpellReflectChanceExisted
+
+float SpellReflectChancenew
+
+begin function { ScriptTarget }
+
+set SpellReflectChancemagsum to ScriptTarget.GetTotalAEAbilityMagnitude SABS  + ScriptTarget.GetTotalAELesserPowerMagnitude SABS + ScriptTarget.GetTotalAEPowerMagnitude SABS
+
+
+set SpellReflectChance100TokenCount to ScriptTarget.getitemcount OESpellReflect100Token
+set MaximumSpellReflectChanceTokenCount to ScriptTarget.getitemcount OESpellReflectMaximumToken
+if SpellReflectChancemagsum >= 100
+	;debugprint "У актера [%n] есть 100-процентное отражение заклинаний" ScriptTarget
+	set ActorHasSpellReflectChance100 to 1
+elseif SpellReflectChance100TokenCount > 0
+	;debugprint "У актера [%n] есть токен на 100-процентное отражение заклинаний" ScriptTarget
+	set ActorHasSpellReflectChance100 to 1
+elseif MaximumSpellReflectChanceTokenCount > 0
+	;debugprint "У актера [%n] есть токен на максимальное отражение заклинаний" ScriptTarget
+	set ActorHasMaximumSpellReflectChance to 1
+endif
+
+if ActorHasMaximumSpellReflectChance == 1
+	set SpellReflectChanceMod to OEActorSpellReflectChanceMax
+	;debugprint "Актер [%n], SpellReflectChanceMod = %g" ScriptTarget SpellReflectChanceMod
+elseif ActorHasSpellReflectChance100 == 1
+	set SpellReflectChanceMod to 200
+	;debugprint "Актер [%n], SpellReflectChanceMod = %g" ScriptTarget SpellReflectChanceMod
+elseif ActorHasSpellReflectChance100 == 0 && ActorHasMaximumSpellReflectChance == 0
+	set SpellReflectChanceNormal to ScriptTarget.GetTotalActiveEffectMagnitude SABS
+	;debugprint "Актер [%n], SpellReflectChanceNormal до диминишинга = %g" ScriptTarget SpellReflectChanceNormal
+	
+	if SpellReflectChanceNormal <= 50
+		set SpellReflectChanceMod to SpellReflectChanceNormal
+	elseif SpellReflectChanceNormal > 50 && SpellReflectChanceNormal <= 100
+		set SpellReflectChanceMod to ( SpellReflectChanceNormal - 50  ) / 2 + 50
+	elseif SpellReflectChanceNormal > 100 && SpellReflectChanceNormal <= 200
+		set SpellReflectChanceMod to ( SpellReflectChanceNormal - 100 ) / 8 + 75
+	elseif SpellReflectChanceNormal > 200 && SpellReflectChanceNormal <= 600
+		set SpellReflectChanceMod to ( SpellReflectChanceNormal - 200 ) / 32 + 87.5
+	elseif SpellReflectChanceNormal > 600
+		set SpellReflectChanceMod to 100
+	endif
+	if SpellReflectChanceMod > OEActorSpellReflectChanceMax
+		set SpellReflectChanceMod to OEActorSpellReflectChanceMax
+	endif
+	
+	set SpellReflectChanceNormal to SpellReflectChanceMod					;теперь нормальным значением сопротивления является такое, которое прошло через диминишинг
+	
+	set SpellReflectChanceLowTokenCount to ScriptTarget.getitemcount OESpellReflectLowToken
+	set SpellReflectChanceMidTokenCount to ScriptTarget.getitemcount OESpellReflectMidToken
+	set SpellReflectChanceHighTokenCount to ScriptTarget.getitemcount OESpellReflectHighToken
+	
+	if SpellReflectChanceLowTokenCount > 0
+		set SpellReflectChanceMod to SpellReflectChanceMod + (OEActorSpellReflectChanceMax - SpellReflectChanceMod) / 3
+	elseif SpellReflectChanceMidTokenCount > 0
+		set SpellReflectChanceMod to SpellReflectChanceMod + (OEActorSpellReflectChanceMax - SpellReflectChanceMod) / 4
+	elseif 	SpellReflectChanceHighTokenCount > 0
+		set SpellReflectChanceMod to SpellReflectChanceMod + (OEActorSpellReflectChanceMax - SpellReflectChanceMod) / 2
+	endif
+
+	;debugprint "Актер [%n], SpellReflectChanceMod = %g, SpellReflectChanceNormal = %g" ScriptTarget SpellReflectChanceMod SpellReflectChanceNormal
+
+	;if SpellReflectChanceMod < SpellReflectChanceNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
+	;	set SpellReflectChanceMod to SpellReflectChanceNormal
+	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, SpellReflectChanceMod = %g" ScriptTarget SpellReflectChanceMod
+	;endif
+endif
+
+set SpellReflectChanceMod to SpellReflectChanceMod - ScriptTarget.getbaseav SpellReflectChance; - ScriptTarget.GetAVModC 61 script
+ScriptTarget.SetAVModC 53 max SpellReflectChanceMod
+set SpellReflectChanceExisted to ScriptTarget.getav SpellReflectChance
+
+;debugprint "Актер [%n], назначенное значение  SpellReflectChanceMod = %g, SpellReflectChanceExisted = %g" ScriptTarget SpellReflectChanceMod SpellReflectChanceExisted
+
+
+set SpellReflectChancenew to SpellReflectChanceExisted
+;debugprint "Вывод переменной SpellReflectChancenew = %g из функции обратно в скрипт" SpellReflectChancenew
+SetFunctionValue SpellReflectChancenew
+
+;debugprint "конец функции"
+
+
+end

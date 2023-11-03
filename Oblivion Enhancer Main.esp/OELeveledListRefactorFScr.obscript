@@ -1,0 +1,665 @@
+﻿scn OELeveledListRefactorFScr
+
+array_var LeveledListArray
+array_var LeveledListSubArray
+array_var LeveledListSubArray2
+
+short LeveledListSlotId
+short SlotId
+short ArrSize1
+short ArrSize2
+short ArrSize3
+short index1
+short index2
+short LevItemLevel
+short LevItemCounter
+short ArmorType
+short WeaponType
+short EnchantmentType
+short QualityLevel
+short LeveledListStep
+short EmptyFirstLevel
+short SlotMaskId
+short ObjectType
+short ArrayIndex
+short CombFlag
+short MagicItemsCount
+short CommonItemsCount
+short CommonItemFound
+short MagicItemFound
+short CommonItemsAddedCounter
+short DeepCounter
+short RepeatCounter
+short RepeatCounterTmp
+short GarbageInjection
+short ItemQualityLimit
+short LeveledListCloned
+float SlotMin
+float SlotMax
+float SlotReach1
+float SlotReach2
+float MagicQualityLevel
+float WeaponReach
+float QualityIndex
+
+ref LevItemRef
+ref LeveledListRef
+ref EnchantmentRef
+ref MagicLeveledListRef
+ref CommonLeveledListRef
+ref CombLeveledListRef
+ref SummaryLeveledListRef
+
+begin function { LeveledListArray, ArrayIndex }
+
+debugprint "Вызов функции OELeveledListRefactorFScr - пересобирание уровневого списка в виде массива"
+
+let LeveledListStep := 4
+
+let LeveledListSlotId := OEInitQ.OELeveledListsMainArray[ArrayIndex][6]
+let CombFlag := OEInitQ.OELeveledListsMainArray[ArrayIndex][9]
+let GarbageInjection := OEInitQ.OELeveledListsMainArray[ArrayIndex][12]
+let ItemQualityLimit := OEInitQ.OELeveledListsMainArray[ArrayIndex][13]
+let LeveledListSubArray := ar_construct Array
+let LeveledListSubArray2 := ar_construct Array
+;обнуление вспомогательного массива, подготовка к его запонению по уровням
+let LeveledListSubArray := ar_construct Array
+let index1 := 0
+while index1 <= OELeveledListTopGearLevel
+	let LeveledListSubArray[index1] := ar_construct Array
+	let index1 := index1 + 1
+loop
+
+let ArrSize1 := ar_size LeveledListArray
+debugprint "В массиве %g объектов, подлежащих обработке" ArrSize1
+let index1 := ArrSize1 - 1
+while index1 >= 0
+	let LevItemRef := LeveledListArray[index1]
+	debugprint "Рефакторинг, рассматривается объект [%n][%i] с индексом [%g]" LevItemRef LevItemRef index1
+	if eval(ar_HasKey OEInitQ.OEItemsQualityArray GetRawFormIdString LevItemRef)
+		let QualityLevel := OEInitQ.OEItemsQualityArray[GetRawFormIdString LevItemRef]
+		debugprint "Такой объект ранее уже был рассчитан, его рассчитанный уровень - %g" QualityLevel
+	else
+		let SlotId := GetEquipmentSlot LevItemRef
+		debugprint "Согласно GetEquipmentSlot [%n] занимает слот [%g]" LevItemRef SlotId
+		if SlotId == 0
+			let SlotMaskId := GetBipedSlotMask LevItemRef
+			let ObjectType := GetObjectType LevItemRef
+			if ObjectType == 20
+				if SlotMaskId == 1 || SlotMaskId == 2 || SlotMaskId == 3
+					let SlotId := 1
+					debugprint "Объекту [%n][%i] переназначен слот на [%g]" LevItemRef LevItemRef SlotId
+				elseif SlotMaskId == 40
+					let SlotId := 24
+					debugprint "Объекту [%n][%i] переназначен слот на нестандартный [%g]" LevItemRef LevItemRef SlotId
+				endif
+			endif
+		endif
+		if SlotId == 0 && (LeveledListSlotId != 0 || LeveledListSlotId != 1)
+			debugprint "Функция GetEquipmentSlot не может правильно определить слот объекта! Будет использоваться штатный для этого уровневого списка."
+			let SlotId := LeveledListSlotId
+		endif
+		let SlotMin := 0
+		let SlotMax := 0
+		if (SlotId >= 0 && SlotId <= 5) || SlotId == 13 || (SlotId >= 18 && SlotId <= 22) || SlotId == 24
+			debugprint "[%n] - броня" LevItemRef
+			let QualityIndex := GetArmorAR LevItemRef
+			debugprint "Уровень защиты [%n] - [%g]" LevItemRef QualityIndex
+			let ArmorType := GetArmorType LevItemRef
+			if ArmorType == 0
+				debugprint "Тип [%n] - легкая броня" LevItemRef
+				let SlotMin := OEInitQ.OEItemsValueArray[SlotId][0]
+				let SlotMax := OEInitQ.OEItemsValueArray[SlotId][1]
+			else
+				debugprint "Тип [%n] - тяжелая броня" LevItemRef
+				let SlotMin := OEInitQ.OEItemsValueArray[SlotId][2]
+				let SlotMax := OEInitQ.OEItemsValueArray[SlotId][3]
+			endif
+			if OEArmorPriceRecalculate == 1 && IsPlayable LevItemRef == 1 && GetEnchantment LevItemRef == 0 && IsScripted LevItemRef == 0 && IsQuestItem LevItemRef == 0 && SlotId <= 13
+				if eval(ar_find LevItemRef OEInitQ.OEItemsForRebalanceArray) < 0
+					debugprint "Передача этой брони в массив перебалансировки для перебалансировки (при необходимости)"
+					let OEInitQ.OEItemsForRebalanceArray[ar_size OEInitQ.OEItemsForRebalanceArray] := LevItemRef
+				else
+					debugprint "Броня ранее уже была передана в массив перебалансировки"
+				endif
+			endif   
+		endif
+		if SlotId == 16
+			debugprint "[%n] - оружие" LevItemRef
+			let QualityIndex := GetAttackDamage LevItemRef
+			debugprint "Урон [%n] - [%g]" LevItemRef QualityIndex
+			let WeaponType := GetWeaponType LevItemRef
+			let WeaponReach := GetWeaponReach LevItemRef
+			if WeaponType == 0
+				let SlotReach1 := OEInitQ.OEItemsValueArray[SlotId][6]
+				let SlotReach2 := OEInitQ.OEItemsValueArray[SlotId][7]
+				if WeaponReach <= SlotReach1
+					debugprint "Тип [%n] - одноручный кинжал" LevItemRef
+					let SlotMin := OEInitQ.OEItemsValueArray[SlotId][0]
+					let SlotMax := OEInitQ.OEItemsValueArray[SlotId][1]
+				elseif WeaponReach >= SlotReach2
+					debugprint "Тип [%n] - одноручный длинный меч" LevItemRef
+					let SlotMin := OEInitQ.OEItemsValueArray[SlotId][4]
+					let SlotMax := OEInitQ.OEItemsValueArray[SlotId][5]
+				else
+					debugprint "Тип [%n] - одноручный короткий меч" LevItemRef
+					let SlotMin := OEInitQ.OEItemsValueArray[SlotId][2]
+					let SlotMax := OEInitQ.OEItemsValueArray[SlotId][3]
+				endif
+			elseif WeaponType == 1
+				debugprint "Тип [%n] - двуручный меч" LevItemRef
+				let SlotMin := OEInitQ.OEItemsValueArray[SlotId][8]
+				let SlotMax := OEInitQ.OEItemsValueArray[SlotId][9]
+			elseif WeaponType == 2
+				let SlotReach1 := OEInitQ.OEItemsValueArray[SlotId][14]
+				if WeaponReach <= SlotReach1
+					debugprint "Тип [%n] - одноручный топор" LevItemRef
+					let SlotMin := OEInitQ.OEItemsValueArray[SlotId][10]
+					let SlotMax := OEInitQ.OEItemsValueArray[SlotId][11]
+				else
+					debugprint "Тип [%n] - одноручная булава" LevItemRef
+					let SlotMin := OEInitQ.OEItemsValueArray[SlotId][12]
+					let SlotMax := OEInitQ.OEItemsValueArray[SlotId][13]
+				endif
+			elseif WeaponType == 3
+				let SlotReach1 := OEInitQ.OEItemsValueArray[SlotId][19]
+				if WeaponReach <= SlotReach1
+					debugprint "Тип [%n] - двуручная секира" LevItemRef
+					let SlotMin := OEInitQ.OEItemsValueArray[SlotId][15]
+					let SlotMax := OEInitQ.OEItemsValueArray[SlotId][16]
+				else
+					debugprint "Тип [%n] - двуручный молот" LevItemRef
+					let SlotMin := OEInitQ.OEItemsValueArray[SlotId][17]
+					let SlotMax := OEInitQ.OEItemsValueArray[SlotId][18]
+				endif
+			elseif WeaponType == 5
+				debugprint "Тип [%n] - лук" LevItemRef
+				let SlotMin := OEInitQ.OEItemsValueArray[SlotId][21]
+				let SlotMax := OEInitQ.OEItemsValueArray[SlotId][22]
+			endif
+			if OEWeaponExcessFix == 1 || OEWeaponPriceRecalculate == 1
+				if WeaponType < 4 && IsScripted LevItemRef == 0 && IsQuestItem LevItemRef == 0
+					if eval(ar_find LevItemRef OEInitQ.OEItemsForRebalanceArray) < 0
+						debugprint "Передача этого оружия в массив перебалансировки для перебалансировки (при необходимости)"
+						let OEInitQ.OEItemsForRebalanceArray[ar_size OEInitQ.OEItemsForRebalanceArray] := LevItemRef
+					else
+						debugprint "Оружие ранее уже было передано в массив перебалансировки"
+					endif
+				endif
+			endif
+		endif
+		
+		debugprint "Обрабатываются физические показатели [%n], показатель качества - [%g], минимум и максимум для этого слота - [%g/%g]" LevItemRef QualityIndex SlotMin SlotMax
+		;нормировка показателей по наименьшему для защиты/урона
+		if SlotMin == 0 && SlotMax == 0
+			let QualityLevel := 0
+		else
+			let SlotMax := SlotMax - SlotMin
+			let QualityIndex := QualityIndex - SlotMin
+			let SlotMin := 0
+			let QualityLevel := (QualityIndex/SlotMax)*OELeveledListTopGearLevel
+		endif
+		debugprint "Согласно физическим показателям [%n] должен иметь уровень - [%g]" LevItemRef QualityLevel
+		let MagicQualityLevel := 0
+		let EnchantmentRef := GetEnchantment LevItemRef
+		if EnchantmentRef
+			debugprint "[%n] - зачарован" LevItemRef
+			let EnchantmentType := GetEnchantmentType EnchantmentRef
+			debugprint "EnchantmentType=%g" EnchantmentType
+			if EnchantmentType == 1 || EnchantmentType == 2
+				let QualityIndex := GetObjectCharge LevItemRef
+				if EnchantmentType == 1
+					debugprint "[%n] - зачарованный посох" LevItemRef
+					let SlotMin := OEInitQ.OEItemsValueArray[23][1]
+					let SlotMax := OEInitQ.OEItemsValueArray[23][2]
+				elseif EnchantmentType == 2
+					debugprint "[%n] - зачарованное оружие" LevItemRef
+					let SlotMin := OEInitQ.OEItemsValueArray[23][3]
+					let SlotMax := OEInitQ.OEItemsValueArray[23][4]
+				endif
+			elseif EnchantmentType == 3
+				debugprint "[%n] - зачарованная броня/одежда/бижутерия" LevItemRef
+				let QualityIndex := call OEGetApparelEnchantmentValueFScr EnchantmentRef
+				let SlotMin := OEInitQ.OEItemsValueArray[23][5]
+				let SlotMax := OEInitQ.OEItemsValueArray[23][6]
+			endif
+			debugprint "Обрабатываются магические показатели [%n], показатель качества - [%g], минимум и максимум для этого слота - [%g/%g]" LevItemRef QualityIndex SlotMin SlotMax
+			;то же, для зачарования
+			let SlotMax := SlotMax - SlotMin
+			let QualityIndex := QualityIndex - SlotMin
+			let SlotMin := 0
+			let MagicQualityLevel := (QualityIndex/SlotMax)*OELeveledListTopGearLevel
+			debugprint "Согласно магическим показателям [%n] должен иметь уровень - [%g]" LevItemRef MagicQualityLevel
+			if MagicQualityLevel < 0 && MagicQualityLevel < -OELeveledListTopGearLevel
+				debugprint "[%n] значительно ниже уровневого порога для наилучших вещей. Его магический показатель теперь приравнен к [-%g]" LevItemRef OELeveledListTopGearLevel
+				let MagicQualityLevel := -OELeveledListTopGearLevel
+			elseif MagicQualityLevel > 0 && MagicQualityLevel > OELeveledListTopGearLevel
+				debugprint "[%n] значительно выше уровневого порога для наилучших вещей. Его магический показатель теперь приравнен к [%g]" LevItemRef OELeveledListTopGearLevel
+				let MagicQualityLevel := MagicQualityLevel
+			endif
+		else
+			debugprint "[%n] - не зачарован" LevItemRef
+		endif
+		
+		if SlotId == 16 && WeaponType == 4
+			let QualityLevel := MagicQualityLevel
+		elseif (MagicQualityLevel != 0 && SlotId == 16) || (MagicQualityLevel > 0 && SlotId != 16)
+			if MagicQualityLevel/5 > LeveledListStep
+				debugprint "Вторичный параметр (магическая ценность), деленный на 5, превышает шаг уровневого списка. Его уровень повышается на один шаг."
+				let QualityLevel := QualityLevel + LeveledListStep
+			else
+				let QualityLevel := QualityLevel + MagicQualityLevel/5
+			endif
+		elseif MagicQualityLevel < 0 && SlotId != 16
+			if -MagicQualityLevel/5 > LeveledListStep
+				debugprint "Вторичный негативный параметр (магическая ценность), деленный на 5, превышает шаг уровневого списка. Его уровень уменьшается на один шаг."
+				let QualityLevel := QualityLevel - LeveledListStep
+			else
+				let QualityLevel := QualityLevel + MagicQualityLevel/5
+			endif
+			debugprint "Т.к. [%n] еще и негативно зачарован, то пересчитанный суммарный уровень теперь равен [%g]" LevItemRef QualityLevel
+		endif
+		
+		if QualityLevel > OELeveledListTopGearLevel
+			let QualityLevel := OELeveledListTopGearLevel
+		endif
+		let QualityLevel := QualityLevel/LeveledListStep
+		let QualityLevel := QualityLevel*LeveledListStep
+		if QualityLevel < 1
+			let QualityLevel := 1
+		endif
+		
+		debugprint "Объекту [%n] рассчитан уровень, с которого он начнет появляться в игре - [%g]" LevItemRef QualityLevel
+		;сохранение в объекта массиве. если такой же объект будет встречен еще раз, то его рассчитанный уровень будет взят из массива
+		if eval(ar_HasKey OEInitQ.OEItemsQualityArray GetRawFormIdString LevItemRef) == 0
+			debugprint "Сохранение объекта в массиве ItemsQualityArray для дальнейшего использования"
+			let OEInitQ.OEItemsQualityArray[GetRawFormIdString LevItemRef] := QualityLevel
+		else
+			debugprint "Объект ранее уже был сохранен в массиве"
+		endif
+	endif
+	
+	let LeveledListSubArray[QualityLevel][ar_size LeveledListSubArray[QualityLevel]] := LevItemRef
+	
+	let index1 := index1 - 1
+loop
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	debugprint "Предварительный дамп массива LeveledListSubArray, индекс основного массива - [%g]" ArrayIndex
+	let ArrSize1 := ar_size LeveledListSubArray
+	let index1 := 0
+	let LevItemCounter := 0
+	while index1 < ArrSize1
+		let ArrSize2 := ar_size LeveledListSubArray[index1]
+		if ArrSize2 > 0
+			let index2 := 0
+			while index2 < ArrSize2
+				let LevItemRef := LeveledListSubArray[index1][index2]
+				if GetEnchantment LevItemRef
+					debugprint "[%g] [%n][%i][магич.]" index1 LevItemRef LevItemRef
+				else
+					debugprint "[%g] [%n][%i]" index1 LevItemRef LevItemRef
+				endif
+				let LevItemCounter := LevItemCounter + 1
+				let index2 := index2 + 1
+			loop
+		else
+			debugprint "[%g] -" index1
+		endif
+		let index1 := index1 + 1
+	loop
+	debugprint "Всего [%g] объектов" LevItemCounter
+endif
+
+;проверка в нормированном массиве дропа на 1 уровне
+if eval(ar_size LeveledListSubArray[1]) == 0
+	debugprint "В уровневом массиве на 1 уровень игрока нет никакого дропа! Копирование дропа из другого ближайшего уровня."
+	let EmptyFirstLevel := 1
+	let index1 := 2
+	let ArrSize1 := ar_size LeveledListSubArray
+	while index1 < ArrSize1
+		let ArrSize2 := ar_size LeveledListSubArray[index1]
+		if ArrSize2 > 0
+			let LeveledListSubArray[1] := LeveledListSubArray[index1]
+			debugprint "В уровень 1 нормированного массива добавлены объекты из его %g уровня" index1
+			let EmptyFirstLevel := -1
+			break
+		endif
+		let index1 := index1 + 1
+	loop
+	if EmptyFirstLevel == 1
+		debugprint "Нормированный массив остался с пустым первым уровнем!"
+	endif
+endif
+
+;ограничение по адаптивному уровню предметов в итоговом уровневом списке
+if ItemQualityLimit != 0
+	debugprint "Обабатываемый массив с индексом [%g] принадлежит уровневому списку с ограничениями на качество предметов" ArrayIndex
+	let ArrSize1 := ar_size LeveledListSubArray
+	let index1 := ItemQualityLimit/(100/OELeveledListTopGearLevel) + 1
+	if index1 < 2
+		debugprint "Слишком низкий уровень ограничения, минимальный уровень заменен на [2]"
+		let index1 := 2
+	endif
+	debugprint "Все предметы на уровнях, начиная с [%g], будут удалены из массива" index1
+	while index1 < ArrSize1
+		if eval(ar_size LeveledListSubArray[index1]) > 0
+			debugprint "[%g] уровень массива обнулен" index1
+			let LeveledListSubArray[index1] := ar_construct Array
+		else
+			debugprint "[%g] -" index1
+		endif
+		let index1 := index1 + 1
+	loop
+	if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+		debugprint "Дополнительный дамп массива LeveledListSubArray после применения ограничений на качество предметов, индекс основного массива - [%g]" ArrayIndex
+		let ArrSize1 := ar_size LeveledListSubArray
+		let index1 := 0
+		let LevItemCounter := 0
+		while index1 < ArrSize1
+			let ArrSize2 := ar_size LeveledListSubArray[index1]
+			if ArrSize2 > 0
+				let index2 := 0
+				while index2 < ArrSize2
+					let LevItemRef := LeveledListSubArray[index1][index2]
+					if GetEnchantment LevItemRef
+						debugprint "[%g] [%n][%i][магич.]" index1 LevItemRef LevItemRef
+					else
+						debugprint "[%g] [%n][%i]" index1 LevItemRef LevItemRef
+					endif
+					let LevItemCounter := LevItemCounter + 1
+					let index2 := index2 + 1
+				loop
+			else
+				debugprint "[%g] -" index1
+			endif
+			let index1 := index1 + 1
+		loop
+		debugprint "Всего [%g] объектов" LevItemCounter
+	endif
+endif
+
+;первая перепаковка нормированного списка при помощи уровневых списков-клонформ
+debugprint "Перепаковка нормированного массива [№%g] - замена подмассивов на клонированные уровневые списки" ArrayIndex
+let index1 := 0
+let ArrSize1 := ar_size LeveledListSubArray
+while index1 < ArrSize1
+	let ArrSize2 := ar_size LeveledListSubArray[index1]
+	if ArrSize2 > 0
+		let CommonItemFound := 0
+		let MagicItemFound := 0
+		let index2 := 0
+		let MagicItemsCount := 0
+		let CommonItemsCount := 0
+		while index2 < ArrSize2
+			let LevItemRef := LeveledListSubArray[index1][index2]
+			if GetEnchantment LevItemRef && MagicItemFound == 0
+				debugprint "В подмассиве на уровень игрока [%g] найден магический предмет" index1
+				let MagicItemFound := 1
+			elseif CommonItemFound == 0
+				debugprint "В подмассиве на уровень игрока [%g] найден обычный предмет" index1
+				let CommonItemFound := 1
+			endif
+			if MagicItemFound == 1 && CommonItemFound == 1
+				break
+			endif
+			let index2 := index2 + 1
+		loop
+		
+		if MagicItemFound == 1
+			if eval(ar_size OEInitQ.OEFreeLeveledListsArray) > 0
+				let MagicLeveledListRef := OEInitQ.OEFreeLeveledListsArray[0]
+				ar_erase OEInitQ.OEFreeLeveledListsArray 0
+				let ArrSize2 := ar_size OEInitQ.OEFreeLeveledListsArray
+				debugprint "Запрос клонированного уровневого списка [%i] из массива OEFreeLeveledListsArray для магических вещей. Размер массива после выполнения запроса - [%g]" MagicLeveledListRef ArrSize2
+			else
+				let MagicLeveledListRef := CloneForm OELeveledListTEMPLATE
+				let OEInitQ.OEDebugLeveledListClonedCount := OEInitQ.OEDebugLeveledListClonedCount + 1
+				debugprint "Массив OEFreeLeveledListsArray пуст, создается новая клонформа уровневого списка [%i] для магических вещей, уровневых списков клонировано - [%g]" MagicLeveledListRef OEInitQ.OEDebugLeveledListClonedCount
+			endif
+			if eval(ar_find MagicLeveledListRef OEInitQ.OELeveledListsMainArray[ArrayIndex][10]) < 0
+				let OEInitQ.OELeveledListsMainArray[ArrayIndex][10][ar_size OEInitQ.OELeveledListsMainArray[ArrayIndex][10]] := MagicLeveledListRef
+				debugprint "В [%g] подмассив основного массива LeveledListsMainArray добавляется информация об используемом клонированного уровневом списке для магических вещей [%i]" ArrayIndex MagicLeveledListRef
+				if eval(ar_HasKey OEInitQ.OELeveledListQualityArray GetRawFormIdString MagicLeveledListRef) == 0
+					let OEInitQ.OELeveledListQualityArray[GetRawFormIdString MagicLeveledListRef] := index1
+					debugprint "В массив OELeveledListQualityArray добавляется информация об уровневом списке-клонформе [%i] и его уровне качества [%g]" MagicLeveledListRef index1
+				else
+					debugprint "Критическая ошибка скрипта - в OELeveledListQualityArray уже присутсвует [%i]!" MagicLeveledListRef
+				endif
+			else
+				debugprint "Критическая ошибка скрипта - попытка поместить [%i] в OEInitQ.OELeveledListsMainArray[ArrayIndex][10] еще один раз!" MagicLeveledListRef
+			endif
+		endif
+		
+		if CommonItemFound == 1
+			if eval(ar_size OEInitQ.OEFreeLeveledListsArray) > 0
+				let CommonLeveledListRef := OEInitQ.OEFreeLeveledListsArray[0]
+				ar_erase OEInitQ.OEFreeLeveledListsArray 0
+				let ArrSize2 := ar_size OEInitQ.OEFreeLeveledListsArray
+				debugprint "Запрос клонированного уровневого списка [%i] из массива OEFreeLeveledListsArray для вещей. Размер массива после выполнения запроса - [%g]" CommonLeveledListRef ArrSize2
+			else
+				let CommonLeveledListRef := CloneForm OELeveledListTEMPLATE
+				let OEInitQ.OEDebugLeveledListClonedCount := OEInitQ.OEDebugLeveledListClonedCount + 1
+				debugprint "Массив OEFreeLeveledListsArray пуст, создается новая клонформа уровневого списка [%i] для вещей, уровневых списков клонировано - [%g]" CommonLeveledListRef OEInitQ.OEDebugLeveledListClonedCount
+			endif
+			if eval(ar_find CommonLeveledListRef OEInitQ.OELeveledListsMainArray[ArrayIndex][10]) < 0
+				let OEInitQ.OELeveledListsMainArray[ArrayIndex][10][ar_size OEInitQ.OELeveledListsMainArray[ArrayIndex][10]] := CommonLeveledListRef
+				debugprint "В [%g] подмассив основного массива LeveledListsMainArray добавляется информация об используемом клонированного уровневом списке для вещей [%i]" ArrayIndex CommonLeveledListRef
+				if eval(ar_HasKey OEInitQ.OELeveledListQualityArray GetRawFormIdString CommonLeveledListRef) == 0
+					let OEInitQ.OELeveledListQualityArray[GetRawFormIdString CommonLeveledListRef] := index1
+					debugprint "В массив OELeveledListQualityArray добавляется информация об уровневом списке-клонформе [%i] и его уровне качества [%g]" CommonLeveledListRef index1
+				else
+					debugprint "Критическая ошибка скрипта - в OELeveledListQualityArray уже присутсвует [%i]!" CommonLeveledListRef
+				endif
+			else
+				debugprint "Критическая ошибка скрипта - попытка поместить [%i] в OEInitQ.OELeveledListsMainArray[ArrayIndex][10] еще один раз!" CommonLeveledListRef
+			endif
+		endif
+		
+		let index2 := 0
+		let ArrSize2 := ar_size LeveledListSubArray[index1]
+		while index2 < ArrSize2
+			let LevItemRef := LeveledListSubArray[index1][index2]
+			if GetEnchantment LevItemRef
+				AddToLeveledList MagicLeveledListRef LevItemRef 1 1
+			else
+				AddToLeveledList CommonLeveledListRef LevItemRef 1 1
+			endif
+			let index2 := index2 + 1
+		loop
+				
+		if MagicItemFound == 1 && CommonItemFound == 1
+			if eval(ar_size OEInitQ.OEFreeLeveledListsArray) > 0
+				let CombLeveledListRef := OEInitQ.OEFreeLeveledListsArray[0]
+				ar_erase OEInitQ.OEFreeLeveledListsArray 0
+				let ArrSize2 := ar_size OEInitQ.OEFreeLeveledListsArray
+				debugprint "Запрос клонированного уровневого списка [%i] из массива OEFreeLeveledListsArray для всех вещей. Размер массива после выполнения запроса - [%g]" CombLeveledListRef ArrSize2
+			else
+				let CombLeveledListRef := CloneForm OELeveledListTEMPLATE
+				let OEInitQ.OEDebugLeveledListClonedCount := OEInitQ.OEDebugLeveledListClonedCount + 1
+				debugprint "Массив OEFreeLeveledListsArray пуст, создается новая клонформа уровневого списка [%i] для всех вещей, уровневых списков клонировано - [%g]" CombLeveledListRef OEInitQ.OEDebugLeveledListClonedCount
+			endif
+			if eval(ar_find CombLeveledListRef OEInitQ.OELeveledListsMainArray[ArrayIndex][10]) < 0
+				let OEInitQ.OELeveledListsMainArray[ArrayIndex][10][ar_size OEInitQ.OELeveledListsMainArray[ArrayIndex][10]] := CombLeveledListRef
+				debugprint "В [%g] подмассив основного массива LeveledListsMainArray добавляется информация об используемом клонированного уровневом списке для всех вещей [%i]" ArrayIndex CombLeveledListRef
+				if eval(ar_HasKey OEInitQ.OELeveledListQualityArray GetRawFormIdString CombLeveledListRef) == 0
+					let OEInitQ.OELeveledListQualityArray[GetRawFormIdString CombLeveledListRef] := index1
+					debugprint "В массив OELeveledListQualityArray добавляется информация об уровневом списке-клонформе [%i] и его уровне качества [%g]" CombLeveledListRef index1
+				else
+					debugprint "Критическая ошибка скрипта - в OELeveledListQualityArray уже присутсвует [%i]!" CombLeveledListRef
+				endif
+			else
+				debugprint "Критическая ошибка скрипта - попытка поместить [%i] в OEInitQ.OELeveledListsMainArray[ArrayIndex][10] еще один раз!" CombLeveledListRef
+			endif
+			
+			AddToLeveledList CombLeveledListRef MagicLeveledListRef 1 1
+			debugprint "В список-клонформу для всех вещей [%i] добавляется список-клонформа для магических вещей [%i]" CombLeveledListRef MagicLeveledListRef
+			if CombFlag == 1
+				let CommonItemsAddedCounter := 0
+				while CommonItemsAddedCounter < OELeveledListCommonToMagicRatio
+					AddToLeveledList CombLeveledListRef CommonLeveledListRef 1 1
+					let CommonItemsAddedCounter := CommonItemsAddedCounter + 1
+					debugprint "В список-клонформу для всех вещей [%i] добавляется список-клонформа для вещей [%i] [%g] раз" CombLeveledListRef CommonLeveledListRef CommonItemsAddedCounter
+				loop
+			else
+				AddToLeveledList CombLeveledListRef CommonLeveledListRef 1 1
+				debugprint "В список-клонформу для всех вещей [%i] добавляется список-клонформа для вещей [%i]" CombLeveledListRef CommonLeveledListRef
+			endif
+			
+			let LeveledListSubArray[index1] := ar_construct Array
+			let LeveledListSubArray[index1][0] := CombLeveledListRef
+		elseif MagicItemFound == 1 && CommonItemFound == 0
+			let LeveledListSubArray[index1] := ar_construct Array
+			let LeveledListSubArray[index1][0] := MagicLeveledListRef
+		elseif MagicItemFound == 0 && CommonItemFound == 1
+			let LeveledListSubArray[index1] := ar_construct Array
+			let LeveledListSubArray[index1][0] := CommonLeveledListRef
+		endif
+		
+	endif
+	let index1 := index1 + 1
+loop
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	debugprint "Дамп массива LeveledListSubArray после первой перепаковки"
+	call OEShowNormalizedArrayByItemFScr LeveledListSubArray
+endif
+
+;вторая перепаковка нормированного списка - подмешивание у массив "хлама" для того, чтобы на высоких уровня не спавнилась одна годнота
+if GarbageInjection != -1
+	let ArrSize1 := ar_size LeveledListSubArray
+	let index1 := ArrSize1 - 1
+	while index1 >= 2
+		if eval(ar_size LeveledListSubArray[index1]) > 0
+			if OELeveledListUseFiller1 == 1
+				let RepeatCounter := 0
+				while RepeatCounter < OELeveledListLvlRepeat1
+					let LevItemLevel := index1 - OELeveledListLvlOffset1*LeveledListStep
+					let DeepCounter := 0
+					while DeepCounter < OELeveledListLvlDeep1
+						while LevItemLevel > 1
+							if eval(ar_size LeveledListSubArray[LevItemLevel]) > 0
+								break
+							endif
+							let LevItemLevel := LevItemLevel - LeveledListStep
+						loop
+						if LevItemLevel >= 1
+							let LeveledListRef := LeveledListSubArray[LevItemLevel][0]
+						else
+							let LeveledListRef := LeveledListSubArray[1][0]
+							let LevItemLevel := 1
+						endif
+						let LeveledListSubArray[index1][ar_size LeveledListSubArray[index1]] := LeveledListRef
+						if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+							let RepeatCounterTmp := RepeatCounter + 1	;информационный
+							debugprint "Наполнитель 1, в нормированный массив на уровень [%g] подмешан уровневый список с уровнем [%g], повторение - [%g/%g]" index1 LevItemLevel RepeatCounterTmp OELeveledListLvlRepeat1
+						endif
+						let LevItemLevel := LevItemLevel - LeveledListStep
+						let DeepCounter := DeepCounter + 1
+					loop
+					let RepeatCounter := RepeatCounter + 1
+				loop
+			endif
+			if OELeveledListUseFiller2 == 1
+				let RepeatCounter := 0
+				while RepeatCounter < OELeveledListLvlRepeat2
+					let LevItemLevel := index1 - OELeveledListLvlOffset2*LeveledListStep
+					let DeepCounter := 0
+					while DeepCounter < OELeveledListLvlDeep2
+						while LevItemLevel > 1
+							if eval(ar_size LeveledListSubArray[LevItemLevel]) > 0
+								break
+							endif
+							let LevItemLevel := LevItemLevel - LeveledListStep
+						loop
+						if LevItemLevel >= 1
+							let LeveledListRef := LeveledListSubArray[LevItemLevel][0]
+						else
+							let LeveledListRef := LeveledListSubArray[1][0]
+							let LevItemLevel := 1
+						endif
+						let LeveledListSubArray[index1][ar_size LeveledListSubArray[index1]] := LeveledListRef
+						if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+							let RepeatCounterTmp := RepeatCounter + 1	;информационный
+							debugprint "Наполнитель 2, в нормированный массив на уровень [%g] подмешан уровневый список с уровнем [%g], повторение - [%g/%g]" index1 LevItemLevel RepeatCounterTmp OELeveledListLvlRepeat2
+						endif
+						let LevItemLevel := LevItemLevel - LeveledListStep
+						let DeepCounter := DeepCounter + 1
+					loop
+					let RepeatCounter := RepeatCounter + 1
+				loop
+			endif
+		endif
+		let index1 := index1 - 1
+	loop
+endif
+
+;вторая перепаковка - без дампа
+
+;третья перепаковка нормированного списка - все складывается в один уровневый список-клонформу для быстрого использования в дальнейшем
+let ArrSize1 := ar_size LeveledListSubArray
+let index1 := 0
+let LeveledListCloned := 0
+while index1 < ArrSize1
+	let ArrSize2 := ar_size LeveledListSubArray[index1]
+	if ArrSize2 > 0
+		if LeveledListCloned == 0
+			if eval(ar_size OEInitQ.OEFreeLeveledListsArray) > 0
+				let SummaryLeveledListRef := OEInitQ.OEFreeLeveledListsArray[0]
+				ar_erase OEInitQ.OEFreeLeveledListsArray 0
+				let ArrSize3 := ar_size OEInitQ.OEFreeLeveledListsArray
+				debugprint "Запрос клонированного уровневого списка [%i] из массива OEFreeLeveledListsArray для запаковки. Размер массива после выполнения запроса - [%g]" SummaryLeveledListRef ArrSize3
+			else
+				let SummaryLeveledListRef := CloneForm OELeveledListTEMPLATE
+				let OEInitQ.OEDebugLeveledListClonedCount := OEInitQ.OEDebugLeveledListClonedCount + 1
+				debugprint "Массив OEFreeLeveledListsArray пуст, создается новая клонформа уровневого списка [%i] для запаковки, уровневых списков клонировано - [%g]" SummaryLeveledListRef OEInitQ.OEDebugLeveledListClonedCount
+			endif
+			if eval(ar_find SummaryLeveledListRef OEInitQ.OELeveledListsMainArray[ArrayIndex][10]) < 0
+				let OEInitQ.OELeveledListsMainArray[ArrayIndex][10][ar_size OEInitQ.OELeveledListsMainArray[ArrayIndex][10]] := SummaryLeveledListRef
+				debugprint "В [%g] подмассив основного массива LeveledListsMainArray добавляется информация об используемом клонированного уровневом списке для запаковки [%i]" ArrayIndex SummaryLeveledListRef
+				if eval(ar_HasKey OEInitQ.OELeveledListQualityArray GetRawFormIdString SummaryLeveledListRef) == 0
+					let OEInitQ.OELeveledListQualityArray[GetRawFormIdString SummaryLeveledListRef] := -1
+					debugprint "В массив OELeveledListQualityArray добавляется информация об уровневом списке-клонформе [%i]. Уровень качества клонированного уровневого списка для запаковки всегда [-1]" SummaryLeveledListRef
+				else
+					debugprint "Критическая ошибка скрипта - в OELeveledListQualityArray уже присутсвует [%i]!" SummaryLeveledListRef
+				endif
+			else
+				debugprint "Критическая ошибка скрипта - попытка поместить [%i] в OEInitQ.OELeveledListsMainArray[ArrayIndex][10] еще один раз!" SummaryLeveledListRef
+			endif
+			let LeveledListCloned := 1
+		endif
+		let index2 := 0
+		while index2 < ArrSize2
+			
+			let LeveledListRef := LeveledListSubArray[index1][index2]
+			AddToLeveledList SummaryLeveledListRef LeveledListRef index1 1
+			debugprint "В уровневый список-клонформу для запаковки [%i] добавляется клонированный уровневый список [%i] с уровнем качества [%g]" SummaryLeveledListRef LeveledListRef index1
+			
+			let index2 := index2 + 1
+		loop
+	endif
+	let index1 := index1 + 1
+loop
+;обнуление LeveledListSubArray
+let LeveledListSubArray := ar_construct Array
+let index1 := 0
+while index1 <= OELeveledListTopGearLevel
+	let LeveledListSubArray[index1] := ar_construct Array
+	let index1 := index1 + 1
+loop
+;назначение уровневого списка-клонформы для упаковки на уровень 1
+let LeveledListSubArray[1][0] := SummaryLeveledListRef
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode2 == 1
+	debugprint "Дамп массива LeveledListSubArray после третьей перепаковки"
+	let LevItemCounter := call OEShowPackedNormalizedArrayByItemFScr LeveledListSubArray
+endif
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	debugprint "Обзор нормированного массива по уровням, всего [%g] объектов:" LevItemCounter
+	call OEShowPackedNormalizedArrayByLevelFScr LeveledListSubArray
+endif
+
+SetFunctionValue LeveledListSubArray
+
+end

@@ -1,0 +1,147 @@
+﻿scn OEKSECheckSpellCloneEventFScr
+
+short ArrSize
+short ArrSize2
+short Index
+short Index2
+short ActorFound
+short SourceModIndex
+short CloneFound
+
+ref CasterRef
+ref ActorRef
+ref SpellRef
+ref Self
+ref SpellClone
+
+
+Begin Function {SpellRef, CasterRef}
+
+if KeaSettingMagicSystem  == 0 || OEKSECloneRetentionSystem == 0
+	return
+endif
+
+if OEKSEInitQ.OEKSECheckSpellCloneEventFScrDebugMode == 1
+	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+endif
+
+debugprint "Вызов функции OEKSECheckSpellCloneEventFScr - добавление новых пользователей (жертв) заклинаний-клонформ"
+
+let Self := GetSelf
+debugprint "Жертва - [%n][%i], магический объект - [%n][%i]" Self Self SpellRef SpellRef
+
+if Self.IsActor == 0
+	debugprint "Жертва не актер, возврат"
+	if OEKSEInitQ.OEKSECheckSpellCloneEventFScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+elseif Self.GetDead == 1
+	debugprint "Жертва мертва, возврат"
+	if OEKSEInitQ.OEKSECheckSpellCloneEventFScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+
+if GetMagicItemType SpellRef == 1
+	debugprint "Расматриваемый магический объект - заклинание"
+	
+	let SourceModIndex := GetSourceModIndex SpellRef
+	if SourceModIndex == 255 && CompareName "**" SpellRef == 1	;только для заклинаний с меткой **
+		debugprint "Расматриваемое заклинание - клонформа с меткой **"
+		
+		;добавляет жертву клонформы
+		if Self.IsActor == 1
+			debugprint "Поиск совпадению с удерживаемыми клонформами в массиве BusySpellsArray"
+			let ArrSize := ar_size OEKSECloneRetentionSystemQ.BusySpellsArray
+			let Index := 0
+			let CloneFound := 0
+			while Index < ArrSize
+				let SpellClone := OEKSECloneRetentionSystemQ.BusySpellsArray[Index][0]
+				if SpellRef == SpellClone
+					debugprint "Совпадение для заклинания-клонформы найдено - поступившее в функцию заклинание-клонформа в данный момент удерживается"
+					let CloneFound := 1
+					break
+				endif
+				let Index := Index + 1
+			loop
+			if CloneFound == 1
+				let ArrSize2 := ar_size OEKSECloneRetentionSystemQ.BusySpellsArray[Index]
+				let Index2 := 2
+				while Index2 < ArrSize2
+					let ActorRef := OEKSECloneRetentionSystemQ.BusySpellsArray[Index][2]
+					if ActorRef == Self
+						debugprint "Для удерживаемого заклинания-клонформы найдено совпадение по пользователю/жертве" ActorRef
+						let ActorFound := 1
+						break
+					endif
+					let Index2 := Index2 + 1
+				loop
+				if ActorFound == 0
+					debugprint "Добавлен новый актер [%n][%i] к заклинанию-клонформе [%n][%i]" Self Self SpellClone SpellClone
+					let OEKSECloneRetentionSystemQ.BusySpellsArray[Index][ar_size OEKSECloneRetentionSystemQ.BusySpellsArray[Index]] := Self
+				else
+					debugprint "Актер [%n][%i] уже присутствует в ячейке заклинания-клонформы [%n][%i]" Self Self SpellClone SpellClone
+				endif
+			else
+				debugprint "Для заклинания-клонформы не найдено совпадения в массиве BusySpellsArray, прекращение функции"
+			endif
+		endif
+		
+		;не используется
+	;	if Self.IsActor == 1
+	;		let ArrSize := ar_size OEKSECloneRetentionSystemQ.WhippedActorsArray
+	;		let Index := 0
+	;		let ActorFound := 0
+	;		while Index < ArrSize
+	;			let ActorRef := OEKSECloneRetentionSystemQ.WhippedActorsArray[Index][0]
+	;			if Self == ActorRef
+	;				let ActorFound := ActorFound + 1
+	;				break
+	;			endif
+	;			let Index := Index + 1
+	;		loop
+	;		
+	;		if ActorFound == 0
+	;			let OEKSECloneRetentionSystemQ.WhippedActorsArray[ArrSize] := ar_Construct Array
+	;			let OEKSECloneRetentionSystemQ.WhippedActorsArray[ArrSize][0] := Self				;ref актера
+	;			let OEKSECloneRetentionSystemQ.WhippedActorsArray[ArrSize][1] := 10					;кулдаун 10 секунд, чтобы не перегружать скрипт
+	;			let OEKSECloneRetentionSystemQ.WhippedActorsArray[ArrSize][2] := 0					;флаг актера [проверен/не проверен], чтобы не проверять одного и того же актера много раз
+	;		endif
+	;	endif
+	;	
+	;	
+	;	;добавляет кастующего клонформы
+	;	if CasterRef != Self && CasterRef.IsActor == 1
+	;		let ArrSize := ar_size OEKSECloneRetentionSystemQ.WhippedActorsArray
+	;		let Index := 0
+	;		let ActorFound := 0
+	;		while Index < ArrSize
+	;			let ActorRef := OEKSECloneRetentionSystemQ.WhippedActorsArray[Index][0]
+	;			if CasterRef == ActorRef
+	;				let ActorFound := ActorFound + 1
+	;				break
+	;			endif
+	;			let Index := Index + 1
+	;		loop
+	;		
+	;		if ActorFound == 0
+	;			let OEKSECloneRetentionSystemQ.WhippedActorsArray[ArrSize] := ar_Construct Array
+	;			let OEKSECloneRetentionSystemQ.WhippedActorsArray[ArrSize][0] := CasterRef			;ref актера
+	;			let OEKSECloneRetentionSystemQ.WhippedActorsArray[ArrSize][1] := 10					;кулдаун 10 секунд, чтобы не перегружать скрипт
+	;			let OEKSECloneRetentionSystemQ.WhippedActorsArray[ArrSize][2] := 0					;флаг актера [проверен/не проверен], чтобы не проверять одного и того же актера много раз
+	;		endif
+	;	endif
+	else
+		debugprint "Расматриваемое заклинание - не клонформа с меткой **, прекращение функции"
+	endif
+else
+	debugprint "Поступивший в функцию объект - не заклинание"
+endif
+
+if OEKSEInitQ.OEKSECheckSpellCloneEventFScrDebugMode == 1
+	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+endif
+
+End

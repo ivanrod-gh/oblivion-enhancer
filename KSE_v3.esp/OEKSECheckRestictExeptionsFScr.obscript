@@ -1,0 +1,23 @@
+﻿scn OEKSECheckRestictExeptionsFScr
+
+short index
+short EnchantEffectCount
+
+ref EnchantRef
+
+begin function {}
+
+;квест Дерзкое ограбление (гильдия воров)
+if GetStage TG11Heist > 10 && GetStage TG11Heist < 110
+	let EnchantRef := GetEnchantment TG10SpringheelJakBoots
+	let EnchantEffectCount := GetMagicItemEffectCount EnchantRef
+	let index := 0
+	while index < EnchantEffectCount
+		if GetNthEffectItemActorValue EnchantRef index == 26
+			set OEKSESkillAcrobaticsModMax to OEKSESkillAcrobaticsModMax + (GetNthEffectItemMagnitude EnchantRef index)
+		endif
+		let index := index + 1
+	loop
+endif
+
+end

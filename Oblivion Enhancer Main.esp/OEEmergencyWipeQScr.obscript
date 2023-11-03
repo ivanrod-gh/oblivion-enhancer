@@ -1,0 +1,136 @@
+﻿scn OEEmergencyWipeQScr
+;срочная очистка уровневых списков оружия и брони в случае загрузки другого сохранения
+;срочная зачистка локации от актеров при убийстве игрока и загрузке друго сохранения
+
+float fQuestDelayTime
+
+short OEEmergencyFlag
+short OELeveledListsRestored
+short OENormArraysFine
+short OESettingsChanged
+short OEQuestLocked
+short OEArrSize
+short OEIndex
+
+ref OEActorRef
+
+begin gamemode
+
+if GetGameLoaded || GetGameRestarted
+	let OEQuestLocked := -1
+endif
+if OEQuestLocked != 0
+	if OEInitQ.OEInitializationCount > 0
+		let OEInitQ.OEInitializationCount := OEInitQ.OEInitializationCount - 1
+		let OEQuestLocked := 0
+	else	
+		return
+	endif
+endif
+
+if OELeveledListRefactor == 1
+	if OEQuestLocked == 0
+		;при нормальных условиях игрок не в состоянии выйти из меню загрузки обратно в гейммод, минуя меню паузы
+		;тем не менее
+		if OEEmergencyFlag == 1
+			if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+				SetDebugMode 1 OEInitQ.OEModIndex
+			endif
+			
+			debugprint "Применение нормированных массивов к уровневым спискам после выхода из меню загрузки"
+			;костыль, связанный с вылетом игры
+			let OENormArraysFine := call OECirculeCheckArraysFullnessFScr OEInitQ.OELeveledListsMainArray 2 50
+			let OESettingsChanged := call OECheckLeveledListSettingsFScr
+			if OENormArraysFine == 1 && OESettingsChanged == 0
+				call OELeveledListExchangeFScr
+			else
+				call OERestoreLeveledListsFScr
+				call OELevelListsNormalizeFScr
+			endif
+			let OEEmergencyFlag := 0
+			
+			if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+				SetDebugMode 0 OEInitQ.OEModIndex
+			endif
+		endif
+	endif
+endif
+
+end
+
+begin menumode 1013
+
+if OELeveledListRefactor == 1
+	if OEQuestLocked == 0
+		if OEEmergencyFlag == 1
+			if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+				SetDebugMode 1 OEInitQ.OEModIndex
+			endif
+			
+			debugprint "Применение нормированных массивов к уровневым спискам после выхода из меню загрузки в главное меню (меню паузы)"
+			call OELeveledListExchangeFScr
+			let OEEmergencyFlag := 0
+			
+			if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+				SetDebugMode 0 OEInitQ.OEModIndex
+			endif
+		endif
+	endif
+endif
+
+end
+
+begin menumode 1038
+
+if OELeveledListRefactor == 1
+	if OEQuestLocked == 0
+		if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+			SetDebugMode 1 OEInitQ.OEModIndex
+		endif
+		
+		if PlayerRef.GetDead == 1 && OELeveledListsRestored == 0
+			debugprint "АВАРИЙНЫЙ возврат всех измененных уровневых списков в норму при смерти игрока!"
+			call OERestoreLeveledListsFScr
+			let OELeveledListsRestored := 1
+		elseif OEEmergencyFlag == 0
+			debugprint "Игрок вышел в меню загрузки! Обнуление изменений уровневых списков"
+			call OERestoreLeveledListsFScr
+			let OEEmergencyFlag := 1
+		endif
+		
+		if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+			SetDebugMode 0 OEInitQ.OEModIndex
+		endif
+	endif
+endif
+
+if OEDeadPCLoadingAreaWipe == 1
+	if PlayerRef.GetDead == 1
+		if OEInitQ.OEDeadPCLoadingAreaWipeDebugMode == 1
+			SetDebugMode 1 OEInitQ.OEModIndex
+		endif
+		if eval(ar_size OEGlobalWatchQ.OEActorsForWipeArray) > 0
+			let OEArrSize := ar_size OEGlobalWatchQ.OEActorsForWipeArray
+			let OEIndex := 0
+			while OEIndex < OEArrSize
+				let OEActorRef := OEGlobalWatchQ.OEActorsForWipeArray[OEIndex]
+				if IsFormValid OEActorRef == 1
+					debugprint "Попытка убить и переместить актера [%n][%i]" OEActorRef OEActorRef
+					OEActorRef.kill
+					OEActorRef.moveto OESpawnChamberPoint
+					debugprint "Актер [%n][%i] убивается и переносится в камеру спавна" OEActorRef OEActorRef
+				endif
+				let OEIndex := OEIndex + 1
+			loop
+			debugprint "Запрос на очистку клетки: камера спавна"
+			ResetInterior OESC
+			debugprint "Очистка массива на зачистку"
+			let OEGlobalWatchQ.OEActorsForWipeArray := ar_Construct Array
+		endif
+		if OEInitQ.OEDeadPCLoadingAreaWipeDebugMode == 1
+			SetDebugMode 0 OEInitQ.OEModIndex
+		endif
+	endif
+endif
+
+end

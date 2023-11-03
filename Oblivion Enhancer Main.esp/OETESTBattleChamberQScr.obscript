@@ -1,0 +1,811 @@
+﻿scn OETESTBattleChamberQScr
+
+array_var GroupsArray
+array_var StatisticArray
+array_var TestPointsArray
+array_var PackagesArray
+
+short ArrSize1
+short ArrSize2
+short index1
+short index2
+short GetSpawned
+short PlayerLevel
+short SpawnType
+short DoOnce
+short HealthCount
+short Health1
+short Health2
+short Health3
+short RoundsCounter
+short BattlesCount
+short BattlesCountMax
+short VictoryCount
+short IsVictory
+short SimultaneouslyBattlesMax
+float fQuestDelayTime
+float OffsetTimer
+float StatisticTimer
+float PowerCoeff
+float SummonPowerCoef
+float SummonPowerCoefAverage
+float EnemyPowerCoef
+float EnemyPowerCoefAverage
+
+ref ActorRef
+ref ActorRef2
+ref PackageRef
+ref SummonToSpawnRef
+ref EnemyToSpawnRef
+ref PlaceToSpawnRef
+
+begin gamemode
+
+let fQuestDelayTime := 5
+
+if DoOnce == 0
+	
+;	0		0	Вызов скелета	OESummonSkeleton1
+;	25		1	Вызов скелета-стража	OESummonSkeleton2Guardian
+;	50		2	Вызов скелета-героя	OESummonSkeleton3Hero
+;	75		3	Вызов скелета~-воина	OESummonSkeleton4Champion
+;	100		4	Вызов скелета-повелителя	OESummonSkeleton5Overlord
+;	
+;	0		10	Вызов зомби	OESummonZombie1
+;	25		11	Вызов безголового зомби	OESummonZombie2Headless
+;	50		12	Вызов обугленного зомби	OESummonZombie3Burnt
+;	75		13	Вызов пылающего зомби	OESummonZombie4Flame
+;	100		14	Вызов повелителя зомби	OESummonZombie5Overlord
+;	
+;	25		20	Вызов призрака	OESummonGhost2
+;	75		21	Вызов туманного привидения	OESummonWraithFaded4
+;	100		22	Вызов тёмного привидения	OESummonWraithGloom5
+;	100		23	Вызов лича	OESummonLich5
+;	
+;	25		30	Вызов скампа	OESummonScamp2
+;	50		31	Вызов кланфира	OESummonClannfear3
+;	75		32	Вызов дэйдрота	OESummonDaedroth4
+;	75		33	Вызов дэйдра-паука	OESummonSpiderDaedra4
+;	100		34	Вызов зивилаи	OESummonXivilai5
+;	
+;	50		40	Вызов малого огненного атронаха	OESummonAtronach3Flame
+;	50		41	Вызов малого ледяного атронаха	OESummonAtronach3Frost
+;	50		42	Вызов малого грозового атронаха	OESummonAtronach3Storm
+;	75		43	Вызов огненного атронаха	OESummonAtronach4Flame
+;	75		44	Вызов ледяного атронаха	OESummonAtronach4Frost
+;	75		45	Вызов грозового атронаха	OESummonAtronach4Storm
+;	100		46	Вызов огненного Монарха	OESummonMonarch5Fire
+;	100		47	Вызов ледяного Монарха	OESummonMonarch5Frost
+;	100		48	Вызов грозового Монарха	OESummonMonarch5Storm
+;	
+;	50		50	Вызов дремора	OESummonDremora3KynreeveMelee1
+;	75		51	Вызов дремора-воина	OESummonDremora4KynmarcherMelee1
+;	100		52	Вызов лорда дремора	OESummonDremora5MarkynazMelee1
+
+	let SpawnType := 52
+	let BattlesCountMax := 20
+	let SimultaneouslyBattlesMax := 6	;(всего подерживается до 8 боев одноременно)
+	
+	if SpawnType == 0 || SpawnType == 10
+		let PlayerLevel := 1
+	elseif SpawnType == 1 || SpawnType == 11 || SpawnType == 20 || SpawnType == 30
+		let PlayerLevel := 5
+	elseif SpawnType == 2 || SpawnType == 12 || SpawnType == 31 || SpawnType == 40 || SpawnType == 41 || SpawnType == 42 || SpawnType == 50
+		let PlayerLevel := 10
+	elseif SpawnType == 3 || SpawnType == 13 || SpawnType == 21 || SpawnType == 32 || SpawnType == 33 || SpawnType == 43 || SpawnType == 44 || SpawnType == 45 || SpawnType == 51
+		let PlayerLevel := 20
+	elseif SpawnType == 4 || SpawnType == 14 || SpawnType == 22 || SpawnType == 23 || SpawnType == 34 || SpawnType == 46 || SpawnType == 47 || SpawnType == 48 || SpawnType == 52
+		let PlayerLevel := 30
+	endif
+	if PlayerLevel == 1 || PlayerLevel == 5
+		let EnemyToSpawnRef := OETESTMOOBanditNordMale03Lvl1to5
+		let HealthCount := 25*PlayerLevel
+	elseif PlayerLevel == 10
+		let EnemyToSpawnRef := OETESTMOOBanditNordMale03Lvl10
+		let HealthCount := 200
+	elseif PlayerLevel == 20
+		let EnemyToSpawnRef := OETESTMOOBanditNordMale03Lvl20
+		let HealthCount := 400
+	elseif PlayerLevel == 30
+		let EnemyToSpawnRef := OETESTMOOBanditNordMale03Lvl30
+		let HealthCount := 500
+	endif
+	if SpawnType == 0
+		let SummonToSpawnRef := OESummonSkeleton1
+	elseif SpawnType == 1
+		let SummonToSpawnRef := OESummonSkeleton2Guardian
+	elseif SpawnType == 2
+		let SummonToSpawnRef := OESummonSkeleton3Hero
+	elseif SpawnType == 3
+		let SummonToSpawnRef := OESummonSkeleton4Champion
+	elseif SpawnType == 4
+		let SummonToSpawnRef := OESummonSkeleton5Overlord
+	
+	elseif SpawnType == 10
+		let SummonToSpawnRef := OESummonZombie1
+	elseif SpawnType == 11
+		let SummonToSpawnRef := OESummonZombie2Headless
+	elseif SpawnType == 12
+		let SummonToSpawnRef := OESummonZombie3Burnt
+	elseif SpawnType == 13
+		let SummonToSpawnRef := OESummonZombie4Flame
+	elseif SpawnType == 14
+		let SummonToSpawnRef := OESummonZombie5Overlord
+	
+	elseif SpawnType == 20
+		let SummonToSpawnRef := OESummonGhost2
+	elseif SpawnType == 21
+		let SummonToSpawnRef := OESummonWraithFaded4
+	elseif SpawnType == 22
+		let SummonToSpawnRef := OESummonWraithGloom5
+	elseif SpawnType == 23
+		let SummonToSpawnRef := OESummonLich5
+		
+	elseif SpawnType == 30
+		let SummonToSpawnRef := OESummonScamp2
+	elseif SpawnType == 31
+		let SummonToSpawnRef := OESummonClannfear3
+	elseif SpawnType == 32
+		let SummonToSpawnRef := OESummonDaedroth4
+	elseif SpawnType == 33
+		let SummonToSpawnRef := OESummonSpiderDaedra4
+	elseif SpawnType == 34
+		let SummonToSpawnRef := OESummonXivilai5
+	
+	elseif SpawnType == 40
+		let SummonToSpawnRef := OESummonAtronach3Flame
+	elseif SpawnType == 41
+		let SummonToSpawnRef := OESummonAtronach3Frost
+	elseif SpawnType == 42
+		let SummonToSpawnRef := OESummonAtronach3Storm
+	elseif SpawnType == 43
+		let SummonToSpawnRef := OESummonAtronach4Flame
+	elseif SpawnType == 44
+		let SummonToSpawnRef := OESummonAtronach4Frost
+	elseif SpawnType == 45
+		let SummonToSpawnRef := OESummonAtronach4Storm
+	elseif SpawnType == 46
+		let SummonToSpawnRef := OESummonMonarch5Fire
+	elseif SpawnType == 47
+		let SummonToSpawnRef := OESummonMonarch5Frost
+	elseif SpawnType == 48
+		let SummonToSpawnRef := OESummonMonarch5Storm
+	
+	elseif SpawnType == 50
+		let SummonToSpawnRef := OESummonDremora3KynreeveMelee1
+	elseif SpawnType == 51
+		let SummonToSpawnRef := OESummonDremora4KynmarcherMelee1
+	elseif SpawnType == 52
+		let SummonToSpawnRef := OESummonDremora5MarkynazMelee1
+	endif
+	player.setlevel PlayerLevel
+	call OETESTPlayerMoveToOEBCFScr
+	player.addspellns OETESTAbInvisibilityTGM
+	;введение предварительных настроек
+	;саммон
+	let PlaceToSpawnRef := OESpawnChamberPoint
+	let ActorRef := PlaceToSpawnRef.placeatme SummonToSpawnRef 1
+	ActorRef.SetFactionRank playerfaction 0
+	ActorRef.kill
+	;противник
+	let ActorRef := PlaceToSpawnRef.placeatme EnemyToSpawnRef 1
+	ActorRef.setav health HealthCount
+	ActorRef.kill
+	if SummonToSpawnRef == OESummonDremora3KynreeveMelee1
+		let ActorRef := PlaceToSpawnRef.placeatme OESummonDremora3KynreeveMelee1 1
+		ActorRef.setav health 125
+		ActorRef.kill
+	elseif SummonToSpawnRef == OESummonDremora4KynmarcherMelee1
+		let ActorRef := PlaceToSpawnRef.placeatme OESummonDremora4KynmarcherMelee1 1
+		ActorRef.setav health 300
+		ActorRef.kill
+		let ActorRef := PlaceToSpawnRef.placeatme OESummonDremora2KynvalMelee1Add 1
+		ActorRef.SetPCLevelOffset 1 10 10
+		ActorRef.setav health 150
+		ActorRef.kill
+		let ActorRef := PlaceToSpawnRef.placeatme OESummonDremora2KynvalMelee2Add 1
+		ActorRef.SetPCLevelOffset 1 10 10
+		ActorRef.setav health 150
+		ActorRef.kill
+		let ActorRef := PlaceToSpawnRef.placeatme OESummonDremora2KynvalMelee3Add 1
+		ActorRef.SetPCLevelOffset 1 10 10
+		ActorRef.setav health 150
+		ActorRef.kill
+		let ActorRef := PlaceToSpawnRef.placeatme OESummonDremora2KynvalMelee4Add 1
+		ActorRef.SetPCLevelOffset 1 10 10
+		ActorRef.setav health 150
+		ActorRef.kill
+	elseif SummonToSpawnRef == OESummonDremora5MarkynazMelee1
+		let ActorRef := PlaceToSpawnRef.placeatme OESummonDremora5MarkynazMelee1 1
+		ActorRef.setav health 500
+		ActorRef.kill
+		let ActorRef := PlaceToSpawnRef.placeatme OESummonDremora3KynreeveMelee1Add 1
+		ActorRef.setav health 325
+		ActorRef.kill
+		let ActorRef := PlaceToSpawnRef.placeatme OESummonDremora3KynreeveMelee2Add 1
+		ActorRef.setav health 325
+		ActorRef.kill
+		let ActorRef := PlaceToSpawnRef.placeatme OESummonDremora3KynreeveMelee3Add 1
+		ActorRef.setav health 325
+		ActorRef.kill
+		let ActorRef := PlaceToSpawnRef.placeatme OESummonDremora3KynreeveMelee4Add 1
+		ActorRef.setav health 325
+		ActorRef.kill
+	endif
+	;резисты
+	if player.getlevel <= 10
+		set OEActorGlobalNormalResist to 0
+	endif
+	if player.getlevel > 10 && player.getlevel <= 20
+		set OEActorGlobalNormalResist to (player.getlevel - 10) * 5
+	endif
+	if player.getlevel > 20 && player.getlevel <= 30
+		set OEActorGlobalNormalResist to 50 + (player.getlevel - 20) * 1.6
+	endif
+	if player.getlevel > 30 
+		set OEActorGlobalNormalResist to 66.6
+	endif
+	
+	
+	let GroupsArray := ar_construct Array
+	let GroupsArray[0] := ar_construct Array
+	let GroupsArray[1] := ar_construct Array
+	let GroupsArray[2] := ar_construct Array
+	let GroupsArray[3] := ar_construct Array
+	let GroupsArray[4] := ar_construct Array
+	let GroupsArray[5] := ar_construct Array
+	let GroupsArray[6] := ar_construct Array
+	let GroupsArray[7] := ar_construct Array
+	let PackagesArray := ar_construct Array
+	let PackagesArray[0] := OETESTBCMoveToTestPoint0
+	let PackagesArray[1] := OETESTBCMoveToTestPoint1
+	let PackagesArray[2] := OETESTBCMoveToTestPoint2
+	let PackagesArray[3] := OETESTBCMoveToTestPoint3
+	let PackagesArray[4] := OETESTBCMoveToTestPoint4
+	let PackagesArray[5] := OETESTBCMoveToTestPoint5
+	let PackagesArray[6] := OETESTBCMoveToTestPoint6
+	let PackagesArray[7] := OETESTBCMoveToTestPoint7
+	let StatisticArray := ar_construct Array
+	let StatisticArray[0] := ar_construct Array
+	let StatisticArray[1] := ar_construct Array
+	let StatisticArray[2] := ar_construct Array
+	let StatisticArray[3] := ar_construct Array
+	
+	let TestPointsArray := ar_construct Array
+	let TestPointsArray[0] := ar_construct Array
+	let TestPointsArray[0][0] := ar_construct Array
+	let TestPointsArray[0][1] := ar_construct Array
+	let PlaceToSpawnRef := OEBattleChamberPoint0S0
+	let TestPointsArray[0][0][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint0S1
+	let TestPointsArray[0][0][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint0E0
+	let TestPointsArray[0][1][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint0E1
+	let TestPointsArray[0][1][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint0E2
+	let TestPointsArray[0][1][2] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint0E3
+	let TestPointsArray[0][1][3] := PlaceToSpawnRef
+	let TestPointsArray[1] := ar_construct Array
+	let TestPointsArray[1][0] := ar_construct Array
+	let TestPointsArray[1][1] := ar_construct Array
+	let PlaceToSpawnRef := OEBattleChamberPoint1S0
+	let TestPointsArray[1][0][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint1S1
+	let TestPointsArray[1][0][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint1E0
+	let TestPointsArray[1][1][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint1E1
+	let TestPointsArray[1][1][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint1E2
+	let TestPointsArray[1][1][2] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint1E3
+	let TestPointsArray[1][1][3] := PlaceToSpawnRef
+	let TestPointsArray[2] := ar_construct Array
+	let TestPointsArray[2][0] := ar_construct Array
+	let TestPointsArray[2][1] := ar_construct Array
+	let PlaceToSpawnRef := OEBattleChamberPoint2S0
+	let TestPointsArray[2][0][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint2S1
+	let TestPointsArray[2][0][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint2E0
+	let TestPointsArray[2][1][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint2E1
+	let TestPointsArray[2][1][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint2E2
+	let TestPointsArray[2][1][2] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint2E3
+	let TestPointsArray[2][1][3] := PlaceToSpawnRef
+	let TestPointsArray[3] := ar_construct Array
+	let TestPointsArray[3][0] := ar_construct Array
+	let TestPointsArray[3][1] := ar_construct Array
+	let PlaceToSpawnRef := OEBattleChamberPoint3S0
+	let TestPointsArray[3][0][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint3S1
+	let TestPointsArray[3][0][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint3E0
+	let TestPointsArray[3][1][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint3E1
+	let TestPointsArray[3][1][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint3E2
+	let TestPointsArray[3][1][2] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint3E3
+	let TestPointsArray[3][1][3] := PlaceToSpawnRef
+	let TestPointsArray[4] := ar_construct Array
+	let TestPointsArray[4][0] := ar_construct Array
+	let TestPointsArray[4][1] := ar_construct Array
+	let PlaceToSpawnRef := OEBattleChamberPoint4S0
+	let TestPointsArray[4][0][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint4S1
+	let TestPointsArray[4][0][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint4E0
+	let TestPointsArray[4][1][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint4E1
+	let TestPointsArray[4][1][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint4E2
+	let TestPointsArray[4][1][2] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint4E3
+	let TestPointsArray[4][1][3] := PlaceToSpawnRef
+	let TestPointsArray[5] := ar_construct Array
+	let TestPointsArray[5][0] := ar_construct Array
+	let TestPointsArray[5][1] := ar_construct Array
+	let PlaceToSpawnRef := OEBattleChamberPoint5S0
+	let TestPointsArray[5][0][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint5S1
+	let TestPointsArray[5][0][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint5E0
+	let TestPointsArray[5][1][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint5E1
+	let TestPointsArray[5][1][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint5E2
+	let TestPointsArray[5][1][2] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint5E3
+	let TestPointsArray[5][1][3] := PlaceToSpawnRef
+	let TestPointsArray[6] := ar_construct Array
+	let TestPointsArray[6][0] := ar_construct Array
+	let TestPointsArray[6][1] := ar_construct Array
+	let PlaceToSpawnRef := OEBattleChamberPoint6S0
+	let TestPointsArray[6][0][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint6S1
+	let TestPointsArray[6][0][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint6E0
+	let TestPointsArray[6][1][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint6E1
+	let TestPointsArray[6][1][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint6E2
+	let TestPointsArray[6][1][2] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint6E3
+	let TestPointsArray[6][1][3] := PlaceToSpawnRef
+	let TestPointsArray[7] := ar_construct Array
+	let TestPointsArray[7][0] := ar_construct Array
+	let TestPointsArray[7][1] := ar_construct Array
+	let PlaceToSpawnRef := OEBattleChamberPoint7S0
+	let TestPointsArray[7][0][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint7S1
+	let TestPointsArray[7][0][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint7E0
+	let TestPointsArray[7][1][0] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint7E1
+	let TestPointsArray[7][1][1] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint7E2
+	let TestPointsArray[7][1][2] := PlaceToSpawnRef
+	let PlaceToSpawnRef := OEBattleChamberPoint7E3
+	let TestPointsArray[7][1][3] := PlaceToSpawnRef
+;	let TestPointsArray[8] := ar_construct Array
+;	let TestPointsArray[8][0] := ar_construct Array
+;	let TestPointsArray[8][1] := ar_construct Array
+;	let PlaceToSpawnRef := OEBattleChamberPoint8S0
+;	let TestPointsArray[8][0][0] := PlaceToSpawnRef
+;	let PlaceToSpawnRef := OEBattleChamberPoint8S1
+;	let TestPointsArray[8][0][1] := PlaceToSpawnRef
+;	let PlaceToSpawnRef := OEBattleChamberPoint8E0
+;	let TestPointsArray[8][1][0] := PlaceToSpawnRef
+;	let PlaceToSpawnRef := OEBattleChamberPoint8E1
+;	let TestPointsArray[8][1][1] := PlaceToSpawnRef
+;	let PlaceToSpawnRef := OEBattleChamberPoint8E2
+;	let TestPointsArray[8][1][2] := PlaceToSpawnRef
+;	let PlaceToSpawnRef := OEBattleChamberPoint8E3
+;	let TestPointsArray[8][1][3] := PlaceToSpawnRef
+
+
+	
+	let DoOnce := 1
+endif
+
+if OffsetTimer < 10
+	let OffsetTimer := OffsetTimer + getsecondspassed
+	return
+endif
+
+
+;спавн
+let GetSpawned := 0
+let ArrSize1 := ar_size GroupsArray
+let index1 := 0
+while index1 < ArrSize1
+	
+	let ArrSize2 := ar_size GroupsArray[index1]
+	if ArrSize2 == 0 && index1 < SimultaneouslyBattlesMax
+		
+		
+		;let GetSpawned := call OETESTSpawnFightersOnTestPointFScr index1 SummonToSpawnRef EnemyToSpawnRef
+		
+		
+		
+		printc "Спавн актеров в точку %g" index1
+		let GroupsArray[index1][0] := ar_construct Array		;рефы саммонов
+		let GroupsArray[index1][1] := ar_construct Array		;ревы противников
+		let GroupsArray[index1][2] := 0							;изначальное кол-во жизни у каждого саммона
+		let GroupsArray[index1][3] := 0							;изначальное кол-во жизни у каждого противника
+		let GroupsArray[index1][4] := 60						;таймер до удаления группы
+		let PackageRef := PackagesArray[index1]
+		if PlayerLevel == 1 || PlayerLevel == 5
+		
+			let PlaceToSpawnRef := TestPointsArray[index1][0][0]
+			let ActorRef := PlaceToSpawnRef.placeatme SummonToSpawnRef
+			ActorRef.AddScriptPackage PackageRef
+			let GroupsArray[index1][0][0] := ActorRef
+			printc "В %g/0/0 добавлен саммон [%n][%i]" index1 ActorRef ActorRef
+			let PlaceToSpawnRef := TestPointsArray[index1][1][1]
+			let ActorRef := PlaceToSpawnRef.placeatme EnemyToSpawnRef
+			ActorRef.AddScriptPackage PackageRef
+			let GroupsArray[index1][1][0] := ActorRef
+			printc "В %g/1/0 добавлен противник [%n][%i]" index1 ActorRef ActorRef
+		elseif PlayerLevel == 10 || PlayerLevel == 20 || PlayerLevel == 30
+			let PlaceToSpawnRef := TestPointsArray[index1][0][0]
+			let ActorRef := PlaceToSpawnRef.placeatme SummonToSpawnRef
+			ActorRef.AddScriptPackage PackageRef
+			let GroupsArray[index1][0][0] := ActorRef
+			printc "В %g/0/0 добавлен саммон [%n][%i]" index1 ActorRef ActorRef
+			let PlaceToSpawnRef := TestPointsArray[index1][0][1]
+			let ActorRef := PlaceToSpawnRef.placeatme SummonToSpawnRef
+			ActorRef.AddScriptPackage PackageRef
+			let GroupsArray[index1][0][1] := ActorRef
+			printc "В %g/0/1 добавлен саммон [%n][%i]" index1 ActorRef ActorRef
+			if PlayerLevel == 10
+				let PlaceToSpawnRef := TestPointsArray[index1][1][1]
+				let ActorRef := PlaceToSpawnRef.placeatme EnemyToSpawnRef
+				ActorRef.AddScriptPackage PackageRef
+				let GroupsArray[index1][1][0] := ActorRef
+				printc "В %g/1/0 добавлен противник [%n][%i]" index1 ActorRef ActorRef
+				let PlaceToSpawnRef := TestPointsArray[index1][1][2]
+				let ActorRef := PlaceToSpawnRef.placeatme EnemyToSpawnRef
+				ActorRef.AddScriptPackage PackageRef
+				let GroupsArray[index1][1][1] := ActorRef
+				printc "В %g/1/1 добавлен противник [%n][%i]" index1 ActorRef ActorRef
+			elseif PlayerLevel == 20
+				let PlaceToSpawnRef := TestPointsArray[index1][1][0]
+				let ActorRef := PlaceToSpawnRef.placeatme EnemyToSpawnRef
+				ActorRef.AddScriptPackage PackageRef
+				let GroupsArray[index1][1][0] := ActorRef
+				printc "В %g/1/0 добавлен противник [%n][%i]" index1 ActorRef ActorRef
+				let PlaceToSpawnRef := TestPointsArray[index1][1][1]
+				let ActorRef := PlaceToSpawnRef.placeatme EnemyToSpawnRef
+				ActorRef.AddScriptPackage PackageRef
+				let GroupsArray[index1][1][1] := ActorRef
+				printc "В %g/1/1 добавлен противник [%n][%i]" index1 ActorRef ActorRef
+				let PlaceToSpawnRef := TestPointsArray[index1][1][2]
+				let ActorRef := PlaceToSpawnRef.placeatme EnemyToSpawnRef
+				ActorRef.AddScriptPackage PackageRef
+				let GroupsArray[index1][1][2] := ActorRef
+				printc "В %g/1/2 добавлен противник [%n][%i]" index1 ActorRef ActorRef
+			elseif PlayerLevel == 30
+				let PlaceToSpawnRef := TestPointsArray[index1][1][0]
+				let ActorRef := PlaceToSpawnRef.placeatme EnemyToSpawnRef
+				ActorRef.AddScriptPackage PackageRef
+				let GroupsArray[index1][1][0] := ActorRef
+				printc "В %g/1/0 добавлен противник [%n][%i]" index1 ActorRef ActorRef
+				let PlaceToSpawnRef := TestPointsArray[index1][1][1]
+				let ActorRef := PlaceToSpawnRef.placeatme EnemyToSpawnRef
+				ActorRef.AddScriptPackage PackageRef
+				let GroupsArray[index1][1][1] := ActorRef
+				printc "В %g/1/1 добавлен противник [%n][%i]" index1 ActorRef ActorRef
+				let PlaceToSpawnRef := TestPointsArray[index1][1][2]
+				let ActorRef := PlaceToSpawnRef.placeatme EnemyToSpawnRef
+				ActorRef.AddScriptPackage PackageRef
+				let GroupsArray[index1][1][2] := ActorRef
+				printc "В %g/1/2 добавлен противник [%n][%i]" index1 ActorRef ActorRef
+				let PlaceToSpawnRef := TestPointsArray[index1][1][3]
+				let ActorRef := PlaceToSpawnRef.placeatme EnemyToSpawnRef
+				ActorRef.AddScriptPackage PackageRef
+				let GroupsArray[index1][1][3] := ActorRef
+				printc "В %g/1/3 добавлен противник [%n][%i]" index1 ActorRef ActorRef
+			endif
+		endif
+		let GetSpawned := 1
+	endif
+	
+	if GetSpawned == 1
+		break
+	endif
+	let index1 := index1 + 1
+loop
+
+printc "1212"
+printc "StatisticTimer=%f" StatisticTimer
+
+;обработка спавна
+let ArrSize1 := ar_size GroupsArray
+let index1 := 0
+while index1 < ArrSize1
+	
+	let ArrSize2 := ar_size GroupsArray[index1]
+	if ArrSize2 > 0 ;&& index1 == 0
+		let ArrSize2 := ar_size GroupsArray[index1][2]
+		if ArrSize2 < 0
+			if eval(GroupsArray[index1][4]) == 60
+				printc "Первичная обработка актеров в точке %g" index1
+				let ArrSize2 := ar_size GroupsArray[index1][0]
+				let index2 := 0
+				let Health1 := 0
+				if ArrSize2 > 0
+					let GroupsArray[index1][2] := ar_construct Array
+					while index2 < ArrSize2
+						let ActorRef := GroupsArray[index1][0][index2]
+						let GroupsArray[index1][2][index2] := ActorRef.getav health
+						let Health1 := Health1 + GroupsArray[index1][2][index2]
+						let index2 := index2 + 1
+					loop
+				endif
+				let ActorRef2 := ActorRef
+				printc "Переданное значение жизни саммонов - [%g]" Health1
+				let ArrSize2 := ar_size GroupsArray[index1][1]
+				let index2 := 0
+				let Health1 := 0
+				if ArrSize2 > 0
+					let GroupsArray[index1][3] := ar_construct Array
+					while index2 < ArrSize2
+						let ActorRef := GroupsArray[index1][1][index2]
+						let GroupsArray[index1][3][index2] := ActorRef.getav health
+						let Health1 := Health1 + GroupsArray[index1][3][index2]
+						let index2 := index2 + 1
+					loop
+				endif
+				printc "Переданное значение жизни противников - [%g]" Health1
+				
+				if eval(ar_size GroupsArray[index1][1]) == 1
+					let ActorRef := GroupsArray[index1][0][0]
+					let ActorRef2 := GroupsArray[index1][1][0]
+					ActorRef.StartCombat ActorRef2
+					ActorRef2.StartCombat ActorRef
+				elseif eval(ar_size GroupsArray[index1][1]) == 2
+					let ActorRef := GroupsArray[index1][0][0]
+					let ActorRef2 := GroupsArray[index1][1][0]
+					ActorRef.StartCombat ActorRef2
+					ActorRef2.StartCombat ActorRef
+					let ActorRef2 := GroupsArray[index1][1][1]
+					ActorRef2.StartCombat ActorRef
+				elseif eval(ar_size GroupsArray[index1][1]) == 3
+					let ActorRef := GroupsArray[index1][0][0]
+					let ActorRef2 := GroupsArray[index1][1][0]
+					ActorRef.StartCombat ActorRef2
+					ActorRef2.StartCombat ActorRef
+					let ActorRef2 := GroupsArray[index1][1][1]
+					ActorRef2.StartCombat ActorRef
+					let ActorRef := GroupsArray[index1][0][1]
+					let ActorRef2 := GroupsArray[index1][1][2]
+					ActorRef.StartCombat ActorRef2
+					ActorRef2.StartCombat ActorRef
+				elseif eval(ar_size GroupsArray[index1][1]) == 4
+					let ActorRef := GroupsArray[index1][0][0]
+					let ActorRef2 := GroupsArray[index1][1][0]
+					ActorRef.StartCombat ActorRef2
+					ActorRef2.StartCombat ActorRef
+					let ActorRef2 := GroupsArray[index1][1][1]
+					ActorRef2.StartCombat ActorRef
+					let ActorRef := GroupsArray[index1][0][1]
+					let ActorRef2 := GroupsArray[index1][1][2]
+					ActorRef.StartCombat ActorRef2
+					ActorRef2.StartCombat ActorRef
+					let ActorRef2 := GroupsArray[index1][1][3]
+					ActorRef2.StartCombat ActorRef
+				endif
+
+			endif
+		elseif ArrSize2 != 0
+			let GroupsArray[index1][4] += -getsecondspassed
+			
+			;проверка групп - остались ли живы обе стороны
+			printc "Проверка боеспособность сторон точки %g" index1
+			let Health1 := 0
+			let ArrSize2 := ar_size GroupsArray[index1][0]
+			printc "ArrSize2 0 =%g" ArrSize2
+			let index2 := 0
+			while index2 < ArrSize2
+				let ActorRef := GroupsArray[index1][0][index2]
+				printc "ActorRef 0 - [%n][%i]" ActorRef ActorRef
+				if IsFormValid ActorRef == 1
+					let Health1 := Health1 + ActorRef.getav health
+				endif
+				let index2 := index2 + 1
+			loop
+			printc "Health1 0 =%g" Health1
+			if Health1 <= 0
+				let GroupsArray[index1][4] := 0
+				printc "В точке %g не осталось живых саммонов. Обнуление таймера точки %g" index1 index1
+			endif
+			let Health1 := 0
+			let ArrSize2 := ar_size GroupsArray[index1][1]
+			printc "ArrSize2 1 =%g" ArrSize2
+			let index2 := 0
+			while index2 < ArrSize2
+				let ActorRef := GroupsArray[index1][1][index2]
+				printc "ActorRef 1 - [%n][%i]" ActorRef ActorRef
+				if IsFormValid ActorRef == 1
+					let Health1 := Health1 + ActorRef.getav health
+				endif
+				let index2 := index2 + 1
+			loop
+			printc "Health1 1 =%g" Health1
+			if Health1 <= 0
+				let GroupsArray[index1][4] := 0
+				printc "В точке %g не осталось живых противников. Обнуление таймера точки %g" index1 index1
+			endif
+			
+			if eval(GroupsArray[index1][4]) <= 0
+				printc "Окончание цикла в 60 секунд для точки %g, подсчет и сохранение статистики" index1
+				
+				;количество боев
+				let StatisticArray[0][ar_size StatisticArray[0]] := 1
+				printc "Проведен еще один бой"
+				
+				;сила саммонов
+				let ArrSize2 := ar_size GroupsArray[index1][2]
+				let index2 := 0
+				let Health1 := 0
+				while index2 < ArrSize2
+					let Health1 := Health1 + GroupsArray[index1][2][index2]
+					let index2 := index2 + 1
+				loop
+				printc "Изначально у саммонов было [%g] жизни" Health1
+				let index2 := 0
+				let Health2 := 0
+				while index2 < ArrSize2
+					let ActorRef := GroupsArray[index1][0][index2]
+					if ActorRef.getav health > 0
+						let Health2 := Health2 + ActorRef.getav health
+					endif
+					let index2 := index2 + 1
+				loop
+				printc "На момент окончания боя у саммонов есть [%g] жизни" Health2
+				let PowerCoeff := Health2/Health1
+				printc "Относительная сила саммонов равна [%g]" PowerCoeff
+				let StatisticArray[2][ar_size StatisticArray[2]] := PowerCoeff
+				
+				;сила противников
+				let ArrSize2 := ar_size GroupsArray[index1][3]
+				let index2 := 0
+				let Health1 := 0
+				while index2 < ArrSize2
+					let Health1 := Health1 + GroupsArray[index1][3][index2]
+					let index2 := index2 + 1
+				loop
+				printc "Изначально у противников было [%g] жизни" Health1
+				let index2 := 0
+				let Health2 := 0
+				while index2 < ArrSize2
+					let ActorRef := GroupsArray[index1][1][index2]
+					if ActorRef.getav health > 0
+						let Health2 := Health2 + ActorRef.getav health
+					endif
+					let index2 := index2 + 1
+				loop
+				printc "На момент окончания боя у противников есть [%g] жизни" Health2
+				let PowerCoeff := Health2/Health1
+				printc "Относительная сила противников равна [%g]" PowerCoeff
+				let StatisticArray[3][ar_size StatisticArray[3]] := PowerCoeff
+				
+				;количество побед
+				if PowerCoeff == 0
+					let StatisticArray[1][ar_size StatisticArray[1]] := 1
+					printc "Этот бой завершился полной победой саммонов"
+				else
+					let StatisticArray[1][ar_size StatisticArray[1]] := 0
+					printc "Этот бой не завершился победой саммонов"
+				endif
+				
+				;удаление актеров из камеры боя
+				let ArrSize2 := ar_size GroupsArray[index1][0]
+				let index2 := 0
+				while index2 < ArrSize2
+					let ActorRef := GroupsArray[index1][0][index2]
+					if IsFormValid ActorRef == 1
+						printc "Саммон [%n][%i] убивается и перемещается в камеру спавна" ActorRef ActorRef
+						ActorRef.kill
+						ActorRef.call OETESTActorMoveToOESCFScr
+					else
+						printc "Саммон [%n][%i] - невалидный" ActorRef ActorRef
+					endif
+					let index2 := index2 + 1
+				loop
+				let ArrSize2 := ar_size GroupsArray[index1][1]
+				let index2 := 0
+				while index2 < ArrSize2
+					let ActorRef := GroupsArray[index1][1][index2]
+					if IsFormValid ActorRef == 1
+						printc "Противник [%n][%i] убивается и перемещается в камеру спавна" ActorRef ActorRef
+						ActorRef.kill
+						ActorRef.call OETESTActorMoveToOESCFScr
+					else
+						printc "Противник [%n][%i] - невалидный" ActorRef ActorRef
+					endif
+					let index2 := index2 + 1
+				loop
+				resetinterior OESC
+				
+				;обнуление подмассива
+				let GroupsArray[index1] := ar_construct Array
+				printc "Подмассив точки [%g] обнулен" index1
+				
+			endif
+		endif
+	endif
+	let index1 := index1 + 1
+loop
+
+let StatisticTimer := StatisticTimer + getsecondspassed
+if StatisticTimer >= 10
+	let ArrSize1 := ar_size StatisticArray[0]
+	ar_dump StatisticArray[0]
+	ar_dump StatisticArray[1]
+	ar_dump StatisticArray[2]
+	ar_dump StatisticArray[3]
+	if ArrSize1 > 0
+		printc "Промежуточная статистика по эффективности саммона [%n][%i]:" SummonToSpawnRef SummonToSpawnRef
+		
+		
+		let index1 := 0
+		let BattlesCount := 0
+		let VictoryCount := 0
+		let SummonPowerCoef := 0
+		let SummonPowerCoefAverage := 0
+		let EnemyPowerCoef := 0
+		let EnemyPowerCoefAverage := 0
+		while index1 < ArrSize1
+			
+			let ArrSize2 := ar_size StatisticArray
+			let index2 := 0
+			while index2 < ArrSize2
+				
+				if index2 == 0
+					let BattlesCount := BattlesCount + StatisticArray[index2][index1]
+				elseif index2 == 1
+					let IsVictory := StatisticArray[index2][index1]
+					let VictoryCount := VictoryCount + IsVictory
+				elseif index2 == 2
+					let SummonPowerCoef := StatisticArray[index2][index1]
+					let SummonPowerCoefAverage := SummonPowerCoefAverage + SummonPowerCoef
+				elseif index2 == 3
+					let EnemyPowerCoef := StatisticArray[index2][index1]
+					let EnemyPowerCoefAverage := EnemyPowerCoefAverage + EnemyPowerCoef
+				endif
+
+				let index2 := index2 + 1
+			loop
+			printc "[#%g][%g][%f][%f]" BattlesCount IsVictory SummonPowerCoef EnemyPowerCoef
+			
+			let index1 := index1 + 1
+		loop
+		
+		let SummonPowerCoefAverage := SummonPowerCoefAverage/ArrSize1
+		let EnemyPowerCoefAverage := EnemyPowerCoefAverage/ArrSize1
+		
+		printc "Суммарно по всем боям:"
+		printc "[%n]" SummonToSpawnRef
+		printc "[%g][%g][%f][%f]" BattlesCount VictoryCount SummonPowerCoefAverage EnemyPowerCoefAverage
+
+	else
+		printc "Статистики пока нет"
+	endif
+	
+	let StatisticTimer := 0
+endif
+
+if BattlesCount >= BattlesCountMax
+	messageboxex "[%n] [%g][%g][%f][%f]%r%rБои окончены" SummonToSpawnRef BattlesCount VictoryCount SummonPowerCoefAverage EnemyPowerCoefAverage
+else
+	messageex "[%n] [Всего проведено боев - %g][%g][%f][%f]" SummonToSpawnRef BattlesCount VictoryCount SummonPowerCoefAverage EnemyPowerCoefAverage 5
+endif
+
+end

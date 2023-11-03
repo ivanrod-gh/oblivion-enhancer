@@ -1,0 +1,114 @@
+﻿scn OELeveledListExchangeFScr
+
+array_var LeveledListArray
+
+short ArrSize1
+short ArrSize2
+short ArrSize3
+short ArrSize4
+short index1
+short index2
+short index3
+short index4
+short NumLevItems
+short SkipLeveledList
+
+ref LevItemRef
+ref LeveledListRef
+ref LeveledListRef2
+
+begin function {}
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Вызов функции OELeveledListExchangeFScr - замена уровневых списков"
+
+;часть кода пришлось вынести в функцию и выполнять его и после рестарта, и после загрузки сохранения, иначе игра вылетает.
+;это связано с использованием клонированных уровневых листов, но причина вылета непонятна.
+
+;переработка ненормированных уровневых массивов в нормированные и финальное изменение уровневых списков
+let index1 := 0
+let ArrSize1 := ar_size OEInitQ.OELeveledListsMainArray
+while index1 < ArrSize1
+	let SkipLeveledList := OEInitQ.OELeveledListsMainArray[index1][11]
+	if SkipLeveledList != -1
+		
+		;замена уровневого списка нормированным массивом
+		let ArrSize2 := ar_size OEInitQ.OELeveledListsMainArray[index1][2]
+		if ArrSize2 > 0
+			let LeveledListRef := OEInitQ.OELeveledListsMainArray[index1][0]
+			debugprint "Уровневый список [%n][%i] заменяется клонформами из нормированного массива с индексом [%g]" LeveledListRef LeveledListRef index1
+			ClearLeveledList LeveledListRef
+			let index2 := 0
+			while index2 < ArrSize2
+				let ArrSize3 := ar_size OEInitQ.OELeveledListsMainArray[index1][2][index2]
+				if ArrSize3 > 0
+					let index3 := ArrSize3 - 1
+					while index3 >= 0
+						
+						let LevItemRef := OEInitQ.OELeveledListsMainArray[index1][2][index2][index3]
+						AddToLeveledList LeveledListRef LevItemRef index2 1
+
+						let index3 := index3 - 1
+					loop
+				endif
+				let index2 := index2 + 1
+			loop
+			
+			if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+				let NumLevItems := GetNumLevItems LeveledListRef
+				debugprint "Уровневый список [%i] переписан, объектов внутри [%g]" LeveledListRef NumLevItems
+				call OEShowPackedLeveledListByLevelFScr LeveledListRef
+			endif
+			
+			;замена связанных уровневых списков этим же нормированным массивом
+			let ArrSize2 := ar_size OEInitQ.OELeveledListsMainArray[index1][8]
+			if ArrSize2 > 0
+				debugprint "Обнаружены связанные уровневые списки. Они также переписываются нормированным массивом."
+				let index2 := 0
+				while index2 < ArrSize2
+					let LeveledListRef2 := OEInitQ.OELeveledListsMainArray[index1][8][index2]
+					debugprint "Уровневый список [%n][%i] заменяется клонформами из того же нормированного массива" LeveledListRef2 LeveledListRef2
+					ClearLeveledList LeveledListRef2
+					let index3 := 0
+					let ArrSize3 := ar_size OEInitQ.OELeveledListsMainArray[index1][2]
+					while index3 < ArrSize3
+						let ArrSize4 := ar_size OEInitQ.OELeveledListsMainArray[index1][2][index3]
+						if ArrSize4 > 0
+							let index4 := ArrSize4 - 1
+							while index4 >= 0
+								
+								let LevItemRef := OEInitQ.OELeveledListsMainArray[index1][2][index3][index4]
+								AddToLeveledList LeveledListRef2 LevItemRef index3 1
+
+								let index4 := index4 - 1
+							loop
+						endif
+						let index3 := index3 + 1
+					loop
+					
+					if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+						let NumLevItems := GetNumLevItems LeveledListRef2
+						debugprint "Уровневый список [%i] переписан, объектов внутри [%g]" LeveledListRef NumLevItems
+						call OEShowPackedLeveledListByLevelFScr LeveledListRef
+					endif
+					
+					let index2 := index2 + 1
+				loop
+			endif
+		else
+			debugprint "Заменяющий нормированным массив пуст!" LeveledListRef LeveledListRef
+		endif
+	endif
+	let index1 := index1 + 1
+loop
+
+debugprint "Замена всех уровневых списков выполнена"
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

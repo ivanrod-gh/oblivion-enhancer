@@ -1,0 +1,362 @@
+﻿scn OESpawnAdditionalSummonMEScr
+
+short bScaled
+short sRandom
+short randomdice
+short ArrSize
+short ArrSize2
+short EffectIndex
+short index
+short index2
+short SummonAdded
+short DurationTime
+short PlayerFound
+;short ActiveEffectsCount
+;int EffectCode
+
+float fScale
+float fStat
+float DistanceTimer
+
+ref	CasterRef
+ref SummonRef
+ref SpellRef
+;ref SpellRef2
+;ref EffectRef
+ref ActorRef
+;ref REHERef
+ref OESpSummonServantNPCBuffRef
+
+Begin ScriptEffectStart
+
+set CasterRef to GetSelf
+
+;поиск базового саммонера. из-за проблем с агрессией у саммонов актеров не может своих саммонов
+let PlayerFound := 0
+let ArrSize := ar_size OEGlobalWatchQ.OESummonersArray
+let index := 0
+while index < ArrSize
+	let index2 := 0
+	let ArrSize2 := ar_size OEGlobalWatchQ.OESummonersArray[index]
+	while index2 < ArrSize2
+		let ActorRef := OEGlobalWatchQ.OESummonersArray[index][index2][0]
+		if IsFormValid ActorRef == 1
+			if ActorRef == CasterRef
+				let ActorRef := OEGlobalWatchQ.OESummonersArray[index][0][0]
+				if IsFormValid ActorRef == 1
+					if ActorRef == PlayerRef
+						let PlayerFound := 1
+					endif
+				endif
+				break
+			endif
+		endif
+		let index2 := index2 + 1
+	loop
+	let index := index + 1
+loop
+
+
+;базовый саммонер не игрок - нет саммона
+if PlayerFound == 0
+	if getlevel < 20
+		let OESpSummonServantNPCBuffRef := OELpSummonServantNPCBuff01
+	else
+		let OESpSummonServantNPCBuffRef := OELpSummonServantNPCBuff02
+	endif
+	OECaster.moveto CasterRef 0 0 150
+	OECaster.Cast OESpSummonServantNPCBuffRef CasterRef
+	return
+;elseif PlayerFound == 1
+	;заменено на внешний каст для НПС из-за своеобразной реакции на заклинание с хилом
+;	let REHERef := MagicEffectFromChars REHE
+;	let EffectIndex := GetScriptActiveEffectIndex
+;	let SpellRef := CasterRef.GetNthActiveEffectMagicItem EffectIndex
+;	let ActiveEffectsCount := CasterRef.GetActiveEffectCount
+;	let index := ActiveEffectsCount - 1
+;	while index >= 0
+;		let SpellRef2 := CasterRef.GetNthActiveEffectMagicItem index
+;		if SpellRef == SpellRef2
+;			let EffectCode := GetNthActiveEffectCode index
+;			let EffectRef := MagicEffectFromCode EffectCode
+;			if REHERef == EffectRef
+;				;если базовый кастер - игрок, то развеивает эффект лечения и дает заспавнить саммона
+;				;лечение здесь - замена дополнительного саммона для актеров
+;				CasterRef.DispelNthActiveEffect index
+;				break
+;			endif
+;		endif
+;		let index := index - 1
+;	loop
+endif
+
+;нельзя саммонить в воде!
+if CasterRef.IsSwimming == 1
+	let EffectIndex := GetScriptActiveEffectIndex
+	let SpellRef := CasterRef.GetNthActiveEffectMagicItem EffectIndex
+	CasterRef.Dispel SpellRef
+	CasterRef.ModAV2 magicka -1000	;пресекает дальнейшие попытки саммонить в воде. минус - при этом режет способность кастовать
+	return
+endif
+
+;;;реф саммона
+if GetIsId OESummonSkeleton4Champion
+	set SummonRef to CasterRef.PlaceAtMe OESummonSkeleton2GuardianAdd, 1, 220, 0
+endif
+if GetIsId OESummonSkeleton5Overlord
+	set SummonRef to CasterRef.PlaceAtMe OESummonSkeleton3HeroAdd, 1, 220, 0
+endif
+if GetIsId OESummonZombie4Flame
+	set SummonRef to CasterRef.PlaceAtMe OESummonZombie2HeadlessAdd, 1, 220, 0
+endif
+if GetIsId OESummonZombie5Overlord
+	set SummonRef to CasterRef.PlaceAtMe OESummonZombie3BurntAdd, 1, 220, 0
+endif
+if GetIsId OESummonDremora4KynmarcherMelee1 || GetIsId OESummonDremora4KynmarcherMelee2 || GetIsId OESummonDremora4KynmarcherMelee3 || GetIsId OESummonDremora4KynmarcherMelee4
+	set randomdice to rand 1, 4.99
+	if randomdice == 1
+		set SummonRef to CasterRef.PlaceAtMe OESummonDremora2KynvalMelee1Add, 1, 220, 0
+	elseif randomdice == 2
+		set SummonRef to CasterRef.PlaceAtMe OESummonDremora2KynvalMelee2Add, 1, 220, 0
+	elseif randomdice == 3
+		set SummonRef to CasterRef.PlaceAtMe OESummonDremora2KynvalMelee3Add, 1, 220, 0
+	elseif randomdice == 4
+		set SummonRef to CasterRef.PlaceAtMe OESummonDremora2KynvalMelee4Add, 1, 220, 0
+	endif
+endif
+if GetIsId OESummonDremora5MarkynazMelee1 || GetIsId OESummonDremora5MarkynazMelee2 || GetIsId OESummonDremora5MarkynazMelee3 || GetIsId OESummonDremora5MarkynazMelee4
+	set randomdice to rand 1, 4.99
+	if randomdice == 1
+		set SummonRef to CasterRef.PlaceAtMe OESummonDremora3KynreeveMelee1Add, 1, 220, 0
+	elseif randomdice == 2
+		set SummonRef to CasterRef.PlaceAtMe OESummonDremora3KynreeveMelee2Add, 1, 220, 0
+	elseif randomdice == 3
+		set SummonRef to CasterRef.PlaceAtMe OESummonDremora3KynreeveMelee3Add, 1, 220, 0
+	elseif randomdice == 4
+		set SummonRef to CasterRef.PlaceAtMe OESummonDremora3KynreeveMelee4Add, 1, 220, 0
+	endif
+endif
+
+;передача в OESummonersArray нового саммона, призвавшего его саммонера и времени действия эффекта призыва
+let ArrSize := ar_size OEGlobalWatchQ.OESummonersArray
+let index := 0
+let SummonAdded := 0
+while index < ArrSize && SummonAdded == 0
+	;саммонером может быть любой актер, не только из ячейки [0]
+	let index2 := 0
+	let ArrSize2 := ar_size OEGlobalWatchQ.OESummonersArray[index]
+	while index2 < ArrSize2
+		let ActorRef := OEGlobalWatchQ.OESummonersArray[index][index2][0]
+		if IsFormValid ActorRef == 1
+			if ActorRef == CasterRef
+				let OEGlobalWatchQ.OESummonersArray[index][ArrSize2] := ar_construct Array
+				let OEGlobalWatchQ.OESummonersArray[index][ArrSize2][0] := SummonRef
+				let OEGlobalWatchQ.OESummonersArray[index][ArrSize2][1] := CasterRef
+				let EffectIndex := GetScriptActiveEffectIndex
+				let DurationTime := CasterRef.GetNthActiveEffectDuration EffectIndex
+				let OEGlobalWatchQ.OESummonersArray[index][ArrSize2][2] := DurationTime
+				let OEGlobalWatchQ.OESummonersArray[index][ArrSize2][2] += 3
+				
+				;выдача пакета следования для саммона саммона, если хозяин группы - игрок
+				;саммон сопровождает вызвавшего, если вызвавший - игрок. Скриптовый пакет выдается рефу, не базе
+				let ActorRef := OEGlobalWatchQ.OESummonersArray[index][0][0]
+				if IsFormValid ActorRef == 1
+					if ActorRef == PlayerRef
+						SummonRef.AddScriptPackage OESummonFollow2
+					endif
+				endif
+				
+				let SummonAdded := 1
+				break
+			endif
+		endif
+		let index2 := index2 + 1
+	loop
+	let index := index + 1
+loop
+if SummonAdded == 0
+	let OEGlobalWatchQ.OESummonersArray[ArrSize] := ar_construct Array
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][0] := ar_construct Array
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][1] := ar_construct Array
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][0][0] := CasterRef
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][1][0] := SummonRef
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][1][1] := CasterRef
+	let EffectIndex := GetScriptActiveEffectIndex
+	let DurationTime := CasterRef.GetNthActiveEffectDuration EffectIndex
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][1][2] := DurationTime
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][1][2] += 3
+endif
+
+if bScaled == 0
+	set sRandom to GetRandomPercent
+	if SummonRef.GetIsCreature == 1
+		set fScale to (sRandom / 250) + 0.85
+		SummonRef.SetScale fScale
+	endif
+	set fStat to ((sRandom / 120) - 0.33) * (GetAV health)
+	SummonRef.ModAV health fStat
+	set fStat to ((sRandom / 120) - 0.33) * (GetAV fatigue)
+	SummonRef.ModAV fatigue fStat
+	set fStat to ((sRandom / 120) - 0.33) * (GetAV magicka)
+	SummonRef.ModAV magicka fStat
+	set fStat to (sRandom / 5) - 10
+	SummonRef.ModAV strength fStat
+	set fStat to (sRandom / 5) - 10
+	SummonRef.ModAV intelligence fStat
+	set fStat to (sRandom / 5) - 10
+	SummonRef.ModAV willpower fStat
+	set fStat to (sRandom / 5) - 10
+	SummonRef.ModAV agility fStat
+	set bScaled to 1
+endif
+
+end
+
+Begin ScriptEffectUpdate
+
+if IsFormValid SummonRef == 0 || IsFormValid CasterRef == 0
+	return
+endif
+
+;саммон убивается, если он где-нибудь потерялся или убежал слишком далеко
+if SummonRef.GetDistance CasterRef >= 6000
+	let DistanceTimer := DistanceTimer + getsecondspassed
+	if DistanceTimer > 10
+		SummonRef.kill
+	endif
+else
+	let DistanceTimer := 0
+endif
+
+;если саммон мертв - развеять заклинание вызова
+if SummonRef.GetDead == 1 	
+	let EffectIndex := GetScriptActiveEffectIndex
+	let SpellRef := CasterRef.GetNthActiveEffectMagicItem EffectIndex
+	CasterRef.Dispel SpellRef
+	return
+endif
+
+end
+
+Begin ScriptEffectFinish
+;срабатывает по окончанию действия эффекта и только при живом актере
+;при переходе между локациями этот скрипт (а он висит на саммоне с функциями саммонера) ТЕРЯЕТ значения
+;всех переменных и более НЕ выполняет ScriptEffectFinish
+
+if IsFormValid SummonRef == 0
+	return
+endif
+
+if SummonRef.GetDead == 0
+	if SummonRef.getitemcount OEDispelAllSpellsAndKillToken == 0
+		SummonRef.additem OEDispelAllSpellsAndKillToken 1
+	endif
+endif
+
+end
+
+;скрипт для использования в боевой камере
+;scn OESpawnAdditionalSummonMEScr
+;
+;ref CasterRef
+;ref SummonRef
+;ref SpellRef
+;ref ActorRef
+;
+;short bScaled
+;short sRandom
+;short randomdice
+;short ArrSize
+;short ArrSize2
+;short EffectIndex
+;short index
+;short index2
+;short SummonAdded
+;short DurationTime
+;float fScale
+;float fStat
+;float DistanceTimer
+;
+;Begin ScriptEffectStart
+;
+;printc "OESpawnAdditionalSummonMEScr ScriptEffectStart start"
+;
+;set CasterRef to GetSelf
+;
+;;нельзя саммонить в воде!
+;if CasterRef.IsSwimming == 1
+;	let EffectIndex := GetScriptActiveEffectIndex
+;	let SpellRef := CasterRef.GetNthActiveEffectMagicItem EffectIndex
+;	CasterRef.Dispel SpellRef
+;	CasterRef.ModAV2 magicka -1000	;пресекает дальнейшие попытки саммонить в воде. минус - при этом режет способность кастовать
+;	return
+;endif
+;
+;;;;реф саммона
+;if GetIsId OESummonSkeleton4Champion
+;	set SummonRef to CasterRef.PlaceAtMe OESummonSkeleton2GuardianAdd, 1, 220, 0
+;endif
+;if GetIsId OESummonSkeleton5Overlord
+;	set SummonRef to CasterRef.PlaceAtMe OESummonSkeleton3HeroAdd, 1, 220, 0
+;endif
+;if GetIsId OESummonZombie4Flame
+;	set SummonRef to CasterRef.PlaceAtMe OESummonZombie2HeadlessAdd, 1, 220, 0
+;endif
+;if GetIsId OESummonZombie5Overlord
+;	set SummonRef to CasterRef.PlaceAtMe OESummonZombie3BurntAdd, 1, 220, 0
+;endif
+;;if GetIsId OESummonDaedroth4
+;;	set SummonRef to CasterRef.PlaceAtMe OESummonClannfear3Add, 1, 220, 0
+;;endif
+;;	if GetIsId OESummonSpiderDaedra4
+;;		set SummonRef to CasterRef.PlaceAtMe OEHungerBlack3Add, 1, 220, 0
+;;	endif
+;;if GetIsId OESummonXivilai5
+;;	set SummonRef to CasterRef.PlaceAtMe OESummonClannfear4Add, 1, 220, 0
+;;endif
+;if GetIsId OESummonDremora4KynmarcherMelee1 || GetIsId OESummonDremora4KynmarcherMelee2 || GetIsId OESummonDremora4KynmarcherMelee3 || GetIsId OESummonDremora4KynmarcherMelee4
+;	set randomdice to rand 1, 4.99
+;	if randomdice == 1
+;		set SummonRef to CasterRef.PlaceAtMe OESummonDremora2KynvalMelee1Add, 1, 220, 0
+;	elseif randomdice == 2
+;		set SummonRef to CasterRef.PlaceAtMe OESummonDremora2KynvalMelee2Add, 1, 220, 0
+;	elseif randomdice == 3
+;		set SummonRef to CasterRef.PlaceAtMe OESummonDremora2KynvalMelee3Add, 1, 220, 0
+;	elseif randomdice == 4
+;		set SummonRef to CasterRef.PlaceAtMe OESummonDremora2KynvalMelee4Add, 1, 220, 0
+;	endif
+;endif
+;if GetIsId OESummonDremora5MarkynazMelee1 || GetIsId OESummonDremora5MarkynazMelee2 || GetIsId OESummonDremora5MarkynazMelee3 || GetIsId OESummonDremora5MarkynazMelee4
+;	set randomdice to rand 1, 4.99
+;	if randomdice == 1
+;		set SummonRef to CasterRef.PlaceAtMe OESummonDremora3KynreeveMelee1Add, 1, 220, 0
+;	elseif randomdice == 2
+;		set SummonRef to CasterRef.PlaceAtMe OESummonDremora3KynreeveMelee2Add, 1, 220, 0
+;	elseif randomdice == 3
+;		set SummonRef to CasterRef.PlaceAtMe OESummonDremora3KynreeveMelee3Add, 1, 220, 0
+;	elseif randomdice == 4
+;		set SummonRef to CasterRef.PlaceAtMe OESummonDremora3KynreeveMelee4Add, 1, 220, 0
+;	endif
+;endif
+;
+;
+;SummonRef.SetFactionRank playerfaction 0
+;
+;printc "OESpawnAdditionalSummonMEScr ScriptEffectStart finish CasterRef=%n %i" CasterRef CasterRef
+;
+;end
+;
+;Begin ScriptEffectFinish
+;;срабатывает по окончанию действия эффекта и только при живом актере
+;;при переходе между локациями этот скрипт (а он висит на саммоне с функциями саммонера) ТЕРЯЕТ значения
+;;всех переменных и более НЕ выполняет ScriptEffectFinish
+;
+;if IsFormValid SummonRef == 0
+;	return
+;endif
+;
+;if SummonRef.GetDead == 0 
+;	SummonRef.Kill
+;endif
+;
+;end

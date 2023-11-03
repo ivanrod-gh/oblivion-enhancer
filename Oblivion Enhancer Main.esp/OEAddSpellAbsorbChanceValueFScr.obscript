@@ -1,0 +1,102 @@
+﻿scn OEAddSpellAbsorbChanceValueFScr
+
+ref ScriptTarget
+
+short SpellAbsorbChance100TokenCount
+short MaximumSpellAbsorbChanceTokenCount
+
+short SpellAbsorbChanceLowTokenCount
+short SpellAbsorbChanceMidTokenCount
+short SpellAbsorbChanceHighTokenCount
+
+short ActorHasSpellAbsorbChance100
+short ActorHasMaximumSpellAbsorbChance
+
+float SpellAbsorbChancemagsum
+
+float SpellAbsorbChanceMod
+float SpellAbsorbChanceNormal
+float SpellAbsorbChanceExisted
+
+float SpellAbsorbChancenew
+
+begin function { ScriptTarget }
+
+set SpellAbsorbChancemagsum to ScriptTarget.GetTotalAEAbilityMagnitude SABS  + ScriptTarget.GetTotalAELesserPowerMagnitude SABS + ScriptTarget.GetTotalAEPowerMagnitude SABS
+
+
+set SpellAbsorbChance100TokenCount to ScriptTarget.getitemcount OESpellAbsorb100Token
+set MaximumSpellAbsorbChanceTokenCount to ScriptTarget.getitemcount OESpellAbsorbMaximumToken
+if SpellAbsorbChancemagsum >= 100
+	;debugprint "У актера [%n] есть 100-процентное поглощение заклинаний" ScriptTarget
+	set ActorHasSpellAbsorbChance100 to 1
+elseif SpellAbsorbChance100TokenCount > 0
+	;debugprint "У актера [%n] есть токен на 100-процентное поглощение заклинаний" ScriptTarget
+	set ActorHasSpellAbsorbChance100 to 1
+elseif MaximumSpellAbsorbChanceTokenCount > 0
+	;debugprint "У актера [%n] есть токен на максимальное поглощение заклинаний" ScriptTarget
+	set ActorHasMaximumSpellAbsorbChance to 1
+endif
+
+if ActorHasMaximumSpellAbsorbChance == 1
+	set SpellAbsorbChanceMod to OEActorSpellAbsorbChanceMax
+	;debugprint "Актер [%n], SpellAbsorbChanceMod = %g" ScriptTarget SpellAbsorbChanceMod
+elseif ActorHasSpellAbsorbChance100 == 1
+	set SpellAbsorbChanceMod to 200
+	;debugprint "Актер [%n], SpellAbsorbChanceMod = %g" ScriptTarget SpellAbsorbChanceMod
+elseif ActorHasSpellAbsorbChance100 == 0 && ActorHasMaximumSpellAbsorbChance == 0
+	set SpellAbsorbChanceNormal to ScriptTarget.GetTotalActiveEffectMagnitude SABS
+	;debugprint "Актер [%n], SpellAbsorbChanceNormal до диминишинга = %g" ScriptTarget SpellAbsorbChanceNormal
+	
+	if SpellAbsorbChanceNormal <= 50
+		set SpellAbsorbChanceMod to SpellAbsorbChanceNormal
+	elseif SpellAbsorbChanceNormal > 50 && SpellAbsorbChanceNormal <= 100
+		set SpellAbsorbChanceMod to ( SpellAbsorbChanceNormal - 50  ) / 2 + 50
+	elseif SpellAbsorbChanceNormal > 100 && SpellAbsorbChanceNormal <= 200
+		set SpellAbsorbChanceMod to ( SpellAbsorbChanceNormal - 100 ) / 8 + 75
+	elseif SpellAbsorbChanceNormal > 200 && SpellAbsorbChanceNormal <= 600
+		set SpellAbsorbChanceMod to ( SpellAbsorbChanceNormal - 200 ) / 32 + 87.5
+	elseif SpellAbsorbChanceNormal > 600
+		set SpellAbsorbChanceMod to 100
+	endif
+	if SpellAbsorbChanceMod > OEActorSpellAbsorbChanceMax
+		set SpellAbsorbChanceMod to OEActorSpellAbsorbChanceMax
+	endif
+	
+	set SpellAbsorbChanceNormal to SpellAbsorbChanceMod					;теперь нормальным значением сопротивления является такое, которое прошло через диминишинг
+	
+	set SpellAbsorbChanceLowTokenCount to ScriptTarget.getitemcount OESpellAbsorbLowToken
+	set SpellAbsorbChanceMidTokenCount to ScriptTarget.getitemcount OESpellAbsorbMidToken
+	set SpellAbsorbChanceHighTokenCount to ScriptTarget.getitemcount OESpellAbsorbHighToken
+	
+	if SpellAbsorbChanceLowTokenCount > 0
+		set SpellAbsorbChanceMod to SpellAbsorbChanceMod + (OEActorSpellAbsorbChanceMax - SpellAbsorbChanceMod) / 3
+	elseif SpellAbsorbChanceMidTokenCount > 0
+		set SpellAbsorbChanceMod to SpellAbsorbChanceMod + (OEActorSpellAbsorbChanceMax - SpellAbsorbChanceMod) / 4
+	elseif 	SpellAbsorbChanceHighTokenCount > 0
+		set SpellAbsorbChanceMod to SpellAbsorbChanceMod + (OEActorSpellAbsorbChanceMax - SpellAbsorbChanceMod) / 2
+	endif
+
+	;debugprint "Актер [%n], SpellAbsorbChanceMod = %g, SpellAbsorbChanceNormal = %g" ScriptTarget SpellAbsorbChanceMod SpellAbsorbChanceNormal
+
+	;if SpellAbsorbChanceMod < SpellAbsorbChanceNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
+	;	set SpellAbsorbChanceMod to SpellAbsorbChanceNormal
+	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, SpellAbsorbChanceMod = %g" ScriptTarget SpellAbsorbChanceMod
+	;endif
+endif
+
+set SpellAbsorbChanceMod to SpellAbsorbChanceMod - ScriptTarget.getbaseav SpellAbsorbChance; - ScriptTarget.GetAVModC 61 script
+ScriptTarget.SetAVModC 52 max SpellAbsorbChanceMod
+set SpellAbsorbChanceExisted to ScriptTarget.getav SpellAbsorbChance
+
+;debugprint "Актер [%n], назначенное значение  SpellAbsorbChanceMod = %g, SpellAbsorbChanceExisted = %g" ScriptTarget SpellAbsorbChanceMod SpellAbsorbChanceExisted
+
+
+set SpellAbsorbChancenew to SpellAbsorbChanceExisted
+;debugprint "Вывод переменной SpellAbsorbChancenew = %g из функции обратно в скрипт" SpellAbsorbChancenew
+SetFunctionValue SpellAbsorbChancenew
+
+;debugprint "конец функции"
+
+
+end

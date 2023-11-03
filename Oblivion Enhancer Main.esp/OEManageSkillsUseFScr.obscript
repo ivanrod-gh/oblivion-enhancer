@@ -1,0 +1,123 @@
+﻿scn OEManageSkillsUseFScr
+
+float UseValue
+
+begin function {}
+
+;переназначение скорости роста навыков игрока
+;оружейник
+let UseValue := GetSkillUseIncrementC 12 0
+let UseValue := UseValue*OESkillArmorerUse0
+SetSkillUseIncrementC UseValue 12 0
+;атлетика
+let UseValue := GetSkillUseIncrementC 13 0
+let UseValue := UseValue*OESkillAthleticsUse0
+SetSkillUseIncrementC UseValue 13 0
+let UseValue := GetSkillUseIncrementC 13 1
+let UseValue := UseValue*OESkillAthleticsUse1
+SetSkillUseIncrementC UseValue 13 1
+;клинки
+let UseValue := GetSkillUseIncrementC 14 0
+let UseValue := UseValue*OESkillBladeUse0
+SetSkillUseIncrementC UseValue 14 0
+;блокирование
+let UseValue := GetSkillUseIncrementC 15 0
+let UseValue := UseValue*OESkillBlockUse0
+SetSkillUseIncrementC UseValue 15 0
+;дробящ. оружие
+let UseValue := GetSkillUseIncrementC 16 0
+let UseValue := UseValue*OESkillBluntUse0
+SetSkillUseIncrementC UseValue 16 0
+;рукопашный бой
+let UseValue := GetSkillUseIncrementC 17 0
+let UseValue := UseValue*OESkillHandToHandUse0
+SetSkillUseIncrementC UseValue 17 0
+;тяжелые доспехи
+let UseValue := GetSkillUseIncrementC 18 0
+let UseValue := UseValue*OESkillHeavyArmorUse0
+SetSkillUseIncrementC UseValue 18 0
+;алхимия
+let UseValue := GetSkillUseIncrementC 19 0
+let UseValue := UseValue*OESkillAlchemyUse0
+SetSkillUseIncrementC UseValue 19 0
+let UseValue := GetSkillUseIncrementC 19 1
+let UseValue := UseValue*OESkillAlchemyUse1
+SetSkillUseIncrementC UseValue 19 1
+;изменение
+let UseValue := GetSkillUseIncrementC 20 0
+let UseValue := UseValue*OESkillAlterationUse0
+SetSkillUseIncrementC UseValue 20 0
+let UseValue := GetSkillUseIncrementC 20 1
+let UseValue := UseValue*OESkillAlterationUse1
+SetSkillUseIncrementC UseValue 20 1
+;колдовство
+let UseValue := GetSkillUseIncrementC 21 0
+let UseValue := UseValue*OESkillConjurationUse0
+SetSkillUseIncrementC UseValue 21 0
+let UseValue := GetSkillUseIncrementC 21 1
+let UseValue := UseValue*OESkillConjurationUse1
+SetSkillUseIncrementC UseValue 21 1
+;разрушение
+let UseValue := GetSkillUseIncrementC 22 0
+let UseValue := UseValue*OESkillDestructionUse0
+SetSkillUseIncrementC UseValue 22 0
+let UseValue := GetSkillUseIncrementC 22 1
+let UseValue := UseValue*OESkillDestructionUse1
+SetSkillUseIncrementC UseValue 22 1
+;иллюзия
+let UseValue := GetSkillUseIncrementC 23 0
+let UseValue := UseValue*OESkillIllusionUse0
+SetSkillUseIncrementC UseValue 23 0
+let UseValue := GetSkillUseIncrementC 23 1
+let UseValue := UseValue*OESkillIllusionUse1
+SetSkillUseIncrementC UseValue 23 1
+;мистицизм
+let UseValue := GetSkillUseIncrementC 24 0
+let UseValue := UseValue*OESkillMysticismUse0
+SetSkillUseIncrementC UseValue 24 0
+let UseValue := GetSkillUseIncrementC 24 1
+let UseValue := UseValue*OESkillMysticismUse1
+SetSkillUseIncrementC UseValue 24 1
+;восстановление
+let UseValue := GetSkillUseIncrementC 25 0
+let UseValue := UseValue*OESkillRestorationUse0
+SetSkillUseIncrementC UseValue 25 0
+let UseValue := GetSkillUseIncrementC 25 1
+let UseValue := UseValue*OESkillRestorationUse1
+SetSkillUseIncrementC UseValue 25 1
+;акробатика
+let UseValue := GetSkillUseIncrementC 26 0
+let UseValue := UseValue*OESkillAcrobaticsUse0
+SetSkillUseIncrementC UseValue 26 0
+let UseValue := GetSkillUseIncrementC 26 1
+let UseValue := UseValue*OESkillAcrobaticsUse1
+SetSkillUseIncrementC UseValue 26 1
+;легкие доспехи
+let UseValue := GetSkillUseIncrementC 27 0
+let UseValue := UseValue*OESkillLightArmorUse0
+SetSkillUseIncrementC UseValue 27 0
+;стрельба
+let UseValue := GetSkillUseIncrementC 28 0
+let UseValue := UseValue*OESkillMarksmanUse0
+SetSkillUseIncrementC UseValue 28 0
+;торговля
+let UseValue := GetSkillUseIncrementC 29 0
+let UseValue := UseValue*OESkillMercantileUse0
+SetSkillUseIncrementC UseValue 29 0
+;взлом
+let UseValue := GetSkillUseIncrementC 30 0
+let UseValue := UseValue*OESkillSecurityUse0
+SetSkillUseIncrementC UseValue 30 0
+;скрытность
+let UseValue := GetSkillUseIncrementC 31 0
+let UseValue := UseValue*OESkillSneakUse0
+SetSkillUseIncrementC UseValue 31 0
+let UseValue := GetSkillUseIncrementC 31 1
+let UseValue := UseValue*OESkillSneakUse1
+SetSkillUseIncrementC UseValue 31 1
+;красноречие
+let UseValue := GetSkillUseIncrementC 32 0
+let UseValue := UseValue*OESkillSpeechcraftUse0
+SetSkillUseIncrementC UseValue 32 0
+
+end

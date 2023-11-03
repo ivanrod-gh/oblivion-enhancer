@@ -1,0 +1,79 @@
+﻿scn OEKSECheckAllowedMGEFFScr
+
+array_var ArrayElem
+
+ref EffectRef
+ref ScriptRef
+ref RestrictedEffectRef
+
+short MGEFIsAllowed
+short SourceModIndex
+short NameCount
+
+string_var AllowedScriptId
+string_var ScriptRefId
+string_var ModNameWithExtention
+
+Begin Function { EffectRef, ScriptRef }
+
+if OEKSEInitQ.OEKSECheckAllowedMGEFFScrDebugMode == 1
+	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+endif
+
+if ScriptRef == 0
+	debugprint "Запрос проверки на допустимость усиления эффекта [%n][%i]" EffectRef EffectRef
+else
+	debugprint "Запрос проверки на допустимость усиления эффекта [%n][%i], [%n][%i]" EffectRef EffectRef ScriptRef ScriptRef
+endif
+
+let MGEFIsAllowed := 0
+foreach ArrayElem <- OEKSEInitQ.OEKSERestrictedMGEFArray
+	let RestrictedEffectRef := OEKSEInitQ.OEKSERestrictedMGEFArray[#ArrayElem["key"]]
+	if EffectRef == RestrictedEffectRef
+		debugprint "Эффект [%n][%i] найден в списке недопустимых к усилению" EffectRef EffectRef
+		let MGEFIsAllowed := -1
+		break
+	endif
+loop
+if MGEFIsAllowed != -1
+	let MGEFIsAllowed := 1
+endif
+if eval(GetMagicEffectChars EffectRef == "SEFF")
+	let SourceModIndex := GetSourceModIndex ScriptRef
+	let ModNameWithExtention := GetNthModName SourceModIndex
+	let NameCount := sv_Count "Oblivion Enhancer Main" ModNameWithExtention
+	if NameCount == 1
+		let ScriptRefId := GetRawFormIdString ScriptRef
+		foreach ArrayElem <- OEKSEInitQ.OEKSEAllowedScriptEffectsArray
+			let AllowedScriptId := OEKSEInitQ.OEKSEAllowedScriptEffectsArray[#ArrayElem["key"]]
+			if eval(sv_Count $AllowedScriptId ScriptRefId == 1)
+				debugprint "Запрещеный к усилению скрипт-эффект [%n][%i], [%n][%i] найден в списке допустимых к усилению скриптов" EffectRef EffectRef ScriptRef ScriptRef
+				let MGEFIsAllowed := 1
+				break
+			endif
+		loop
+	endif
+	sv_destruct AllowedScriptId ScriptRefId ModNameWithExtention
+endif
+
+if MGEFIsAllowed == -1
+	if ScriptRef == 0
+		debugprint "Эффект [%n][%i] недопустимо усиливать" EffectRef EffectRef
+	else
+		debugprint "Эффект [%n][%i], [%n][%i] недопустимо усиливать" EffectRef EffectRef ScriptRef ScriptRef
+	endif
+elseif MGEFIsAllowed == 1
+	if ScriptRef == 0
+		debugprint "Эффект [%n][%i] допустимо усиливать" EffectRef EffectRef
+	else
+		debugprint "Эффект [%n][%i], [%n][%i] допустимо усиливать" EffectRef EffectRef ScriptRef ScriptRef
+	endif
+endif
+
+SetFunctionValue MGEFIsAllowed	;1 разрешен, -1 запрещен
+
+if OEKSEInitQ.OEKSECheckAllowedMGEFFScrDebugMode == 1
+	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+endif
+
+End

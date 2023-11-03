@@ -1,0 +1,32 @@
+﻿scn OEKSEGetActorFatigueRatio
+
+float FatigueRatio
+float FatigueMax
+
+ref Self
+
+begin function {}
+
+let Self := GetSelf
+
+if Self == 0 || IsFormValid Self == 0 || GetDead == 1 || GetDisabled == 1
+	SetFunctionValue 1
+	return
+endif
+
+;отказ от script и max даст возможность актерам с повышенным значением запаса сил восстанавливаться
+;до FatigueRatio = 1 быстрее, но не мгновенно
+let FatigueMax := getbaseav fatigue ;+ GetAVMod fatigue script + GetAVMod fatigue max
+if FatigueMax != 0
+	let FatigueRatio := ( getav fatigue / FatigueMax + 1 ) / 2
+endif
+
+if FatigueRatio < 0.5
+	let FatigueRatio := 0.5
+elseif FatigueRatio > 1
+	let FatigueRatio := 1
+endif
+
+SetFunctionValue FatigueRatio
+
+end

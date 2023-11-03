@@ -1,0 +1,75 @@
+﻿scn OEGlobalVariablesUpdateQScr
+
+float fQuestDelayTime
+
+short OEQuestLocked
+short OETrainingCostDiff
+float OETimer
+
+Begin gamemode
+
+set fQuestDelayTime to 1
+
+let OETimer := OETimer + getsecondspassed
+
+if GetGameLoaded || GetGameRestarted
+	let OEQuestLocked := -1
+endif
+if OEQuestLocked != 0
+	if OEInitQ.OEInitializationCount > 0
+		set OEInitQ.OEInitializationCount to OEInitQ.OEInitializationCount - 1
+		set OEQuestLocked to 0
+		;debugprintc "Квест GlobalVariablesUpdateQuest инициализирован" OEQuestLocked
+	else	
+		;debugprintc "OEQuestLocked = %g, квест GlobalVariablesUpdateQuest не инициализирован" OEQuestLocked
+		return
+	endif
+endif
+
+if OETimer > 60
+	;срабатывает раз в 60 секунд, предотвращает неправильные настройки, если долго нет GetGameLoaded/GetGameRestarted
+	;блок глобальных переменных мода
+	;вне ini
+	if OETokensQ.GLOBALKeaSettingMagicSystem == 1
+		if player.getlevel < 10
+			let OEActorGlobalNormalResist := 0
+		elseif player.getlevel < 20
+			let OEActorGlobalNormalResist := (player.getlevel - 10) * 3.3
+		elseif player.getlevel < 30
+			let OEActorGlobalNormalResist := 33 + (player.getlevel - 20) * 1.7
+		else
+			let OEActorGlobalNormalResist := 50
+		endif
+	elseif OETokensQ.GLOBALKeaSettingMagicSystem == 0
+		let OEActorGlobalNormalResist := 0
+	endif
+	;блок глобальных переменных мода
+	
+	;блок глобальных переменных игры (GMST)
+	;стоимость обучения
+	if OETrainingCost == 1
+		if player.getlevel < 20
+			let OETrainingCostDiff := OEInitQ.OETrainingCostMultDefault + (player.getlevel-1)*(90/19)*OETrainingCostMod
+			SetNumericGameSetting fTrainingCostMult OETrainingCostDiff
+		else
+			let OETrainingCostDiff := OEInitQ.OETrainingCostMultDefault + 90*OETrainingCostMod
+			SetNumericGameSetting fTrainingCostMult OETrainingCostDiff
+		endif
+	endif
+	
+	let OEInitQ.GSiSoulLevelValuePetty := GetGS iSoulLevelValuePetty
+	let OEInitQ.GSiSoulLevelValueLesser := GetGS iSoulLevelValueLesser
+	let OEInitQ.GSiSoulLevelValueCommon := GetGS iSoulLevelValueCommon
+	let OEInitQ.GSiSoulLevelValueGreater := GetGS iSoulLevelValueGreater
+	let OEInitQ.GSiSoulLevelValueGrand := GetGS iSoulLevelValueGrand
+	;блок глобальных переменных игры (GMST)
+
+	;постоянное отслеживание параметров
+	;блок наначения параметров
+	if player.getlevel < 3 && OEStartMapMarkers == 1
+		call OEGetStartMapMarkersEnabledFScr
+	endif
+	;блок наначения параметров
+	let OETimer := 0
+endif
+End

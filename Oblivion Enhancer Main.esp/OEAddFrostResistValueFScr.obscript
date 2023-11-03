@@ -1,0 +1,99 @@
+﻿scn OEAddFrostResistValueFScr
+
+ref ScriptTarget
+
+short ActorHasFrostImmune
+
+short FrostResistLowTokenCount
+short FrostResistMidTokenCount
+short FrostResistHighTokenCount
+short FrostImmuneTokenCount
+
+float ResistFrostMagSum
+
+float FrostResistExisted
+float FrostResistMod
+float FrostResistNormal
+
+float ActorGlobalNormalResistLow
+float ActorGlobalNormalResistHigh
+
+float ResistFrostNew
+
+begin function { ScriptTarget }
+
+set ResistFrostMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSFR + ScriptTarget.GetTotalAEAbilityMagnitude WKFR + ScriptTarget.GetTotalAEAbilityMagnitude FRSH + ScriptTarget.GetTotalAELesserPowerMagnitude RSFR + ScriptTarget.GetTotalAELesserPowerMagnitude WKFR + ScriptTarget.GetTotalAELesserPowerMagnitude FRSH + ScriptTarget.GetTotalAEPowerMagnitude RSFR + ScriptTarget.GetTotalAEPowerMagnitude WKFR + ScriptTarget.GetTotalAEPowerMagnitude FRSH
+
+;debugprint "Актер [%n], ResistFireMagSum = %g, ResistFrostMagSum = %g, ResistShockMagSum = %g" ScriptTarget ResistFireMagSum ResistFrostMagSum ResistShockMagSum
+
+set FrostImmuneTokenCount to ScriptTarget.getitemcount OEFrostImmuneToken
+
+if ResistFrostMagSum >= 100
+	;debugprint "У актера [%n] есть врожденный иммунитет к холоду" ScriptTarget
+	set ActorHasFrostImmune to 1
+elseif FrostImmuneTokenCount > 0
+	;debugprint "У актера [%n] есть токен иммунитета к холоду" ScriptTarget
+	set ActorHasFrostImmune to 1
+endif
+
+if ActorHasFrostImmune == 1
+	set FrostResistMod to 200
+	;debugprint "Актер [%n], FrostResistMod = %g" ScriptTarget FrostResistMod
+elseif ActorHasFrostImmune == 0
+	set ActorGlobalNormalResistLow to OEActorGlobalNormalResist - (OEActorResistElementalMax - OEActorGlobalNormalResist)*(sqrt OEAdditionalElementalResistDifference - 1)
+	set ActorGlobalNormalResistHigh to OEActorGlobalNormalResist + (OEActorResistElementalMax - OEActorGlobalNormalResist)*(1 - 1/sqrt OEAdditionalElementalResistDifference)
+	set FrostResistNormal to ScriptTarget.GetTotalActiveEffectMagnitude RSFR + ScriptTarget.GetTotalActiveEffectMagnitude FRSH + ScriptTarget.GetTotalActiveEffectMagnitude WKFR + -(ScriptTarget.GetTotalAESpellMagnitude WKFR) + -(ScriptTarget.GetTotalAEEnchantmentMagnitude WKFR) + -(ScriptTarget.GetTotalAEAlchemyMagnitude WKFR)	;игнорирование уязвимости к холоду, полученной посредством заклинаний, зачарований или алхимии
+	;debugprint "Актер [%n], FrostResistNormal до диминишинга = %g" ScriptTarget FrostResistNormal
+	
+	if FrostResistNormal <= 50
+		set FrostResistMod to FrostResistNormal
+	elseif FrostResistNormal > 50 && FrostResistNormal <= 100
+		set FrostResistMod to ( FrostResistNormal - 50  ) / 2 + 50
+	elseif FrostResistNormal > 100 && FrostResistNormal <= 200
+		set FrostResistMod to ( FrostResistNormal - 100 ) / 8 + 75
+	elseif FrostResistNormal > 200 && FrostResistNormal <= 600
+		set FrostResistMod to ( FrostResistNormal - 200 ) / 32 + 87.5
+	elseif FrostResistNormal > 600
+		set FrostResistMod to 100
+	endif
+	if FrostResistMod > OEActorResistElementalMax
+		set FrostResistMod to OEActorResistElementalMax
+	endif
+	
+	set FrostResistNormal to FrostResistMod					;теперь нормальным значением сопротивления является такое, которое прошло через диминишинг
+	
+	set FrostResistLowTokenCount to ScriptTarget.getitemcount OEFrostResistLowToken
+	set FrostResistMidTokenCount to ScriptTarget.getitemcount OEFrostResistMidToken
+	set FrostResistHighTokenCount to ScriptTarget.getitemcount OEFrostResistHighToken
+	
+	if FrostResistLowTokenCount > 0
+		set FrostResistMod to FrostResistMod + (OEActorResistElementalMax - FrostResistMod) * ActorGlobalNormalResistLow / 100
+	elseif FrostResistMidTokenCount > 0
+		set FrostResistMod to FrostResistMod + (OEActorResistElementalMax - FrostResistMod) * OEActorGlobalNormalResist / 100
+	elseif 	FrostResistHighTokenCount > 0
+		set FrostResistMod to FrostResistMod + (OEActorResistElementalMax - FrostResistMod) * ActorGlobalNormalResistHigh / 100
+	endif
+
+	;debugprint "Актер [%n], FrostResistMod = %g, FrostResistNormal = %g" ScriptTarget FrostResistMod FrostResistNormal
+
+	;if FrostResistMod < FrostResistNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
+	;	set FrostResistMod to FrostResistNormal
+	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, FrostResistMod = %g" ScriptTarget FrostResistMod
+	;endif
+endif
+
+set FrostResistMod to FrostResistMod - ScriptTarget.getbaseav resistFrost; - ScriptTarget.GetAVModC 61 script
+ScriptTarget.SetAVModC 62 max FrostResistMod
+set FrostResistExisted to ScriptTarget.getav resistFrost
+
+;debugprint "Актер [%n], назначенный резист FrostResistMod = %g, FrostResistExisted = %g" ScriptTarget FrostResistMod FrostResistExisted
+
+
+set ResistFrostNew to FrostResistExisted
+;debugprint "Вывод переменной ResistFrostNew = %g из функции обратно в скрипт" ResistFrostNew
+SetFunctionValue ResistFrostNew
+
+;debugprint "конец функции"
+
+
+end

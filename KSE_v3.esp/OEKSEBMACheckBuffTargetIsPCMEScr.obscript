@@ -1,0 +1,35 @@
+﻿scn OEKSEBMACheckBuffTargetIsPCMEScr
+
+short counter
+int EffectIndex
+
+ref Self
+ref SpellRef
+
+begin scripteffectupdate
+
+;Боевая магия - проверки цели - эффект щита накладывается только на игрока
+
+let counter := counter + 1
+if counter >= 10
+	let Self := GetSelf
+	if Self
+		if Self != PlayerRef
+			let EffectIndex := GetScriptActiveEffectIndex
+			let SpellRef := Self.GetNthActiveEffectMagicItem EffectIndex
+			Self.Dispel SpellRef
+		elseif Self == PlayerRef
+			if OEKSEBattleMagicAbilityQ.OEKSEAbilityActive != 2
+				PlayerRef.Dispel OEKSESpBattleMagicLevel1
+				PlayerRef.Dispel OEKSESpBattleMagicLevel2
+				PlayerRef.Dispel OEKSESpBattleMagicLevel3
+				PlayerRef.Dispel OEKSESpBattleMagicLevel4
+			else
+				let EffectIndex := GetScriptActiveEffectIndex
+				Self.DispelNthActiveEffect EffectIndex
+			endif
+		endif
+	endif
+endif
+
+end

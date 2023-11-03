@@ -1,0 +1,527 @@
+﻿scn OEKSEFortificationAbilityQScr
+
+float fQuestDelayTime
+
+short OEKSEAbilityActive
+short OEKSEAbilityLevel
+short OEKSEAbilityLevelOld
+short OEKSEPCHasAbility
+short OEKSEShowInitMessage
+short OEKSEShowAbilityMessage
+short OEKSEPCHasEnemyNearby
+short OEKSEPCHasEnemyNearbyOld
+short OEKSEPCEnemyCount
+short OEKSEPCEnemyCountOld
+short OEKSEMustRecalcStats
+short OEKSEBaseVal
+short OEKSEQuestLocked
+short OEKSESlowMoLevel
+short OEKSESlowMoLevelOld
+short OEKSESpeedBoostLevel
+short OEKSESpeedBoostLevelOld
+short OEKSEMustCheckThreatLevelForDebuffState
+float OEKSETimer500msec
+float OEKSEFAMagickaDrain
+float OEKSEMagickaMod
+float OEKSEKeaMPenalty
+float OEKSETimer5sec
+float OEKSEINIfGlobalTimeMultiplier
+float OEKSEDebuffCooldownTimer
+float OEKSESlowMoStrength
+
+ref OEKSEActorRef
+ref OEKSEFortificationEffectRef
+ref OEKSEFADebuffMainTargetRef
+
+begin gamemode
+
+if OEKSEFortificationAbility == 0 || PlayerRef.GetDead == 1
+	return
+endif
+
+if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+endif
+
+debugprint "Выполняется обработка способности Укрепление"
+
+let fQuestDelayTime := 0.1
+
+if GetGameLoaded || GetGameRestarted
+	set OEKSEQuestLocked to OEKSEQuestLocked - 1
+endif
+if OEKSEQuestLocked != 0
+	if OEKSEInitQ.OEKSEInitializationCount > 0
+		set OEKSEInitQ.OEKSEInitializationCount to OEKSEInitQ.OEKSEInitializationCount - 1
+		set OEKSEQuestLocked to 0
+	else
+		if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+endif
+
+;проверка актуального уровня Укрепления
+let OEKSETimer5sec := OEKSETimer5sec + getsecondspassed
+if OEKSETimer5sec > 5
+	let OEKSEMustRecalcStats := 1
+	let OEKSETimer5sec := 0
+endif
+
+if OEKSEMustRecalcStats == 1
+	debugprint "Выполняется перерасчет эффекта от способности Укрепление"
+	let OEKSEBaseVal := -999
+	if PlayerRef.getbaseav blade > OEKSEBaseVal
+		let OEKSEBaseVal := PlayerRef.getbaseav blade
+	endif
+	if PlayerRef.getbaseav blunt > OEKSEBaseVal
+		let OEKSEBaseVal := PlayerRef.getbaseav blunt
+	endif
+	if PlayerRef.getbaseav HandToHand > OEKSEBaseVal
+		let OEKSEBaseVal := PlayerRef.getbaseav HandToHand
+	endif
+	if KeaSkillExtender.KskillLongBlade > OEKSEBaseVal
+		let OEKSEBaseVal := KeaSkillExtender.KskillLongBlade
+	endif
+	if KeaSkillExtender.KskillShortBlade > OEKSEBaseVal
+		let OEKSEBaseVal := KeaSkillExtender.KskillShortBlade
+	endif
+	if KeaSkillExtender.KskillBlunt > OEKSEBaseVal
+		let OEKSEBaseVal := KeaSkillExtender.KskillBlunt
+	endif
+	if KeaSkillExtender.KskillAxe > OEKSEBaseVal
+		let OEKSEBaseVal := KeaSkillExtender.KskillAxe
+	endif
+	if OEKSEBaseVal < 25
+		let OEKSEAbilityLevel := 0
+	elseif OEKSEBaseVal < 50
+		let OEKSEAbilityLevel := 1
+		let OEKSEFortificationEffectRef := OEKSESpFortificationLevel1
+	elseif OEKSEBaseVal < 75
+		let OEKSEAbilityLevel := 2
+		let OEKSEFortificationEffectRef := OEKSESpFortificationLevel2
+	elseif OEKSEBaseVal < 100
+		let OEKSEAbilityLevel := 3
+		let OEKSEFortificationEffectRef := OEKSESpFortificationLevel3
+	elseif OEKSEBaseVal >= 100
+		let OEKSEAbilityLevel := 4
+		let OEKSEFortificationEffectRef := OEKSESpFortificationLevel4
+	endif
+
+	if OEKSEAbilityLevelOld != 0 && OEKSEAbilityLevel == 0
+		let OEKSEAbilityActive := 0
+	elseif OEKSEAbilityActive == 2 && OEKSEAbilityLevel != OEKSEAbilityLevelOld && OEKSEFortificationAbFortify == 1
+		PlayerRef.Dispel OEKSESpFortificationLevel1
+		PlayerRef.Dispel OEKSESpFortificationLevel2
+		PlayerRef.Dispel OEKSESpFortificationLevel3
+		PlayerRef.Dispel OEKSESpFortificationLevel4
+		OEKSECaster.moveto PlayerRef 0 0 150
+		OEKSECaster.Cast OEKSEFortificationEffectRef PlayerRef
+	endif
+	
+	let OEKSEAbilityLevelOld := OEKSEAbilityLevel
+	let OEKSEMustRecalcStats := 0
+endif
+
+if OEKSEShowInitMessage == 1 && OEKSEAbilityActive == 2
+	if OEKSEAbilityLevel == 4 && OEKSEShowAbilityMessage < 4
+		messageboxex "Укрепление - Мастер.%rСмертоносные удары. Мгновенная реакция. Сопротивление разбушевавшимся стихиям. Вы превратили себя в машину смерти и буквально прорубаетесь сквозь врагов. Спасения от вас нет ни воинам, ни магам, а некоторые их колдовские фокусы вы просто не замечаете. Вы - мастер, и мало кто на всем белом свете сможет сравниться с вами в умении убивать"
+		debugprint "Показано сообщение про улучшение способности до уровня 4"
+		let OEKSEShowAbilityMessage := 4
+		if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+	if OEKSEAbilityLevel == 3 && OEKSEShowAbilityMessage < 3
+		messageboxex "Теперь вы владеете Укреплением на уровне Эксперт!%rСотни боев не прошли даром, вы сможете танцевать вокруг ваших врагов и умело поражать их в самые уязвимые места. Умение восстанавливаться позволит держаться даже после критических ранений, а магия против вас теперь не будет всесильна"
+		debugprint "Показано сообщение про улучшение способности до уровня 3"
+		let OEKSEShowAbilityMessage := 3
+		if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+	if OEKSEAbilityLevel == 2 && OEKSEShowAbilityMessage < 2
+		messageboxex "Способность Укрепление развилась до уровня Специалист!%rНа этом уровне боец начинает представлять опасность даже для небольшой группы бандитов, а дэйдриеские развалины и планы Обливиона перестают пугать. Развившиеся способности по контролю за течением жизненных энергий подстегивают метаболизм и восстановление организма, а подсмотренные у других выдающихся бойцов приемы помогают защищаться от различных опасностей вроде колдовского удара молнией"
+		debugprint "Показано сообщение про улучшение способности до уровня 2"
+		let OEKSEShowAbilityMessage := 2
+		if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+	if OEKSEAbilityLevel == 1 && OEKSEShowAbilityMessage < 1
+		messageboxex "Способность: Укрепление. Уровень - Ученик.%rЭто базовые принципы работы с оружием и ведения схваток. На этом уровне оттачиваются воинские приемы для одиночных поединков или боев с животными. Сосредоточившись, боец может немного 'ускорить время' вокруг себя для того, чтобы успевать реагировать на опасности. Также повышаются способности организма восстанавливаться"
+		debugprint "Показано сообщение про получение способности уровня 1 (базового)"
+		let OEKSEShowAbilityMessage := 1
+		if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+endif
+if OEKSEShowInitMessage == 0 && OEKSEAbilityLevel >= 1
+	messageboxex "Вы получили доступ к способности воина - Укрепление!%rЭта способность укрепляет тело и направляет руку бойца ближнего боя. Чем больше развиты воинские умения, тем сильнее становится способность - у нее улучшаются старые свойства и открываются новые. Для того, чтобы войти в это особое состояние сознания, боец силой воли перестраивает энергетику тела за счет разлитой вокруг магической энергии. Плата за нее - ослабление чистых магических способностей бойца"
+	debugprint "Показано начальное сообщение"
+	let OEKSEShowInitMessage := 1
+	if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+
+;0 - отрабатывает и переключается в -1 (выкл)
+;1 - отрабатывает и переключается в 2 (вкл)
+if OEKSEAbilityActive == -1
+	debugprint "Активность способности Укрепление: [-1], прерывание"
+	if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+if OEKSEAbilityActive == 0
+	debugprint "Переключение режима работы [0 -> -1]"
+	if OEKSEFortificationAbBulletTime == 1
+		debugprint "У игрока отнимаются усиления от способности Укрепление, скорость игры устанавливается равной 1"
+		let OEKSEFortificationAbilitySlowMotion := 0
+		con_SetIniSetting "fGlobalTimeMultiplier:General" 1.0
+	endif
+	
+	let OEKSEFAMagickaDrain := 0
+	if OEKSERestrictFunctions == 0
+		if KeaSettingHMF == 1
+			let OEKSEKeaMPenalty := KeaMagicPenalty
+		else
+			let OEKSEKeaMPenalty := 0
+		endif
+		let OEKSEMagickaMod := ( PlayerRef.GetTotalAENonAbilityMagnitude FOSP Magicka ) + ( PlayerRef.GetTotalAENonAbilityMagnitude DRSP Magicka ) - OEKSEFAMagickaDrain - OEKSEKeaMPenalty
+		PlayerRef.SetAVModC 9 max OEKSEMagickaMod
+	endif
+
+	if OEKSEFortificationAbFortify == 1
+		PlayerRef.Dispel OEKSESpFortificationLevel1
+		PlayerRef.Dispel OEKSESpFortificationLevel2
+		PlayerRef.Dispel OEKSESpFortificationLevel3
+		PlayerRef.Dispel OEKSESpFortificationLevel4
+	endif
+
+	let OEKSEAbilityActive := -1
+	if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+if OEKSEAbilityActive == 1
+	debugprint "Переключение режима работы [1 -> 2]"
+	debugprint "Игроку добавляются усиления от способности Укрепление, включается контроль за замедлением времени"
+	let OEKSEFortificationAbilitySlowMotion := 1
+	
+	let OEKSEFAMagickaDrain := (PlayerRef.getbaseav magicka + ( PlayerRef.GetTotalAENonAbilityMagnitude FOSP Magicka ) + ( PlayerRef.GetTotalAENonAbilityMagnitude DRSP Magicka )) / 2
+	if OEKSERestrictFunctions == 0
+		if KeaSettingHMF == 1
+			let OEKSEKeaMPenalty := KeaMagicPenalty
+		else
+			let OEKSEKeaMPenalty := 0
+		endif
+		let OEKSEMagickaMod := ( PlayerRef.GetTotalAENonAbilityMagnitude FOSP Magicka ) + ( PlayerRef.GetTotalAENonAbilityMagnitude DRSP Magicka ) - OEKSEFAMagickaDrain - OEKSEKeaMPenalty
+		PlayerRef.SetAVModC 9 max OEKSEMagickaMod
+	endif
+
+	if  OEKSEFortificationAbFortify == 1
+		PlayerRef.Dispel OEKSESpFortificationLevel1
+		PlayerRef.Dispel OEKSESpFortificationLevel2
+		PlayerRef.Dispel OEKSESpFortificationLevel3
+		PlayerRef.Dispel OEKSESpFortificationLevel4
+		OEKSECaster.moveto PlayerRef 0 0 150
+		OEKSECaster.Cast OEKSEFortificationEffectRef PlayerRef
+	endif
+	let OEKSETimer500msec := 0
+
+	let OEKSEAbilityActive := 2
+	if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+
+if OEKSEAbilityActive == 2
+	;контроль вкл/выкл замедление времени, снижение максимума маны и проверка наличия усиления на игроке
+	let OEKSETimer500msec := OEKSETimer500msec + getsecondspassed
+	if OEKSETimer500msec > 0.5
+		
+		;замедление времени
+		let OEKSEPCHasEnemyNearby := 0
+		let OEKSEPCEnemyCount := 0
+		let OEKSEActorRef := GetFirstRef 69 1
+		while OEKSEActorRef
+			if OEKSEActorRef.GetDead == 0 && OEKSEActorRef.GetDisabled == 0
+				if OEKSEActorRef.GetDistance PlayerRef < 500 && ( OEKSEActorRef.GetShouldAttack PlayerRef == 1 || OEKSEActorRef.GetCombatTarget == PlayerRef)
+					debugprint "Актер [%n][%I] является врагом и находится рядом с игроком" OEKSEActorRef OEKSEActorRef
+					let OEKSEPCHasEnemyNearby := 1
+					let OEKSEPCEnemyCount := OEKSEPCEnemyCount + 1
+				else
+					debugprint "Актер [%n][%I] или не является врагом, или находится слишком далеко от игрока" OEKSEActorRef OEKSEActorRef
+				endif
+			else
+				debugprint "[%n][%i] мертв или отключен" OEKSEActorRef OEKSEActorRef
+			endif
+			let OEKSEActorRef := GetNextRef
+		loop
+		
+		
+		if OEKSEPCEnemyCount != OEKSEPCEnemyCountOld && OEKSEPCEnemyCount >= 1
+			debugprint "Рядом с игроком имеется враг, активируется замедление"
+			
+			if OEKSEPCEnemyCountOld == 0
+				let OEKSEMustCheckThreatLevelForDebuffState := 1
+			endif
+			
+			if OEKSEFortificationAbBulletTime == 1
+				let OEKSESlowMoLevel := 0
+				if OEKSEPCEnemyCount == 1
+					let OEKSESlowMoLevel := 1
+				elseif OEKSEPCEnemyCount == 2
+					let OEKSESlowMoLevel := 2
+				elseif OEKSEPCEnemyCount == 3
+					let OEKSESlowMoLevel := 3
+				elseif OEKSEPCEnemyCount >= 4
+					let OEKSESlowMoLevel := 4
+				endif
+				if OEKSESlowMoLevel > 1 && OEKSEAbilityLevel == 1
+					let OEKSESlowMoLevel := 1
+				elseif OEKSESlowMoLevel > 2 && OEKSEAbilityLevel == 2
+					let OEKSESlowMoLevel := 2
+				elseif OEKSESlowMoLevel > 3 && OEKSEAbilityLevel == 3
+					let OEKSESlowMoLevel := 3
+				endif
+				let OEKSESpeedBoostLevel := 0
+				if OEKSEPCEnemyCount == 1
+					let OEKSESpeedBoostLevel := 1
+				elseif OEKSEPCEnemyCount == 2
+					let OEKSESpeedBoostLevel := 2
+				elseif OEKSEPCEnemyCount == 3
+					let OEKSESpeedBoostLevel := 3
+				elseif OEKSEPCEnemyCount >= 4
+					let OEKSESpeedBoostLevel := 4
+				endif
+				if OEKSESpeedBoostLevel > 1 && OEKSEAbilityLevel == 1
+					let OEKSESpeedBoostLevel := 1
+				elseif OEKSESpeedBoostLevel > 2 && OEKSEAbilityLevel == 2
+					let OEKSESpeedBoostLevel := 2
+				elseif OEKSESpeedBoostLevel > 3 && OEKSEAbilityLevel == 3
+					let OEKSESpeedBoostLevel := 3
+				endif
+			endif
+
+			debugprint "Уровень замедления времени  равен %g, уровень ускорения равен %g" OEKSESlowMoLevel OEKSESpeedBoostLevel
+			;скалируемое замедление времени
+			if OEKSESlowMoLevelOld != OEKSESlowMoLevel && OEKSEFortificationAbBulletTime == 1
+				if OEKSEAbilityLevel == 1
+					if OEKSESlowMoLevel == 1 && OEKSESlowMoLevelOld != 1
+						let OEKSESlowMoStrength := OEKSEFortificationAbLev1Enemy1BulletTimeStrength
+					endif
+				elseif OEKSEAbilityLevel == 2
+					if OEKSESlowMoLevel == 1 && OEKSESlowMoLevelOld != 1
+						let OEKSESlowMoStrength := OEKSEFortificationAbLev2Enemy1BulletTimeStrength
+					elseif OEKSESlowMoLevel == 2 && OEKSESlowMoLevelOld != 2
+						let OEKSESlowMoStrength := OEKSEFortificationAbLev2Enemy2BulletTimeStrength
+					endif
+				elseif OEKSEAbilityLevel == 3
+					if OEKSESlowMoLevel == 1 && OEKSESlowMoLevelOld != 1
+						let OEKSESlowMoStrength := OEKSEFortificationAbLev3Enemy1BulletTimeStrength
+					elseif OEKSESlowMoLevel == 2 && OEKSESlowMoLevelOld != 2
+						let OEKSESlowMoStrength := OEKSEFortificationAbLev3Enemy2BulletTimeStrength
+					elseif OEKSESlowMoLevel == 3 && OEKSESlowMoLevelOld != 3
+						let OEKSESlowMoStrength := OEKSEFortificationAbLev3Enemy3BulletTimeStrength
+					endif
+				elseif OEKSEAbilityLevel == 4
+					if OEKSESlowMoLevel == 1 && OEKSESlowMoLevelOld != 1
+						let OEKSESlowMoStrength := OEKSEFortificationAbLev4Enemy1BulletTimeStrength
+					elseif OEKSESlowMoLevel == 2 && OEKSESlowMoLevelOld != 2
+						let OEKSESlowMoStrength := OEKSEFortificationAbLev4Enemy2BulletTimeStrength
+					elseif OEKSESlowMoLevel == 3 && OEKSESlowMoLevelOld != 3
+						let OEKSESlowMoStrength := OEKSEFortificationAbLev4Enemy3BulletTimeStrength
+					elseif OEKSESlowMoLevel == 4 && OEKSESlowMoLevelOld != 4
+						let OEKSESlowMoStrength := OEKSEFortificationAbLev4Enemy4BulletTimeStrength
+					endif
+				endif
+				debugprint "Скорость течения времени в мире равна %f" OEKSESlowMoStrength
+				; костыль, т.к. не работает конструкция типа "con_SetIniSetting "fGlobalTimeMultiplier:General" OEKSEFortificationAbLev1Enemy1BulletTimeStrength"
+				if OEKSESlowMoStrength < 0.55
+					con_SetIniSetting "fGlobalTimeMultiplier:General" 0.5
+				elseif OEKSESlowMoStrength < 0.6
+					con_SetIniSetting "fGlobalTimeMultiplier:General" 0.55
+				elseif OEKSESlowMoStrength < 0.65
+					con_SetIniSetting "fGlobalTimeMultiplier:General" 0.60
+				elseif OEKSESlowMoStrength < 0.7
+					con_SetIniSetting "fGlobalTimeMultiplier:General" 0.65
+				elseif OEKSESlowMoStrength < 0.75
+					con_SetIniSetting "fGlobalTimeMultiplier:General" 0.7
+				elseif OEKSESlowMoStrength < 0.8
+					con_SetIniSetting "fGlobalTimeMultiplier:General" 0.75
+				elseif OEKSESlowMoStrength < 0.85
+					con_SetIniSetting "fGlobalTimeMultiplier:General" 0.8
+				elseif OEKSESlowMoStrength < 0.9
+					con_SetIniSetting "fGlobalTimeMultiplier:General" 0.85
+				elseif OEKSESlowMoStrength < 0.95
+					con_SetIniSetting "fGlobalTimeMultiplier:General" 0.9
+				elseif OEKSESlowMoStrength < 1
+					con_SetIniSetting "fGlobalTimeMultiplier:General" 0.95
+				endif
+			endif
+
+
+			if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1 ;AddSpellNS вызывает дебагпринт в других скриптах? лол.
+				SetDebugMode 0 OEKSEInitQ.KSEModIndex
+			endif
+			;скалируемое увеличение скорости предвижения - в зависимости от того, насколько безумен игрок (:
+			if OEKSESpeedBoostLevelOld != OEKSESpeedBoostLevel && OEKSEFortificationAbBulletTime == 1
+				if OEKSEAbilityLevel == 1
+					if OEKSESpeedBoostLevel == 1 && OEKSESpeedBoostLevelOld != 1
+						PlayerRef.AddSpellNS OEKSEAbFortificationSpeedBoost1
+					endif
+				elseif OEKSEAbilityLevel == 2
+					if OEKSESpeedBoostLevel == 1 && OEKSESpeedBoostLevelOld != 1
+						PlayerRef.AddSpellNS OEKSEAbFortificationSpeedBoost1
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost2
+					elseif OEKSESpeedBoostLevel == 2 && OEKSESpeedBoostLevelOld != 2
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost1
+						PlayerRef.AddSpellNS OEKSEAbFortificationSpeedBoost2
+					endif
+				elseif OEKSEAbilityLevel == 3
+					if OEKSESpeedBoostLevel == 1 && OEKSESpeedBoostLevelOld != 1
+						PlayerRef.AddSpellNS OEKSEAbFortificationSpeedBoost1
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost2
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost3
+					elseif OEKSESpeedBoostLevel == 2 && OEKSESpeedBoostLevelOld != 2
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost1
+						PlayerRef.AddSpellNS OEKSEAbFortificationSpeedBoost2
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost3
+					elseif OEKSESpeedBoostLevel == 3 && OEKSESpeedBoostLevelOld != 3
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost1
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost2
+						PlayerRef.AddSpellNS OEKSEAbFortificationSpeedBoost3
+					endif
+				elseif OEKSEAbilityLevel == 4
+					if OEKSESpeedBoostLevel == 1 && OEKSESpeedBoostLevelOld != 1
+						PlayerRef.AddSpellNS OEKSEAbFortificationSpeedBoost1
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost2
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost3
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost4
+					elseif OEKSESpeedBoostLevel == 2 && OEKSESpeedBoostLevelOld != 2
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost1
+						PlayerRef.AddSpellNS OEKSEAbFortificationSpeedBoost2
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost3
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost4
+					elseif OEKSESpeedBoostLevel == 3 && OEKSESpeedBoostLevelOld != 3
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost1
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost2
+						PlayerRef.AddSpellNS OEKSEAbFortificationSpeedBoost3
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost4
+					elseif OEKSESpeedBoostLevel == 4 && OEKSESpeedBoostLevelOld != 4
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost1
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost2
+						PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost3
+						PlayerRef.AddSpellNS OEKSEAbFortificationSpeedBoost4
+					endif
+				endif
+			endif
+			if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+				SetDebugMode 1 OEKSEInitQ.KSEModIndex
+			endif
+
+			if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+				if PlayerRef.HasSpell OEKSEAbFortificationSpeedBoost1
+					debugprint "У игрока имеется эффект ускорения 1"
+				endif
+				if PlayerRef.HasSpell OEKSEAbFortificationSpeedBoost2
+					debugprint "У игрока имеется эффект ускорения 2"
+				endif
+				if PlayerRef.HasSpell OEKSEAbFortificationSpeedBoost3
+					debugprint "У игрока имеется эффект ускорения 3"
+				endif
+				if PlayerRef.HasSpell OEKSEAbFortificationSpeedBoost4
+					debugprint "У игрока имеется эффект ускорения 4"
+				endif
+			endif
+		elseif OEKSEPCHasEnemyNearby == 0 && OEKSEPCHasEnemyNearbyOld == 1
+			if OEKSEFortificationAbBulletTime == 1
+				debugprint "Рядом с игроком нет врагов, перевод скорости игры в обычный режим"
+				con_SetIniSetting "fGlobalTimeMultiplier:General" 1.0
+				let OEKSESlowMoLevel := 0
+				
+				PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost1
+				PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost2
+				PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost3
+				PlayerRef.RemovespellNS OEKSEAbFortificationSpeedBoost4
+				let OEKSESpeedBoostLevel := 0
+			endif
+		endif
+		let OEKSEPCHasEnemyNearbyOld := OEKSEPCHasEnemyNearby
+		let OEKSEPCEnemyCountOld := OEKSEPCEnemyCount
+		let OEKSESlowMoLevelOld := OEKSESlowMoLevel
+		let OEKSESpeedBoostLevelOld := OEKSESpeedBoostLevel
+
+		;снижение максимума маны
+		let OEKSEFAMagickaDrain := (PlayerRef.getbaseav magicka + ( PlayerRef.GetTotalAENonAbilityMagnitude FOSP Magicka ) + ( PlayerRef.GetTotalAENonAbilityMagnitude DRSP Magicka )) / 2
+		call OEKSEGlobalAVSetterFScr
+		
+		;проверка наличия усиления на игроке
+		if PlayerRef.IsSpellTarget OEKSESpFortificationLevel1 == 0 && PlayerRef.IsSpellTarget OEKSESpFortificationLevel2 == 0 && PlayerRef.IsSpellTarget OEKSESpFortificationLevel3 == 0 && PlayerRef.IsSpellTarget OEKSESpFortificationLevel4 == 0 && OEKSEFortificationAbFortify == 1
+			PlayerRef.Dispel OEKSESpFortificationLevel1
+			PlayerRef.Dispel OEKSESpFortificationLevel2
+			PlayerRef.Dispel OEKSESpFortificationLevel3
+			PlayerRef.Dispel OEKSESpFortificationLevel4
+			OEKSECaster.moveto PlayerRef 0 0 150
+			OEKSECaster.Cast OEKSEFortificationEffectRef PlayerRef
+		endif
+		
+		let OEKSETimer500msec := 0
+	endif
+	
+	if OEKSEFortificationAbKnockdown == 1
+		if OEKSEPCEnemyCount > 0
+			if OEKSEDebuffCooldownTimer > 0
+				if OEKSEMustCheckThreatLevelForDebuffState == 1
+					let OEKSEPCEnemyCount := 0
+					let OEKSEActorRef := GetFirstRef 69 2
+					while OEKSEActorRef
+						if OEKSEActorRef.GetDead == 0 && OEKSEActorRef.GetDisabled == 0
+							if OEKSEActorRef.GetDistance PlayerRef < 1000 && ( OEKSEActorRef.GetShouldAttack PlayerRef == 1 || OEKSEActorRef.GetCombatTarget == PlayerRef)
+								let OEKSEPCEnemyCount := OEKSEPCEnemyCount + 1
+							endif
+						endif
+						let OEKSEActorRef := GetNextRef
+					loop
+					if OEKSEPCEnemyCount == 2
+						let OEKSEDebuffCooldownTimer := OEKSEFortificationAbBaseCooldownTime / 3
+					elseif OEKSEPCEnemyCount > 2
+						let OEKSEDebuffCooldownTimer := 0
+					endif
+
+					
+					let OEKSEMustCheckThreatLevelForDebuffState := 0
+				else
+					if OEKSEPCEnemyCount > 1
+						let OEKSEDebuffCooldownTimer := OEKSEDebuffCooldownTimer - getsecondspassed
+					else
+						let OEKSEDebuffCooldownTimer := OEKSEDebuffCooldownTimer - getsecondspassed * 0.5
+					endif
+				endif
+				if OEKSEDebuffCooldownTimer <= 0 && OEKSEFortificationPlayRechargeEffect == 1
+					PlayerRef.playMagicShaderVisuals OEKSEFortificationRechargeEffect 1
+				endif
+			endif
+		else
+			let OEKSEDebuffCooldownTimer := OEKSEFortificationAbBaseCooldownTime
+		endif
+	endif
+endif
+
+if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+endif
+
+end

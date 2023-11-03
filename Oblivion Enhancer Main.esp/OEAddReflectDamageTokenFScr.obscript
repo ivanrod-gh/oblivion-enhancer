@@ -1,0 +1,93 @@
+﻿scn OEAddReflectDamageTokenFScr
+
+ref ScriptTarget
+
+short RandomDice
+
+short ReflectDamageStrength
+float ReflectDamagemagsum
+short ReflectDamage100TokenCount
+short MaximumReflectDamageTokenCount
+short ActorHasReflectDamageToken
+float ReflectDamagetChance
+float MaximumReflectDamagetChance
+short IsReflectDamageMaximum
+short ReflectDamageLowTokenCount
+short ReflectDamageMidTokenCount
+short ReflectDamageHighTokenCount
+short ReflectDamageNoneTokenCount
+
+begin function { ScriptTarget }
+
+set RandomDice to rand 1, 3.99
+
+if RandomDice == 1
+	set ReflectDamageStrength to -1
+elseif RandomDice == 2
+	set ReflectDamageStrength to 0
+elseif RandomDice == 3
+	set ReflectDamageStrength to 1
+endif
+
+set ReflectDamagetChance to OEAdditionalReflectDamageChance + 0.99
+set MaximumReflectDamagetChance to OEAdditionalMaximumReflectDamageChance + 0.99
+
+set ReflectDamagemagsum to ScriptTarget.GetTotalAEAbilityMagnitude REDG + ScriptTarget.GetTotalAELesserPowerMagnitude REDG + ScriptTarget.GetTotalAEPowerMagnitude REDG
+
+;;debugprint "Актер [%n], ReflectDamagemagsum = %g" ScriptTarget ReflectDamagemagsum
+
+if ReflectDamagemagsum >= 100
+	set ReflectDamage100TokenCount to ScriptTarget.getitemcount OEReflectDamage100Token
+	ScriptTarget.removeitem OEReflectDamage100Token ReflectDamage100TokenCount
+	ScriptTarget.additem OEReflectDamage100Token 1
+	set ActorHasReflectDamageToken to 1
+	;debugprint "Актеру [%n] выдан токен 100-процентного отражения урона, т.к. у него есть врожденное 100-процентное отражения урона" ScriptTarget
+endif
+if ActorHasReflectDamageToken == 0
+	set RandomDice to rand 1, ReflectDamagetChance
+	if RandomDice == 1
+		if (OEAdditionalMaximumReflectDamage == 1) && (OEAdditionalMaximumReflectDamageLevel <= player.getlevel)
+			set RandomDice to rand 1, MaximumReflectDamagetChance
+			if RandomDice == 1
+				set IsReflectDamageMaximum to 1
+				set MaximumReflectDamageTokenCount to ScriptTarget.getitemcount OEReflectDamageMaximumToken 
+				ScriptTarget.removeitem OEReflectDamageMaximumToken MaximumReflectDamageTokenCount
+				ScriptTarget.additem OEReflectDamageMaximumToken 1
+				;debugprint "Актеру [%n] выдан токен максимального отражения урона" ScriptTarget
+			endif
+		endif
+		if IsReflectDamageMaximum != 1
+			if ReflectDamageStrength == -1
+				set ReflectDamageLowTokenCount to ScriptTarget.getitemcount OEReflectDamageLowToken
+				ScriptTarget.removeitem OEReflectDamageLowToken ReflectDamageLowTokenCount
+				ScriptTarget.additem OEReflectDamageLowToken 1
+				;debugprint "Актеру [%n] выдан токен отражения урона пониженного уровня" ScriptTarget
+			elseif ReflectDamageStrength == 0
+				set ReflectDamageMidTokenCount to ScriptTarget.getitemcount OEReflectDamageMidToken
+				ScriptTarget.removeitem OEReflectDamageMidToken ReflectDamageMidTokenCount
+				ScriptTarget.additem OEReflectDamageMidToken 1
+				;debugprint "Актеру [%n] выдан токен отражения урона среднего уровня" ScriptTarget
+			elseif ReflectDamageStrength == 1
+				set ReflectDamageHighTokenCount to ScriptTarget.getitemcount OEReflectDamageHighToken
+				ScriptTarget.removeitem OEReflectDamageHighToken ReflectDamageHighTokenCount
+				ScriptTarget.additem OEReflectDamageHighToken 1
+				;debugprint "Актеру [%n] выдан токен отражения урона повышенного уровня" ScriptTarget
+			endif
+		endif
+	else
+		set ReflectDamageNoneTokenCount to ScriptTarget.getitemcount OEReflectDamageNoneToken
+		ScriptTarget.removeitem OEReflectDamageNoneToken ReflectDamageNoneTokenCount
+		ScriptTarget.additem OEReflectDamageNoneToken 1
+		;debugprint "Актеру [%n] выдан токен отсутствия отражения урона" ScriptTarget
+	endif
+endif
+
+;debugprint "Актеру [%n] выдан токен отражения урона" ScriptTarget
+ScriptTarget.additem OEReflectDamageToken 1
+
+
+
+;debugprint "конец функции"
+
+
+end

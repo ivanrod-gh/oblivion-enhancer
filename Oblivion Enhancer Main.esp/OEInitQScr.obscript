@@ -1,0 +1,784 @@
+﻿scn OEInitQScr
+
+short OEInitializationCount
+short OEGameRestarted
+short OEGameLoadedOrRestarted
+float OELoadTimer
+
+array_var OELeveledListsMainArray
+array_var OEItemsValueArray
+array_var OEItemsQualityArray
+array_var OEConstantNPEffectsArray
+array_var OEItemsForRebalanceArray
+array_var OELeveledListGroupDependenciesArray
+array_var OEFreeLeveledListsArray
+array_var OELeveledListQualityArray
+array_var OEStandardSummonLeveledSpellsArray
+array_var OELeveledListsToRestrictArray
+array_var OELoadedModNamesWithExtensionsArray
+array_var OELoadedModNamesWithExtensionsArrayOld
+ref OEModListRef
+ref OELeveledListRef
+ref OELeveledItemRef
+ref OEActorRef
+short OEMOOLoaded
+short OESMLoaded
+short OENormArraysFine
+short OESettingsChanged
+short OERandomDice
+short OELeveledListTopGearLevelOld
+short OELeveledListCommonToMagicRatioOld
+short OELeveledListUseFiller1Old
+short OELeveledListLvlOffset1Old
+short OELeveledListLvlDeep1Old
+short OELeveledListLvlRepeat1Old
+short OELeveledListUseFiller2Old
+short OELeveledListLvlOffset2Old
+short OELeveledListLvlDeep2Old
+short OELeveledListLvlRepeat2Old
+short OELeveledCreatureMaxItemsToSpawnOld
+short OELeveledCreatureMaxQuestItemsOld
+short OELeveledCreatureHandleSubListsOld
+short OETrainingCostDiff
+short OETrainingCostMultDefault
+short OEOWCRewardCounter
+short OEOWCRewardCounterCurrent
+short OEScriptsWithDelayedStartCount
+short OELoadedOrderIsNotChanged
+short OELeveledListRefactorLoaded
+short OEManageSkillsUseLoaded
+short OELeveledCreatureMaxItemsToSpawnLoaded
+
+short OEModIndex
+short OEUpdateSummonsInSummonerGroupFScrDebugMode
+short OECheckValidActorsInSummonersArrayFScrDebugMode
+short OEGlobalWatchQScrDebugMode
+short OEWeaponSelfRechargeFScrDebugMode
+short OEScriptSummonEffectOScrDebugMode
+short OELevelListsNormalizeFScrDebugMode
+short OELevelListsNormalizeFScrDebugMode2
+short OESummonLvlSpellRecombFScrDebugMode
+short OERebalanceFScrDebugMode
+short OEDeadPCLoadingAreaWipeDebugMode
+short OERestrictLeveledCreatureMaxItemsFScrDebugMode
+short OEActorsDrainedHealthRestoreWithSpellsFScrDebugMode
+short OECheck1DArrayDifferenceFScrDebugMode
+short OEDebugMaxSameLvlLevItemsInLeveledListCount
+short OEDebugLeveledListClonedCount
+
+;GS
+
+short GSiSoulLevelValuePetty
+short GSiSoulLevelValueLesser
+short GSiSoulLevelValueCommon
+short GSiSoulLevelValueGreater
+short GSiSoulLevelValueGrand
+
+float fQuestDelayTime
+
+Begin gamemode
+
+let fQuestDelayTime := 0.1
+
+if GetGameLoaded
+	let OEGameLoadedOrRestarted := 1
+endif
+if GetGameRestarted
+	let OEGameRestarted := 1	;под рестартом имеется в виду ПОЛНУЮ загрузку игры Обливион из операционной системы
+	let OEGameLoadedOrRestarted := 1
+endif
+
+if OEGameLoadedOrRestarted
+
+	;блок управления отладочными сообщениями
+	let OEModIndex := GetSourceModIndex OEModIndexItem1
+	let OEUpdateSummonsInSummonerGroupFScrDebugMode := 0
+	let OECheckValidActorsInSummonersArrayFScrDebugMode := 0
+	let OEGlobalWatchQScrDebugMode := 0
+	let OEWeaponSelfRechargeFScrDebugMode := 0
+	let OEScriptSummonEffectOScrDebugMode := 0
+	let OELevelListsNormalizeFScrDebugMode := 0
+	let OELevelListsNormalizeFScrDebugMode2 := 0
+	let OESummonLvlSpellRecombFScrDebugMode := 0
+	let OERebalanceFScrDebugMode := 0
+	let OEDeadPCLoadingAreaWipeDebugMode := 0
+	let OERestrictLeveledCreatureMaxItemsFScrDebugMode := 0
+	let OEActorsDrainedHealthRestoreWithSpellsFScrDebugMode := 0
+	let OECheck1DArrayDifferenceFScrDebugMode := 0
+	
+	;конструкция
+;if OEInitQ.OECheck1DArrayDifferenceFScrDebugMode == 1
+;	SetDebugMode 1 OEInitQ.OEModIndex
+;endif
+;if OEInitQ.OECheck1DArrayDifferenceFScrDebugMode == 1
+;	SetDebugMode 0 OEInitQ.OEModIndex
+;endif
+	;блок управления отладочными сообщениями
+	
+	;блок загрузки настроек из файла
+	RunBatchScript "Data\ini\Oblivion Enhancer.ini"
+	;блок загрузки настроек из файла
+	
+	;блок проверки загруженных переменных
+	call OEInitCheckAllowedSettingsFScr
+	;блок проверки загруженных переменных
+	
+	;блок простой инициализации массивов
+	if eval(ar_size OEItemsForRebalanceArray) < 0
+		let OEItemsForRebalanceArray := ar_construct Array
+	endif
+	if eval(ar_size OEItemsQualityArray) < 0
+		let OEItemsQualityArray := ar_construct StringMap
+	endif
+	if eval(ar_size OEFreeLeveledListsArray) < 0
+		let OEFreeLeveledListsArray := ar_construct Array
+	endif
+	if eval(ar_size OELeveledListQualityArray) < 0
+		let OELeveledListQualityArray := ar_construct StringMap
+	endif
+	if eval(ar_size OELoadedModNamesWithExtensionsArray) < 0
+		let OELoadedModNamesWithExtensionsArray := ar_construct Array
+	endif
+	if eval(ar_size OELoadedModNamesWithExtensionsArrayOld) < 0
+		let OELoadedModNamesWithExtensionsArrayOld := ar_construct Array
+	endif
+	;блок простой инициализации массивов
+	
+	;блок инициализации и наполнения массивов
+	if eval(ar_size OELeveledListsMainArray) < 0
+		let OELeveledListsMainArray := ar_construct Array
+		
+		;пример:
+		;уровневый список LL2NPCArmorCombHeavyCuirass100
+		;let OELeveledListsMainArray[0] := ar_construct Array
+		;let OELeveledListsMainArray[0][0] := LL2NPCArmorCombHeavyCuirass100	;ref уровневого списка
+		;let OELeveledListsMainArray[0][1] := ar_construct Array	;массив, содержащий упрощенный слепок уровневого списка
+		;let OELeveledListsMainArray[0][2] := ar_construct Array	;массив, содержащий упорядоченные объекты уровневого списка
+		;let OELeveledListsMainArray[0][3] := ar_construct Array	;массив, содержащий неупорядоченные объекты уровневого списка
+		;let OELeveledListsMainArray[0][4] := ar_construct Array	;массив, содержащий пересортицу от других уровневых списков в группе
+		;let OELeveledListsMainArray[0][5] := 4					;группа, к которой принадлежит уровневый список. 999 - группы нет
+		;let OELeveledListsMainArray[0][6] := 2					;слот предмета для рассчета (если GetEquipmentSlot даст сбой и для пересортицы)
+		;let OELeveledListsMainArray[0][7] := ar_construct Array	;массив внутренних типов предметов в группе (легкая/тяж. броня, меч/топор/лук и т.д.) для пересортицы
+		;let OELeveledListsMainArray[0][7][0] := 1				;внутренний тип предмета (0/1 легк./тяж. броня, 0/1/2/3/4/5 1руч. клинок/2руч. клинок/1руч. дроб./2руч. дроб./посох/лук)
+		;let OELeveledListsMainArray[0][8] := ar_construct Array	;массив связанных уровневых списков, которые будут заменены тем же нормированным массивом
+		;let OELeveledListsMainArray[0][9] := 0					;флаг, говорящий о том, что уровневый список - комбинированный (содержит простые и зачарованные вещи)
+		;let OELeveledListsMainArray[0][10] := ar_construct Array	;массив клонированных уровневых списков, используемых в данном уровневом листе
+		;let OELeveledListsMainArray[0][11] := 0					;флаг, 0 - список обрабатывается, -1 - не обрабатывается
+		;let OELeveledListsMainArray[0][12] := 0					;флаг, 0 - список захламляется (согласно настройкам), -1 - не захламляется
+		;let OELeveledListsMainArray[0][13] := 0					;ограничение качества предметов в списке, от 1 до 99. 0 - нет ограничений
+		
+		;группы уровневых списков
+		;999 - нет группы, нет поиска пересортицы и переноса пересортицы в другие уровневые списки группы
+		;0 - LL0NPCArmor0MagicHeavy, LL0NPCArmor0MagicLight
+		;1 - LL0NPCArmor0MagicHeavyLvl, LL0NPCArmor0MagicLightLvl
+		;2 - LL0NPCArmorHeavy, LL0NPCArmorLight
+		;3 - LL0NPCArmorHeavyLvl, LL0NPCArmorLightLvl
+		;4 - LL2NPCArmorCombHeavy, LL2NPCArmorCombLight
+		;5 - LL2NPCArmorCombHeavyLvl, LL2NPCArmorCombLightLvl
+		;зависимости между группами
+		;999 -> x. каждый уровневый список в этой группе сам по себе
+		;0 -> 0, 4.	0 входит и в 0, и в 4, т.к. используется при расчете 4.
+		;1 -> 1, 5
+		;2 -> 2, 4
+		;3 -> 3, 5
+		
+		call OEFillLeveledListsMainArray1FScr
+		call OEFillLeveledListsMainArray2FScr
+		call OEFillLeveledListsMainArray3FScr
+		call OEFillLeveledListsMainArray4FScr
+		call OEFillLeveledListsMainArray5FScr
+	endif
+	
+	if eval(ar_size OELeveledListGroupDependenciesArray) < 0
+		let OELeveledListGroupDependenciesArray := ar_construct Array
+		let OELeveledListGroupDependenciesArray[0] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[0][0] := 999		;999 ни от кого не зависит и нет зависимости даже внутри группы
+		
+		let OELeveledListGroupDependenciesArray[1] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[1][0] := 0		;группа
+		let OELeveledListGroupDependenciesArray[1][1] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[1][1][0] := 0		;зависимая группа 1
+		let OELeveledListGroupDependenciesArray[1][1][1] := 4		;зависимая группа 2
+		let OELeveledListGroupDependenciesArray[1][2] := 0		;флаг, говорящий о ом, что массивы группы были зачищены
+		
+		let OELeveledListGroupDependenciesArray[2] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[2][0] := 1
+		let OELeveledListGroupDependenciesArray[2][1] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[2][1][0] := 1
+		let OELeveledListGroupDependenciesArray[2][1][1] := 5
+		let OELeveledListGroupDependenciesArray[2][2] := 0
+		
+		let OELeveledListGroupDependenciesArray[3] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[3][0] := 2
+		let OELeveledListGroupDependenciesArray[3][1] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[3][1][0] := 2
+		let OELeveledListGroupDependenciesArray[3][1][1] := 4
+		let OELeveledListGroupDependenciesArray[3][2] := 0
+		
+		let OELeveledListGroupDependenciesArray[4] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[4][0] := 3
+		let OELeveledListGroupDependenciesArray[4][1] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[4][1][0] := 3
+		let OELeveledListGroupDependenciesArray[4][1][1] := 5
+		let OELeveledListGroupDependenciesArray[4][2] := 0
+		
+		let OELeveledListGroupDependenciesArray[5] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[5][0] := 4
+		let OELeveledListGroupDependenciesArray[5][1] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[5][1][0] := 4		;4 зависит только от самой себя
+		let OELeveledListGroupDependenciesArray[5][2] := 0
+		
+		let OELeveledListGroupDependenciesArray[6] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[6][0] := 5
+		let OELeveledListGroupDependenciesArray[6][1] := ar_construct Array
+		let OELeveledListGroupDependenciesArray[6][1][0] := 5
+		let OELeveledListGroupDependenciesArray[6][2] := 0
+	endif
+	
+	if eval(ar_size OEConstantNPEffectsArray) < 0
+		let OEConstantNPEffectsArray := ar_construct Array
+		let OEConstantNPEffectsArray[0] := ar_construct Array
+		let OEConstantNPEffectsArray[0][0] := MagicEffectFromChars DRAT
+		let OEConstantNPEffectsArray[0][1] := MagicEffectFromChars FOAT
+		let OEConstantNPEffectsArray[1] := ar_construct Array
+		let OEConstantNPEffectsArray[1][0] := MagicEffectFromChars DRFA
+		let OEConstantNPEffectsArray[1][1] := MagicEffectFromChars FOFA
+		let OEConstantNPEffectsArray[2] := ar_construct Array
+		let OEConstantNPEffectsArray[2][0] := MagicEffectFromChars DRHE
+		let OEConstantNPEffectsArray[2][1] := MagicEffectFromChars FOHE
+		let OEConstantNPEffectsArray[3] := ar_construct Array
+		let OEConstantNPEffectsArray[3][0] := MagicEffectFromChars DRSP
+		let OEConstantNPEffectsArray[3][1] := MagicEffectFromChars FOSP
+		let OEConstantNPEffectsArray[4] := ar_construct Array
+		let OEConstantNPEffectsArray[4][0] := MagicEffectFromChars DRSK
+		let OEConstantNPEffectsArray[4][1] := MagicEffectFromChars FOSK
+	endif
+	
+	if eval(ar_size OEStandardSummonLeveledSpellsArray) < 0
+		let OEStandardSummonLeveledSpellsArray := ar_construct Array
+		let OEStandardSummonLeveledSpellsArray[0] := LL0DremoraMageSummonLvl100
+		let OEStandardSummonLeveledSpellsArray[1] := LL0SummonAllMajor100
+		let OEStandardSummonLeveledSpellsArray[2] := LL0SummonAllMajorLvl100
+		let OEStandardSummonLeveledSpellsArray[3] := LL0SummonAllMinor100
+		let OEStandardSummonLeveledSpellsArray[4] := LL0SummonAllMinorLvl100
+		let OEStandardSummonLeveledSpellsArray[5] := LL0SummonDaedraMajor100
+		let OEStandardSummonLeveledSpellsArray[6] := LL0SummonDaedraMajorLvl100
+		let OEStandardSummonLeveledSpellsArray[7] := LL0SummonDaedraMinor100
+		let OEStandardSummonLeveledSpellsArray[8] := LL0SummonDaedraMinorLvl100
+		let OEStandardSummonLeveledSpellsArray[9] := LL0SummonUndeadForLich100
+		let OEStandardSummonLeveledSpellsArray[10] := LL0SummonUndeadMajor100
+		let OEStandardSummonLeveledSpellsArray[11] := LL0SummonUndeadMajorLvl100
+		let OEStandardSummonLeveledSpellsArray[12] := LL0SummonUndeadMinor100
+		let OEStandardSummonLeveledSpellsArray[13] := LL0SummonUndeadMinorLvl100
+		let OEStandardSummonLeveledSpellsArray[14] := LL0SummonUndeadNetherLich100
+		let OEStandardSummonLeveledSpellsArray[15] := SELL0SummonUndeadMajor100
+		let OEStandardSummonLeveledSpellsArray[16] := SELL0SummonUndeadMajorLvl100
+	endif
+	
+	;блок инициализации и наполнения массивов
+	
+
+	;блок назначения переменных
+	let OEEmergencyWipeQ.fQuestDelayTime := 0.1
+	let OEEmergencyWipeQ.OEEmergencyFlag := 0
+	let OEEmergencyWipeQ.OELeveledListsRestored := 0
+	;блок назначения переменных
+	
+	;блок глобальных переменных игры (GMST)
+	;стоимость обучения
+	if OETrainingCost == 1
+	 	if OEGameRestarted == 1
+			let OETrainingCostMultDefault := GetGS fTrainingCostMult
+		endif
+		if player.getlevel < 20
+			let OETrainingCostDiff := OETrainingCostMultDefault + (player.getlevel-1)*(90/19)*OETrainingCostMod
+			SetNumericGameSetting fTrainingCostMult OETrainingCostDiff
+		else
+			let OETrainingCostDiff := OETrainingCostMultDefault + 90*OETrainingCostMod
+			SetNumericGameSetting fTrainingCostMult OETrainingCostDiff
+		endif
+	endif
+	;блок глобальных переменных игры (GMST)
+	
+	;блок наначения параметров
+	;шанс дропа дреморской брони с дремор
+	SetChanceNone OELowToMidLvlDremoraDremoraArmorChanceNone MOOLL0LootDremora1Caitiff
+	SetChanceNone OELowToMidLvlDremoraDremoraArmorChanceNone MOOLL0LootDremora2Kynval
+	SetChanceNone OELowToMidLvlDremoraDremoraArmorChanceNone MOOLL0LootDremora3Kynreeve
+	SetChanceNone OELowToMidLvlDremoraDremoraArmorChanceNone MOOLL0LootDremora4Kynmarcher
+	SetChanceNone OELowToMidLvlDremoraDremoraArmorChanceNone MOOLL0LootDremora5Markynaz
+	
+	;кольца бесконечной мощи
+	if OEDremoraAddEndlessRing == 0
+		SetChanceNone 100 OELL0DremoraRing1
+		SetChanceNone 100 OELL0DremoraRing2
+	endif
+	
+	;шанс дропа дэйдрической брони с дремор
+	SetChanceNone OEHighLvlDremoraDaedricArmorChanceNone OELL0DaedricArmorPLAYABLE
+	SetChanceNone OEHighLvlDremoraDaedricArmorChanceNone MOOLL0LootDremora6Valkynaz
+	
+	;шанс дропа дополнительного дэйдрического оружия с дремор
+	SetChanceNone OEHighLvlDremoraDaedricWeaponChanceNone OELL0DaedricWeapon
+	
+	;дополнительные точки спавна дремор
+	if OEDremoraAdditionalSpawn == 0
+		let OELeveledListRef := LL2Dremora100OE
+		SetChanceNone 100 OELeveledListRef
+		let OELeveledListRef := LL2DremoraBoss100OE
+		SetChanceNone 100 OELeveledListRef
+	endif
+	
+	;выпадение вещей у убитых актеров из рук на землю
+	if OENoDeathDropWeapon == 1
+		SetNumericGameSetting iDeathDropWeaponChance 0
+	endif
+	
+	;для эффектов уязвимости (огонь, холод, электричество, магия, нормальное оружие) отключается
+	;возможность создавать заклинания и зачаровывать
+	if OEActorsAmplificationSystem == 1
+		SetMagicEffectForSpellmaking 0 WKFI
+		SetMagicEffectForEnchanting 0 WKFI
+		SetMagicEffectForSpellmaking 0 WKFR
+		SetMagicEffectForEnchanting 0 WKFR
+		SetMagicEffectForSpellmaking 0 WKSH
+		SetMagicEffectForEnchanting 0 WKSH
+		SetMagicEffectForSpellmaking 0 WKMA
+		SetMagicEffectForEnchanting 0 WKMA
+		SetMagicEffectForSpellmaking 0 WKNW
+		SetMagicEffectForEnchanting 0 WKNW
+	endif
+
+	;перебалансированные старые саммоны
+	if OERebalancedAndAdditionalSummons == 1
+
+		;скелеты
+		let OEActorRef := OESummonSkeleton1
+		SetMagicEffectUsedObject OEActorRef ZSKE
+		SetNthEffectItemDuration 32 StandardSummonSkeletonApprentice 0
+		SetMagicEffectBaseCost 6.5 ZSKE
+		SetMagicItemAutoCalc 0 StandardSummonSkeletonApprentice
+		SetSpellMagickaCost 20 StandardSummonSkeletonApprentice
+		SetSpellMasteryLevel 0 StandardSummonSkeletonApprentice
+		let OEActorRef := OESummonSkeleton2Guardian
+		SetMagicEffectUsedObject OEActorRef ZSKA	
+		SetNthEffectItemDuration 25 StandardSummonSkeletonGuardianJourneyman 0
+		SetMagicEffectBaseCost 19 ZSKA
+		SetMagicItemAutoCalc 0 StandardSummonSkeletonGuardianJourneyman
+		SetSpellMagickaCost 47 StandardSummonSkeletonGuardianJourneyman
+		SetSpellMasteryLevel 1 StandardSummonSkeletonGuardianJourneyman
+		let OEActorRef := OESummonSkeleton3Hero
+		SetMagicEffectUsedObject OEActorRef ZSKH
+		SetNthEffectItemDuration 31 StandardSummonSkeletonHeroExpert 0
+		SetMagicEffectBaseCost 40 ZSKH
+		SetMagicItemAutoCalc 0 StandardSummonSkeletonHeroExpert
+		SetSpellMagickaCost 124 StandardSummonSkeletonHeroExpert
+		SetSpellMasteryLevel 2 StandardSummonSkeletonHeroExpert
+		let OEActorRef := OESummonSkeleton4Champion
+		SetMagicEffectUsedObject OEActorRef ZSKC
+		SetNthEffectItemDuration 20 StandardSummonSkeletonChampionExpert 0
+		SetMagicEffectBaseCost 175 ZSKC
+		SetMagicItemAutoCalc 0 StandardSummonSkeletonChampionExpert
+		SetSpellMagickaCost 350 StandardSummonSkeletonChampionExpert
+		SetSpellMasteryLevel 3 StandardSummonSkeletonChampionExpert
+	
+		;зомби
+		let OEActorRef := OESummonZombie1
+		SetMagicEffectUsedObject OEActorRef ZZOM
+		SetNthEffectItemDuration 40 StandardSummonZombieApprentice 0
+		SetMagicEffectBaseCost 3.75 ZZOM
+		SetMagicItemAutoCalc 0 StandardSummonZombieApprentice
+		SetSpellMagickaCost 15 StandardSummonZombieApprentice
+		SetSpellMasteryLevel 0 StandardSummonZombieApprentice
+		let OEActorRef := OESummonZombie2Headless
+		SetMagicEffectUsedObject OEActorRef ZHDZ	
+		SetNthEffectItemDuration 36 StandardSummonZombieHeadlessJourneyman 0
+		SetMagicEffectBaseCost 9 ZHDZ
+		SetMagicItemAutoCalc 0 StandardSummonZombieHeadlessJourneyman
+		SetSpellMagickaCost 32 StandardSummonZombieHeadlessJourneyman
+		SetSpellMasteryLevel 1 StandardSummonZombieHeadlessJourneyman
+		
+		;нежить
+		let OEActorRef := OESummonGhost2
+		SetMagicEffectUsedObject OEActorRef ZGHO	
+		SetNthEffectItemDuration 36 StandardSummonGhostApprentice 0
+		SetMagicEffectBaseCost 9 ZGHO
+		SetMagicItemAutoCalc 0 StandardSummonGhostApprentice
+		SetSpellMagickaCost 32 StandardSummonGhostApprentice
+		SetSpellMasteryLevel 1 StandardSummonGhostApprentice
+		let OEActorRef := OESummonWraithFaded4
+		SetMagicEffectUsedObject OEActorRef ZWRA	
+		SetNthEffectItemDuration 20 StandardSummonWraithFadedExpert 0
+		SetMagicEffectBaseCost 125 ZWRA
+		SetMagicItemAutoCalc 0 StandardSummonWraithFadedExpert
+		SetSpellMagickaCost 250 StandardSummonWraithFadedExpert
+		SetSpellMasteryLevel 3 StandardSummonWraithFadedExpert
+		let OEActorRef := OESummonWraithGloom5
+		SetMagicEffectUsedObject OEActorRef ZWRL	
+		SetNthEffectItemDuration 21 StandardSummonWraithGloomMaster 0
+		SetMagicEffectBaseCost 276 ZWRL
+		SetMagicItemAutoCalc 0 StandardSummonWraithGloomMaster
+		SetSpellMagickaCost 579 StandardSummonWraithGloomMaster
+		SetSpellMasteryLevel 4 StandardSummonWraithGloomMaster
+		let OEActorRef := OESummonLich5
+		SetMagicEffectUsedObject OEActorRef ZLIC
+		SetNthEffectItemDuration 20 StandardSummonLichMaster 0
+		SetMagicEffectBaseCost 335 ZLIC
+		SetMagicItemAutoCalc 0 StandardSummonLichMaster
+		SetSpellMagickaCost 670 StandardSummonLichMaster
+		SetSpellMasteryLevel 4 StandardSummonLichMaster
+		
+		;дэйдра
+		let OEActorRef := OESummonScamp2
+		SetMagicEffectUsedObject OEActorRef ZSCA	
+		SetNthEffectItemDuration 27 StandardSummonScampApprentice 0
+		SetMagicEffectBaseCost 12 ZSCA
+		SetMagicItemAutoCalc 0 StandardSummonScampApprentice
+		SetSpellMagickaCost 32 StandardSummonScampApprentice
+		SetSpellMasteryLevel 1 StandardSummonScampApprentice
+		let OEActorRef := OESummonClannfear3
+		SetMagicEffectUsedObject OEActorRef ZCLA	
+		SetNthEffectItemDuration 29 StandardSummonClannfearExpert 0
+		SetMagicEffectBaseCost 34 ZCLA
+		SetMagicItemAutoCalc 0 StandardSummonClannfearExpert
+		SetSpellMagickaCost 98 StandardSummonClannfearExpert
+		SetSpellMasteryLevel 2 StandardSummonClannfearExpert
+		let OEActorRef := OESummonDaedroth4
+		SetMagicEffectUsedObject OEActorRef ZDAE	
+		SetNthEffectItemDuration 20 StandardSummonDaedrothExpert 0
+		SetMagicEffectBaseCost 137 ZDAE
+		SetMagicItemAutoCalc 0 StandardSummonDaedrothExpert
+		SetSpellMagickaCost 274 StandardSummonDaedrothExpert
+		SetSpellMasteryLevel 3 StandardSummonDaedrothExpert
+		let OEActorRef := OESummonSpiderDaedra4
+		SetMagicEffectUsedObject OEActorRef ZSPD	
+		SetNthEffectItemDuration 19 StandardSummonSpiderDaedraExpert 0
+		SetMagicEffectBaseCost 158 ZSPD
+		SetMagicItemAutoCalc 0 StandardSummonSpiderDaedraExpert
+		SetSpellMagickaCost 300 StandardSummonSpiderDaedraExpert
+		SetSpellMasteryLevel 3 StandardSummonSpiderDaedraExpert
+		let OEActorRef := OESummonXivilai5
+		SetMagicEffectUsedObject OEActorRef ZXIV
+		SetNthEffectItemDuration 21 StandardSummonXivilaiMaster 0
+		SetMagicEffectBaseCost 290 ZXIV
+		SetMagicItemAutoCalc 0 StandardSummonXivilaiMaster
+		SetSpellMagickaCost 609 StandardSummonXivilaiMaster
+		SetSpellMasteryLevel 4 StandardSummonXivilaiMaster
+
+		;атронахи
+		let OEActorRef := OESummonAtronach4Flame
+		SetMagicEffectUsedObject OEActorRef ZFIA
+		SetNthEffectItemDuration 21 StandardSummonAtronachFlameJourneyman 0
+		SetMagicEffectBaseCost 120 ZFIA
+		SetMagicItemAutoCalc 0 StandardSummonAtronachFlameJourneyman
+		SetSpellMagickaCost 252 StandardSummonAtronachFlameJourneyman
+		SetSpellMasteryLevel 3 StandardSummonAtronachFlameJourneyman
+		let OEActorRef := OESummonAtronach4Frost
+		SetMagicEffectUsedObject OEActorRef ZFRA
+		SetNthEffectItemDuration 20 StandardSummonAtronachFrostExpert 0
+		SetMagicEffectBaseCost 125 ZFRA
+		SetMagicItemAutoCalc 0 StandardSummonAtronachFrostExpert
+		SetSpellMagickaCost 250 StandardSummonAtronachFrostExpert
+		SetSpellMasteryLevel 3 StandardSummonAtronachFrostExpert
+		let OEActorRef := OESummonAtronach4Storm
+		SetMagicEffectUsedObject OEActorRef ZSTA
+		SetNthEffectItemDuration 19 StandardSummonAtronachStormMaster 0
+		SetMagicEffectBaseCost 132 ZSTA
+		SetMagicItemAutoCalc 0 StandardSummonAtronachStormMaster
+		SetSpellMagickaCost 250 StandardSummonAtronachStormMaster
+		SetSpellMasteryLevel 3 StandardSummonAtronachStormMaster
+		
+		;дремора
+		;решение проблемы вылета от Supreme Magicka из-за использования уровневого существа вместо НПС
+		;let OEActorRef := OELL0SummonDremora3Kynreeve
+		let OERandomDice := rand 0 3.99
+		if OERandomDice == 0
+			let OEActorRef := OESummonDremora3KynreeveMelee1
+		elseif OERandomDice == 1
+			let OEActorRef := OESummonDremora3KynreeveMelee2
+		elseif OERandomDice == 2
+			let OEActorRef := OESummonDremora3KynreeveMelee3
+		elseif OERandomDice == 3
+			let OEActorRef := OESummonDremora3KynreeveMelee4
+		endif
+		SetMagicEffectUsedObject OEActorRef ZDRE
+		SetNthEffectItemDuration 28 StandardSummonDremoraJourneyman 0
+		SetMagicEffectBaseCost 44 ZDRE
+		SetMagicItemAutoCalc 0 StandardSummonDremoraJourneyman
+		SetSpellMagickaCost 123 StandardSummonDremoraJourneyman
+		SetSpellMasteryLevel 2 StandardSummonDremoraJourneyman
+		
+		;решение проблемы вылета от Supreme Magicka из-за использования уровневого существа вместо НПС
+		;let OEActorRef := OELL0SummonDremora5Markynaz
+		let OERandomDice := rand 0 3.99
+		if OERandomDice == 0
+			let OEActorRef := OESummonDremora5MarkynazMelee1
+		elseif OERandomDice == 1
+			let OEActorRef := OESummonDremora5MarkynazMelee2
+		elseif OERandomDice == 2
+			let OEActorRef := OESummonDremora5MarkynazMelee3
+		elseif OERandomDice == 3
+			let OEActorRef := OESummonDremora5MarkynazMelee4
+		endif
+		SetMagicEffectUsedObject OEActorRef ZDRL
+		SetNthEffectItemDuration 20 StandardSummonDremoraLordMaster 0
+		SetMagicEffectBaseCost 335 ZDRL
+		SetMagicItemAutoCalc 0 StandardSummonDremoraLordMaster
+		SetSpellMagickaCost 670 StandardSummonDremoraLordMaster
+		SetSpellMasteryLevel 4 StandardSummonDremoraLordMaster
+	endif
+	
+	;раздача заклинаний и обновление уровневых заклинаний
+	if OERebalancedAndAdditionalSummons == 1
+	
+		call OESummonLvlSpellRecombFScr
+		
+		BorisseanRef.addspell OESpSummonSkeletonOverlordMaster
+		
+		AthragarRef.addspell OESpSummonZombieSoldierJourneyman
+		AthragarRef.addspell OESpSummonZombieDreadExpert
+		GasparStegineRef.addspell OESpSummonZombieDreadExpert
+		BorisseanRef.addspell OESpSummonZombieOverlordMaster
+		
+		AthragarRef.addspell OESpSummonAtronachFlameJourneyman
+		AthragarRef.addspell OESpSummonAtronachFrostJourneyman
+		AthragarRef.addspell OESpSummonAtronachShockJourneyman
+		BorisseanRef.addspell OESpSummonMonarchFlameMaster
+		BorisseanRef.addspell OESpSummonMonarchFrostMaster
+		BorisseanRef.addspell OESpSummonMonarchStormMaster
+		
+		AthragarRef.addspell OESpSummonDremoraWarriorExpert
+		GasparStegineRef.addspell OESpSummonDremoraWarriorExpert
+	elseif OERebalancedAndAdditionalSummons == 0
+		BorisseanRef.removespell OESpSummonSkeletonOverlordMaster
+		
+		AthragarRef.removespell OESpSummonZombieSoldierJourneyman
+		AthragarRef.removespell OESpSummonZombieDreadExpert
+		GasparStegineRef.removespell OESpSummonZombieDreadExpert
+		BorisseanRef.removespell OESpSummonZombieOverlordMaster
+		
+		AthragarRef.removespell OESpSummonAtronachFlameJourneyman
+		AthragarRef.removespell OESpSummonAtronachFrostJourneyman
+		AthragarRef.removespell OESpSummonAtronachShockJourneyman
+		BorisseanRef.removespell OESpSummonMonarchFlameMaster
+		BorisseanRef.removespell OESpSummonMonarchFrostMaster
+		BorisseanRef.removespell OESpSummonMonarchStormMaster
+		
+		AthragarRef.removespell OESpSummonDremoraWarriorExpert
+		GasparStegineRef.removespell OESpSummonDremoraWarriorExpert
+		
+		PlayerRef.removespell OESpSummonSkeletonOverlordMaster
+		
+		PlayerRef.removespell OESpSummonZombieSoldierJourneyman
+		PlayerRef.removespell OESpSummonZombieDreadExpert
+		PlayerRef.removespell OESpSummonZombieOverlordMaster
+		
+		PlayerRef.removespell OESpSummonAtronachFlameJourneyman
+		PlayerRef.removespell OESpSummonAtronachFrostJourneyman
+		PlayerRef.removespell OESpSummonAtronachShockJourneyman
+		PlayerRef.removespell OESpSummonMonarchFlameMaster
+		PlayerRef.removespell OESpSummonMonarchFrostMaster
+		PlayerRef.removespell OESpSummonMonarchStormMaster
+		
+		PlayerRef.removespell OESpSummonDremoraWarriorExpert
+	endif
+
+	if OEStartMapMarkers == 1
+		call OEGetStartMapMarkersEnabledFScr
+	endif
+	
+	if OELeveledCreatureMaxItemsToSpawn > 0 && GetNumLevItems OELoadedLL == 0		;единократно за одну полную загрузку из системы
+		call OEGetLoadedModsListFScr
+		let OELoadedOrderIsNotChanged := call OECheck1DArrayDifferenceFScr OELoadedModNamesWithExtensionsArray OELoadedModNamesWithExtensionsArrayOld
+		let OELoadedModNamesWithExtensionsArrayOld := OELoadedModNamesWithExtensionsArray
+	endif
+	
+	;костыль для МММ - запрещает использование SetScale в блоках OnLoad и ScriptEffectStart
+	let zMMMScaleActors := 0
+	
+	;отключение дремор на вершине замка Кватч
+	if GetStage ms48 < 100
+		MS49DremoraEnableRef.Disable
+	endif
+	
+	;больше ингридиентов у торговцев
+	if OEMoreAlchemyIngridients == 1 && OEGameRestarted == 1
+		let OELeveledListRef := VendorIngredientsFood
+		let OELeveledItemRef := Beef
+		RemoveFromLeveledList OELeveledListRef OELeveledItemRef
+		AddToLeveledList OELeveledListRef OELeveledItemRef 1 4
+		let OELeveledItemRef := BoarMeat
+		RemoveFromLeveledList OELeveledListRef OELeveledItemRef
+		AddToLeveledList OELeveledListRef OELeveledItemRef 1 4
+		let OELeveledItemRef := Carrot
+		RemoveFromLeveledList OELeveledListRef OELeveledItemRef
+		AddToLeveledList OELeveledListRef OELeveledItemRef 1 4
+		let OELeveledItemRef := Tomato
+		RemoveFromLeveledList OELeveledListRef OELeveledItemRef
+		AddToLeveledList OELeveledListRef OELeveledItemRef 1 4
+		
+		let OELeveledListRef := VendorIngredientsFlora
+		let OELeveledItemRef := SteelBlueEntolomaCap
+		RemoveFromLeveledList OELeveledListRef OELeveledItemRef
+		AddToLeveledList OELeveledListRef OELeveledItemRef 1 2
+		let OELeveledItemRef := BogBeaconAscoCap01
+		RemoveFromLeveledList OELeveledListRef OELeveledItemRef
+		AddToLeveledList OELeveledListRef OELeveledItemRef 1 2
+		let OELeveledItemRef := FlaxSeeds
+		RemoveFromLeveledList OELeveledListRef OELeveledItemRef
+		AddToLeveledList OELeveledListRef OELeveledItemRef 1 2
+		let OELeveledItemRef := LadysMantleLeaves
+		RemoveFromLeveledList OELeveledListRef OELeveledItemRef
+		AddToLeveledList OELeveledListRef OELeveledItemRef 1 4
+		let OELeveledItemRef := MugwortSeeds
+		RemoveFromLeveledList OELeveledListRef OELeveledItemRef
+		AddToLeveledList OELeveledListRef OELeveledItemRef 1 4
+	endif
+	;блок наначения параметров
+	
+;ref OELeveledListRef
+;ref OELeveledItemRef
+	
+	;блок настройки переключателей
+	;блок настройки переключателей
+
+
+	;блок отслеживания событий (EventHandler)
+	if OERebalancedAndAdditionalSummons == 1 && GetNumLevItems OELoadedLL == 0
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZCLA"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZDAE"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZDRE"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZDRL"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZFIA"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZFRA"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZGHO"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZHDZ"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZLIC"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZSCA"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZSKA"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZSKC"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZSKE"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZSKH"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZSPD"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZSTA"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZWRA"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZWRL"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZXIV"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"ZZOM"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z001"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z002"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z003"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z004"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z005"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z006"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z007"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z008"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z009"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z010"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z011"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z012"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z013"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z014"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z015"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z016"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z017"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z018"
+		SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr first::playerref object::"Z019"
+	endif
+
+	if OEActorsDrainedHealthRestoreWithSpells == 1
+		SetEventHandler "OnMagicApply" OEActorsDrainedHealthRestoreWithSpellsFScr
+	endif
+	;блок отслеживания событий (EventHandler)
+	
+	set OEInitializationCount to 3
+	;поддерживаемые квестовые скрипты:
+	;OEGlobalWatchQScr
+	;OEGlobalVariablesUpdateQScr
+	;OEEmergencyWipeQScr
+	let OEGlobalWatchQ.OEQuestLocked := -1
+	let OEGlobalVariablesUpdateQ.OEQuestLocked := -1
+	let OEEmergencyWipeQ.OEQuestLocked := -1
+
+	;костыль, правит вылет игры при загрузке сохранений и использовании перерасчета уровневых списков
+	if OELeveledListRefactor == 1 && OEGameRestarted == 0
+		let OENormArraysFine := call OECirculeCheckArraysFullnessFScr OELeveledListsMainArray 2 50
+		let OESettingsChanged := call OECheckLeveledListSettingsFScr
+		if OENormArraysFine == 1 && OESettingsChanged == 0
+			call OELeveledListExchangeFScr
+		else
+			call OERestoreLeveledListsFScr
+			call OELevelListsNormalizeFScr
+		endif
+	endif
+	if OELeveledListRefactor == 1
+		call OECalcItemsValueFScr
+	endif
+
+	let OEScriptsWithDelayedStartCount := 0
+	let OELeveledListRefactorLoaded := 0
+	let OEManageSkillsUseLoaded := 0
+	let OELeveledCreatureMaxItemsToSpawnLoaded := 0
+	if OELeveledListRefactor == 1
+		let OEScriptsWithDelayedStartCount := OEScriptsWithDelayedStartCount + 1
+	endif
+	if OEManageSkillsUse == 1
+		let OEScriptsWithDelayedStartCount := OEScriptsWithDelayedStartCount + 1
+	endif
+	if OELeveledCreatureMaxItemsToSpawn > 0
+		let OEScriptsWithDelayedStartCount := OEScriptsWithDelayedStartCount + 1
+	endif
+	
+	if OEGameRestarted == 0
+		message "Oblivion Enhancer - запущен"
+		print "Oblivion Enhancer - запущен"
+	endif
+	
+	let OEGameLoadedOrRestarted := 0
+endif
+
+
+;в случае полноценного перезапуска всей игры
+if OEGameRestarted
+	if OELeveledListRefactorLoaded == 0 || OEManageSkillsUseLoaded == 0 || OELeveledCreatureMaxItemsToSpawnLoaded == 0
+		let OEModListRef := MOOLL0RegionSkeletonBlackMarsh
+		let OEMOOLoaded := GetNumLevItems OEModListRef
+		let OEModListRef := SMLoadedLL
+		let OESMLoaded := GetNumLevItems OEModListRef
+		let OELoadTimer := OELoadTimer + getsecondspassed
+	endif
+	if OELeveledListRefactor == 1 && OELeveledListRefactorLoaded == 0
+		if (OEMOOLoaded > 0 && OESMLoaded > 0 && OELoadTimer > (5.0 + OELeveledListRefactorDelayTime)) || (OELoadTimer > (10.0 + OELeveledListRefactorDelayTime))
+			;вызов перерасчета уровневых списков оружия и брони
+			call OELevelListsNormalizeFScr
+			let OEScriptsWithDelayedStartCount := OEScriptsWithDelayedStartCount - 1
+			let OELeveledListRefactorLoaded := 1
+		endif
+	endif
+	if OEManageSkillsUse == 1 && OEManageSkillsUseLoaded == 0
+		if (OEMOOLoaded > 0 && OESMLoaded > 0 && OELoadTimer > (5.0 + 1.0)) || (OELoadTimer > (10.0 + 1.0))
+			call OEManageSkillsUseFScr
+			let OEManageSkillsUseLoaded := 1
+			let OEScriptsWithDelayedStartCount := OEScriptsWithDelayedStartCount - 1
+		endif
+	endif
+	if OELeveledCreatureMaxItemsToSpawn > 0 && OELeveledCreatureMaxItemsToSpawnLoaded == 0
+		if (OEMOOLoaded > 0 && OELoadTimer > (5.0 + OELeveledListRefactorDelayTime)) || (OELoadTimer > (10.0 + OELeveledListRefactorDelayTime))
+			call OERestrictLeveledCreatureMaxItemsFScr
+			let OELeveledCreatureMaxItemsToSpawnLoaded := 1
+			let OEScriptsWithDelayedStartCount := OEScriptsWithDelayedStartCount - 1
+		endif
+	endif
+	if OEScriptsWithDelayedStartCount == 0
+		let OELoadTimer := 0
+		let OEGameRestarted := 0
+		if GetNumLevItems OELoadedLL < 1
+			AddToLeveledList OELoadedLL OELoadedLI 1 1
+		endif
+		message "Oblivion Enhancer - запущен"
+		print "Oblivion Enhancer - запущен"
+	endif
+	
+endif
+
+End

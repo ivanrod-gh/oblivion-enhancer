@@ -1,0 +1,283 @@
+﻿scn OERestrictLeveledCreatureMaxItemsFScr
+
+array_var LeveledListArray					;уровневый массив - простой и обычный
+array_var LelevelListCommonCastNewArray		;массив, содержащий новый простой слепок уровневого массива
+array_var LelevelListCommonCastOldArray		;массив, содержащий старый простой слепок уровневого массива
+array_var LeveledListSubArray				;вспомогательный массив
+
+short ArrSize1
+short ArrSize2
+short ArrSize3
+short index1
+short index2
+short index3
+short Level
+short Count
+short ShouldBeRestricted
+short SettingsWasChanged
+short CastsIsEqual
+short LeveledListFilled
+
+ref LevItemRef
+ref LeveledListRef
+
+;этот скрипт был сделан нормально - со слепками, полной перепроверкой всех задействованных уровнеых списков и разворачиванием из массивов уже ограниченных уровневых списков. Но это приводило к тому, что сейв обсе начинал весить на 4 мб больше.
+;посему было принято решения упростить скрипт.
+
+begin function {}
+
+if OEInitQ.OERestrictLeveledCreatureMaxItemsFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Вызов функции OERestrictLeveledCreatureMaxActorsFScr - ограничение уровневых списков существ по количеству (Count) их актеров/вложенных уровневых списков"
+
+let SettingsWasChanged := call OERestrictLeveledCreatureSettingsFScr
+if SettingsWasChanged == 1 || OEInitQ.OELoadedOrderIsNotChanged == -1
+	debugprint "Настройки или порядок модов с момента последнего запуска игры были изменены! Производитcя очистка основного массива."
+	let OEInitQ.OELeveledListsToRestrictArray := ar_construct Array
+;	debugprint "Настройки с момента последнего запуска игры были изменены! Очистка массива уровневых списков на ограничение, всех слепков и соответствующих нормированных массивов"
+;	let index1 := 0
+;	let ArrSize1 := ar_size OEInitQ.OELeveledListsToRestrictArray
+;	while index1 < ArrSize1
+;		if eval(ar_size OEInitQ.OELeveledListsToRestrictArray[index1][1]) > 0
+;			let OEInitQ.OELeveledListsToRestrictArray[index1][1] := ar_construct Array
+;			debugprint "Слепок [%g] обнулён" index1
+;		endif
+;		if eval(ar_size OEInitQ.OELeveledListsToRestrictArray[index1][2]) > 0
+;			let OEInitQ.OELeveledListsToRestrictArray[index1][2] := ar_construct Array
+;			debugprint "Нормированный массив [%g] обнулён" index1
+;		endif
+;		let index1 := index1 + 1
+;	loop
+	
+	let OEInitQ.OELeveledCreatureMaxItemsToSpawnOld := OELeveledCreatureMaxItemsToSpawn 
+	let OEInitQ.OELeveledCreatureHandleSubListsOld := OELeveledCreatureHandleSubLists
+	let OEInitQ.OELeveledCreatureMaxQuestItemsOld := OELeveledCreatureMaxQuestItems
+;	let OEInitQ.OEDremoraAdditionalSpawnOld := OEDremoraAdditionalSpawn
+	let SettingsWasChanged := 1
+	debugprint "Новые настройки сохранены"
+endif
+
+;let CastsIsEqual := -1
+;if SettingsWasChanged == 0 && eval(ar_size OEInitQ.OELeveledListsToRestrictArray) >= 0
+;	debugprint "Проверка простых слепков уровневых списков с ранее сохраненными"
+;	let index1 := 0
+;	let ArrSize1 := ar_size OEInitQ.OELeveledListsToRestrictArray
+;		while index1 < ArrSize1
+;		let LeveledListRef := OEInitQ.OELeveledListsToRestrictArray[index1][0]
+;		if IsFormValid LeveledListRef == 1
+;			debugprint "Проверяются старый и новый слепки уровневого списка [%i]" LeveledListRef
+;			let LelevelListCommonCastNewArray := call OEGetLeveledListCommonCastFScr LeveledListRef
+;			let LelevelListCommonCastOldArray := OEInitQ.OELeveledListsToRestrictArray[index1][1]
+;			let CastsIsEqual := call OECheckCastsDifferenceFScr LelevelListCommonCastNewArray LelevelListCommonCastOldArray
+;			if CastsIsEqual == -1
+;				debugprint "В массиве уровневых списков на ограничение найдено несовпадение старого и нового слепка. Остановка проверки, очистка массива уровневых списков на ограничение, всех слепков и соответствующих нормированных массивов"
+;				let index1 := 0
+;				let ArrSize1 := ar_size OEInitQ.OELeveledListsToRestrictArray
+;				while index1 < ArrSize1
+;					if eval(ar_size OEInitQ.OELeveledListsToRestrictArray[index1][1]) > 0
+;						let OEInitQ.OELeveledListsToRestrictArray[index1][1] := ar_construct Array
+;						debugprint "Слепок [%g] обнулён" index1
+;					endif
+;					if eval(ar_size OEInitQ.OELeveledListsToRestrictArray[index1][2]) > 0
+;						let OEInitQ.OELeveledListsToRestrictArray[index1][2] := ar_construct Array
+;						debugprint "Нормированный массив [%g] обнулён" index1
+;					endif
+;					let index1 := index1 + 1
+;				loop
+;			endif
+;		else
+;			debugprint "В массиве уровневых списков на ограничение найден невалидный реф. Остановка проверки, очистка массива уровневых списков на ограничение, всех слепков и соответствующих нормированных массивов"
+;			let index1 := 0
+;			let ArrSize1 := ar_size OEInitQ.OELeveledListsToRestrictArray
+;			while index1 < ArrSize1
+;				if eval(ar_size OEInitQ.OELeveledListsToRestrictArray[index1][1]) > 0
+;					let OEInitQ.OELeveledListsToRestrictArray[index1][1] := ar_construct Array
+;					debugprint "Слепок [%g] обнулён" index1
+;				endif
+;				if eval(ar_size OEInitQ.OELeveledListsToRestrictArray[index1][2]) > 0
+;					let OEInitQ.OELeveledListsToRestrictArray[index1][2] := ar_construct Array
+;					debugprint "Нормированный массив [%g] обнулён" index1
+;				endif
+;				let index1 := index1 + 1
+;			loop
+;			let CastsIsEqual := -1
+;			break
+;		endif
+;		let index1 := index1 + 1
+;		if index1 == OEInitQ.LeveledListsToRestrictInitialCount
+;			debugprint "Проверке подверглись %g общих уровневых списков, прерывание проверки с результатом (CastsIsEqual == 1)"
+;			break
+;		endif
+;	loop
+;endif
+
+if SettingsWasChanged == 1 || eval(ar_size OEInitQ.OELeveledListsToRestrictArray) < 0 ;|| CastsIsEqual == -1
+	let OEInitQ.OELeveledListsToRestrictArray := ar_construct Array
+	call OEFillLeveledListsToRestrictArray1FScr
+	call OEFillLeveledListsToRestrictArray2FScr
+	call OEFillLeveledListsToRestrictArray3FScr
+	call OEFillLeveledListsToRestrictArray4FScr
+	
+	if OELeveledCreatureMaxQuestItems == 1
+		call OEFillLeveledListsToRestrictArray5FScr
+	endif
+	
+;	debugprint "Наполнение вспомогательного массива, ускоряющиего поиск уникальный уровневых списков"
+;	let LeveledListSubArray := ar_construct Array
+;	let ArrSize1 := ar_size OEInitQ.OELeveledListsToRestrictArray
+;	let index1 := 0
+;	while index1 < ArrSize1
+;		let LeveledListSubArray[index1] := OEInitQ.OELeveledListsToRestrictArray[ArrSize1][0]
+;		let index1 := index1 + 1
+;	loop
+	
+;	debugprint "Сохранение количества общих уровневых списков"
+;	let OEInitQ.LeveledListsToRestrictInitialCount := ArrSize1
+	let LeveledListFilled := 0
+endif
+
+if OEInitQ.OERestrictLeveledCreatureMaxItemsFScrDebugMode == 1
+	let ArrSize1 := ar_size OEInitQ.OELeveledListsToRestrictArray
+	debugprint "Изначально массив уровневых списков на ограничение содержит %g предметов" ArrSize1
+endif
+if OELeveledCreatureHandleSubLists == 1 && LeveledListFilled == 0 ;&& (SettingsWasChanged == 1 || CastsIsEqual == -1)
+	debugprint "Поиск дополнительных уровневых списков на ограничение - согласно настройке (OELeveledCreatureHandleSubLists == 1)"
+	let ArrSize1 := ar_size OEInitQ.OELeveledListsToRestrictArray
+	let index1 := 0
+	while index1 < ArrSize1
+		let LeveledListRef := OEInitQ.OELeveledListsToRestrictArray[index1]
+		let ArrSize2 := GetNumLevItems LeveledListRef
+		debugprint "Предварительное перемещение всех уникальных вещей в простой уровневый массив"
+		let LeveledListArray := ar_construct Array
+		let index2 := 0
+		while index2 < ArrSize2
+			let LevItemRef := GetNthLevItem index2 LeveledListRef
+			if GetObjectType LevItemRef == 37
+				if eval(ar_find LevItemRef LeveledListArray) < 0
+					let LeveledListArray[ar_size LeveledListArray] := LevItemRef
+				endif
+			endif
+			let index2 := index2 + 1
+		loop
+		debugprint "Поиск в массиве уровневых списков на ограничение дубликата и добавление в массив, если дубликата не найдено"
+		let ArrSize2 := ar_size LeveledListArray
+		let index2 := 0
+		while index2 < ArrSize2
+			let LevItemRef := LeveledListArray[index2]
+			if GetObjectType LevItemRef == 37
+				if eval(ar_find LevItemRef OEInitQ.OELeveledListsToRestrictArray) < 0
+					let ArrSize3 := ar_size OEInitQ.OELeveledListsToRestrictArray
+					debugprint "Добавлен уровневый список [%i] с индексом %g" LevItemRef ArrSize3
+;					let OEInitQ.OELeveledListsToRestrictArray[ArrSize3] := ar_construct Array
+					let OEInitQ.OELeveledListsToRestrictArray[ArrSize3] := LevItemRef
+;					let OEInitQ.OELeveledListsToRestrictArray[ArrSize3][1] := ar_construct Array
+;					let OEInitQ.OELeveledListsToRestrictArray[ArrSize3][2] := ar_construct Array
+;					
+;					let LeveledListSubArray[ArrSize3] := LevItemRef	;и - наполнение вспомогательного массива
+					
+					let ArrSize1 := ar_size OEInitQ.OELeveledListsToRestrictArray
+				else
+					debugprint "Такой уровневый список [%i] уже имеется" LevItemRef
+				endif
+			endif
+			let index2 := index2 + 1
+		loop
+		let index1 := index1 + 1
+	loop
+	debugprint "После дополнительной обработки массив уровневых списков на ограничение содержит %g предметов" ArrSize1
+	let LeveledListFilled := 1
+endif
+
+;if CastsIsEqual == -1
+;	debugprint "Создание и сохранение простых слепков уровневых списков массива уровневых списков на ограничение"
+;	let index1 := 0
+;	let ArrSize1 := ar_size OEInitQ.OELeveledListsToRestrictArray
+;	while index1 < ArrSize1
+;		let LeveledListRef := OEInitQ.OELeveledListsToRestrictArray[index1][0]
+;		debugprint "Создается и сохраняется простой слепок уровневого списка [%i]" LeveledListRef
+;		let LelevelListCommonCastNewArray := call OEGetLeveledListCommonCastFScr LeveledListRef
+;		let OEInitQ.OELeveledListsToRestrictArray[index1][1] := LelevelListCommonCastNewArray
+;		let index1 := index1 + 1
+;	loop
+;endif
+
+debugprint "Производится ограничение уровневых списков по количеству (Count) их актеров/вложенных уровневых списков"
+let ArrSize1 :=  ar_size OEInitQ.OELeveledListsToRestrictArray
+let index1 := 0
+while index1 < ArrSize1
+	let LeveledListRef := OEInitQ.OELeveledListsToRestrictArray[index1]
+	let ArrSize2 := GetNumLevItems LeveledListRef
+	
+	let ShouldBeRestricted := 0
+	debugprint "Проверка уровневого списка [%i] на необходимость ограничений:" LeveledListRef
+	let index2 := 0
+	while index2 < ArrSize2
+		let Count := GetNthLevItemCount index2 LeveledListRef
+		if Count > OELeveledCreatureMaxItemsToSpawn
+			let ShouldBeRestricted := 1
+			debugprint "Уровневый список [%i] нуждается в ограничениях" LeveledListRef
+			break
+		endif
+		let index2 := index2 + 1
+	loop
+		
+	if ArrSize2 > 0 && ShouldBeRestricted == 1
+		if OEInitQ.OERestrictLeveledCreatureMaxItemsFScrDebugMode == 1
+			debugprint "Уровневый список [%i] до обработки:" LeveledListRef
+			call OEShowLeveledListByLevelFScr LeveledListRef
+		endif
+
+;		if eval(ar_size OEInitQ.OELeveledListsToRestrictArray[index1][2]) <= 0
+;			debugprint "Старый нормированный массив не обнаружен. Извлечение уровневого списка в уровневый массив и нормирование (ограничение) такого массива"
+			let LeveledListArray := ar_construct Array
+			let index2 := 0
+			while index2 < ArrSize2
+				let LeveledListArray[index2] := ar_construct Array
+				let LeveledListArray[index2][0] := GetNthLevItem index2 LeveledListRef			;вещь в уровневом списке
+				let LeveledListArray[index2][1] := GetNthLevItemLevel index2 LeveledListRef		;уровень вещи в уровневом списке
+				let LeveledListArray[index2][2] := GetNthLevItemCount index2 LeveledListRef		;количество вещи в уровневом списке
+				if eval(LeveledListArray[index2][2] > OELeveledCreatureMaxItemsToSpawn)
+					debugprint "Ограничение вещи с индексом %g по количеству" index2
+					let LeveledListArray[index2][2] := OELeveledCreatureMaxItemsToSpawn
+				endif
+				let index2 := index2 + 1
+			loop
+;			debugprint "Сохранения уровневого массива как нормированного массива в массиве уровневых списков на ограничение"
+;			let OEInitQ.OELeveledListsToRestrictArray[index1][2] := LeveledListArray
+;		else
+;			debugprint "Обнаружен старый нормированный массив, который и будет использоваться для наполнения уровневого списка"
+;			let LeveledListArray := OEInitQ.OELeveledListsToRestrictArray[index1][2]
+;		endif
+
+		debugprint "Возврат всех вещей обратно в уровневый список"
+		ClearLeveledList LeveledListRef
+		
+		let index2 := 0
+		while index2 < ArrSize2
+			let LevItemRef := LeveledListArray[index2][0]
+			let Level := LeveledListArray[index2][1]
+			let Count := LeveledListArray[index2][2]
+			AddToLeveledList LeveledListRef LevItemRef Level Count
+			let index2 := index2 + 1
+		loop
+		
+		if OEInitQ.OERestrictLeveledCreatureMaxItemsFScrDebugMode == 1
+			debugprint "Уровневый список [%i] после обработки:" LeveledListRef
+			call OEShowLeveledListByLevelFScr LeveledListRef
+		endif
+	elseif ArrSize2 > 0 && ShouldBeRestricted == 0
+		debugprint "Уровневый список [%i] не нуждается в ограничениях" LeveledListRef
+	elseif ArrSize2 == 0
+		debugprint "Уровневый список [%i] пуст и не подлежит обработке" LeveledListRef
+	endif
+	
+	let index1 := index1 + 1
+loop
+
+if OEInitQ.OERestrictLeveledCreatureMaxItemsFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

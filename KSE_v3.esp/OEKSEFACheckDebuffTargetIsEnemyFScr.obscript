@@ -1,0 +1,27 @@
+﻿scn OEKSEFACheckDebuffTargetIsEnemyFScr
+
+short counter
+int EffectIndex
+
+ref Self
+ref SpellRef
+
+begin scripteffectupdate
+
+;проверки цели для Укрепления - 'сбивание с ног' накладывается только на противников
+
+let counter := counter + 1
+if counter >= 10
+	let Self := GetSelf
+	if Self
+		let EffectIndex := GetScriptActiveEffectIndex
+		if Self == PlayerRef || OEKSEFortificationAbilityQ.OEKSEAbilityActive != 2
+			let SpellRef := Self.GetNthActiveEffectMagicItem EffectIndex
+			Self.Dispel SpellRef
+		else
+			Self.DispelNthActiveEffect EffectIndex
+		endif
+	endif
+endif
+
+end

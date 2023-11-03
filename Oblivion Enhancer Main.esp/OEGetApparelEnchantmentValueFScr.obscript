@@ -1,0 +1,63 @@
+﻿scn OEGetApparelEnchantmentValueFScr
+
+short ArrSize2
+short EffectsCount
+short EffectMagnitude
+short CalcMagnitude
+short index
+short index2
+float EffectBaseCost
+float EffectConstantEnchantFactor
+float EffectValue
+float GSfMagic
+int EffectCode
+
+ref MagicItemRef
+ref EffectRef
+ref EffectRef2
+
+begin function { MagicItemRef }
+
+debugprint "Вызов функции OEGetApparelEnchantmentValueFScr - расчет ценности постоянного зачарования"
+
+let GSfMagic := getgs fMagicCEEnchantMagOffset
+let EffectsCount := GetMagicItemEffectCount MagicItemRef
+let index := 0
+let EffectValue := 0
+while index < EffectsCount
+	let EffectCode := GetNthEffectItemCode MagicItemRef index
+	let EffectRef := MagicEffectFromCode EffectCode
+	let EffectMagnitude := GetNthEffectItemMagnitude MagicItemRef index
+	debugprint "Текущая магнитуда эффекта: %g" EffectMagnitude
+	
+	let index2 := 0
+	let ArrSize2 := ar_size OEInitQ.OEConstantNPEffectsArray
+	while index2 < ArrSize2
+		let EffectRef2 := OEInitQ.OEConstantNPEffectsArray[index2][0]
+		if EffectRef == EffectRef2
+			debugprint "Обнаружен недоступный для зачарования негативный эффект [%n][%i]! Замена эффекта на разрешенный позитивый аналог с отрицательным знаком магнитуды" EffectRef EffectRef
+			let EffectMagnitude := -EffectMagnitude
+			let EffectRef := OEInitQ.OEConstantNPEffectsArray[index2][1]
+			let EffectCode := GetMagicEffectCode EffectRef
+		endif
+		let index2 := index2 + 1
+	loop
+
+	let EffectBaseCost := GetMagicEffectBaseCostC EffectCode
+	let EffectConstantEnchantFactor := GetMagicEffectEnchantFactorC EffectCode
+	let CalcMagnitude := EffectBaseCost*EffectConstantEnchantFactor*5 + GSfMagic
+	if CalcMagnitude != 0
+		debugprint "Высчитанная магнитуда эффекта (для игрока, создающего эффект при помощи великой души): %g" CalcMagnitude
+		let EffectValue := EffectValue + EffectMagnitude/CalcMagnitude
+		debugprint "Относительная сила зачарования эффекта: %f" EffectValue
+	else
+		debugprint "Эффект [%n][%i] недоступен для зачарования предметов и высчитать его магнитуду нельзя. Вклад эффекта не будет учитываться." EffectRef EffectRef
+	endif
+	let index := index + 1
+loop
+
+debugprint "Общая относительная сила зачарования предмета: %f" EffectValue
+
+SetFunctionValue EffectValue
+
+end

@@ -1,0 +1,107 @@
+﻿scn OEAddMagicResistValueFScr
+
+ref ScriptTarget
+
+float ActorGlobalNormalResistLow
+float ActorGlobalNormalResistHigh
+
+short MagicImmuneTokenCount
+short MagicMaximumResistTokenCount
+
+short MagicResistLowTokenCount
+short MagicResistMidTokenCount
+short MagicResistHighTokenCount
+
+short ActorHasMagicImmune
+short ActorHasMagicMaximumResist
+
+float ResistMagicMagSum
+
+float MagicResistMod
+float MagicResistNormal
+float MagicResistExisted
+
+float ResistMagicNew
+
+begin function { ScriptTarget }
+
+set ResistMagicMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSMA + ScriptTarget.GetTotalAEAbilityMagnitude WKMA + ScriptTarget.GetTotalAELesserPowerMagnitude RSMA + ScriptTarget.GetTotalAELesserPowerMagnitude WKMA + ScriptTarget.GetTotalAEPowerMagnitude RSMA + ScriptTarget.GetTotalAEPowerMagnitude WKMA
+
+
+set MagicImmuneTokenCount to ScriptTarget.getitemcount OEMagicImmuneToken
+set MagicMaximumResistTokenCount to ScriptTarget.getitemcount OEMagicMaximumResistToken
+if ResistMagicMagSum >= 100
+	;debugprint "У актера [%n] есть врожденный иммунитет к магии" ScriptTarget
+	set ActorHasMagicImmune to 1
+elseif MagicImmuneTokenCount > 0
+	;debugprint "У актера [%n] есть токен иммунитета к магии" ScriptTarget
+	set ActorHasMagicImmune to 1
+elseif MagicMaximumResistTokenCount > 0
+	;debugprint "У актера [%n] есть токен максимальной защиты к магии" ScriptTarget
+	set ActorHasMagicMaximumResist to 1
+endif
+
+if ActorHasMagicMaximumResist == 1
+	set MagicResistMod to OEActorResistMagicMax
+	;debugprint "Актер [%n], MagicResistMod = %g" ScriptTarget MagicResistMod
+elseif ActorHasMagicImmune == 1
+	set MagicResistMod to 200
+	;debugprint "Актер [%n], MagicResistMod = %g" ScriptTarget MagicResistMod
+elseif ActorHasMagicImmune == 0 && ActorHasMagicMaximumResist == 0
+	set ActorGlobalNormalResistLow to OEActorGlobalNormalResist - (OEActorResistMagicMax - OEActorGlobalNormalResist)*(sqrt OEAdditionalElementalResistDifference - 1)
+	set ActorGlobalNormalResistHigh to OEActorGlobalNormalResist + (OEActorResistMagicMax - OEActorGlobalNormalResist)*(1 - 1/sqrt OEAdditionalElementalResistDifference)
+	set MagicResistNormal to ScriptTarget.GetTotalActiveEffectMagnitude RSMA + ScriptTarget.GetTotalActiveEffectMagnitude WKMA + -(ScriptTarget.GetTotalAESpellMagnitude WKMA) + -(ScriptTarget.GetTotalAEEnchantmentMagnitude WKMA) + -(ScriptTarget.GetTotalAEAlchemyMagnitude WKMA)	;игнорирование уязвимости к магии, полученной посредством заклинаний, зачарований или алхимии
+	;debugprint "Актер [%n], MagicResistNormal до диминишинга = %g" ScriptTarget MagicResistNormal
+	
+	if MagicResistNormal <= 50
+		set MagicResistMod to MagicResistNormal
+	elseif MagicResistNormal > 50 && MagicResistNormal <= 100
+		set MagicResistMod to ( MagicResistNormal - 50  ) / 2 + 50
+	elseif MagicResistNormal > 100 && MagicResistNormal <= 200
+		set MagicResistMod to ( MagicResistNormal - 100 ) / 8 + 75
+	elseif MagicResistNormal > 200 && MagicResistNormal <= 600
+		set MagicResistMod to ( MagicResistNormal - 200 ) / 32 + 87.5
+	elseif MagicResistNormal > 600
+		set MagicResistMod to 100
+	endif
+	if MagicResistMod > OEActorResistMagicMax
+		set MagicResistMod to OEActorResistMagicMax
+	endif
+	
+	set MagicResistNormal to MagicResistMod					;теперь нормальным значением сопротивления является такое, которое прошло через диминишинг
+	
+	set MagicResistLowTokenCount to ScriptTarget.getitemcount OEMagicResistLowToken
+	set MagicResistMidTokenCount to ScriptTarget.getitemcount OEMagicResistMidToken
+	set MagicResistHighTokenCount to ScriptTarget.getitemcount OEMagicResistHighToken
+	
+	if MagicResistLowTokenCount > 0
+		set MagicResistMod to MagicResistMod + (OEActorResistMagicMax - MagicResistMod) * ActorGlobalNormalResistLow / 100
+	elseif MagicResistMidTokenCount > 0
+		set MagicResistMod to MagicResistMod + (OEActorResistMagicMax - MagicResistMod) * OEActorGlobalNormalResist / 100
+	elseif 	MagicResistHighTokenCount > 0
+		set MagicResistMod to MagicResistMod + (OEActorResistMagicMax - MagicResistMod) * ActorGlobalNormalResistHigh / 100
+	endif
+
+	;debugprint "Актер [%n], MagicResistMod = %g, MagicResistNormal = %g" ScriptTarget MagicResistMod MagicResistNormal
+
+	;if MagicResistMod < MagicResistNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
+	;	set MagicResistMod to MagicResistNormal
+	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, MagicResistMod = %g" ScriptTarget MagicResistMod
+	;endif
+endif
+
+set MagicResistMod to MagicResistMod - ScriptTarget.getbaseav resistMagic; - ScriptTarget.GetAVModC 61 script
+ScriptTarget.SetAVModC 64 max MagicResistMod
+set MagicResistExisted to ScriptTarget.getav resistMagic
+
+;debugprint "Актер [%n], назначенный резист MagicResistMod = %g, MagicResistExisted = %g" ScriptTarget MagicResistMod MagicResistExisted
+
+
+set ResistMagicNew to MagicResistExisted
+;debugprint "Вывод переменной ResistMagicNew = %g из функции обратно в скрипт" ResistMagicNew
+SetFunctionValue ResistMagicNew
+
+;debugprint "конец функции"
+
+
+end

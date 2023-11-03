@@ -1,0 +1,71 @@
+﻿scn OETESTGetFactionsAndRelationsMEFcr
+
+array_var FactionsArray
+array_var ActorsArray
+
+short Disposition
+short ArrSize
+short OEActorsInCellCount
+short index
+
+ref ScriptRef
+;ref Owner
+ref ActorRef
+
+;string_var OwnerId
+
+Begin ScriptEffectStart
+
+let ScriptRef := GetSelf
+let FactionsArray := ar_Construct Array
+let FactionsArray := ScriptRef.GetFactions
+printc "OEGetFactionsTESTMEFcr ScriptRef = %n, ar_dump FactionsArray" ScriptRef
+ar_dump FactionsArray
+
+;let Disposition := ScriptRef.GetDisposition Player
+;let Owner := ScriptRef.GetOwner
+;let OwnerId := GetRawFormIDString Owner
+;printc "OEGetFactionsTESTMEFcr Between [%n] and PlayerRef Disposition=%g" ScriptRef Disposition
+;printc "OEGetFactionsTESTMEFcr Owner=%n, OwnerId=%z" Owner OwnerId
+
+let ActorsArray := ar_Construct Array
+let OEActorsInCellCount := GetNumRefs 69 1
+let ActorsArray[0] := PlayerRef
+if OEActorsInCellCount > 0
+	let ActorsArray[1] := GetFirstRef 69 1
+	let index := 2
+	while index <= OEActorsInCellCount
+		let ActorsArray[index] := GetNextRef
+		let index := index + 1
+	loop
+endif
+let index := 0
+let ArrSize := ar_size ActorsArray
+while index < ArrSize
+	let ActorRef := ActorsArray[index]
+	if ScriptRef == ActorRef
+		ar_erase ActorsArray index
+		break
+	endif
+	let index := index + 1
+loop
+printc "Отношения между целью и актера в текущей клетке:"
+let index := 0
+let ArrSize := ar_size ActorsArray
+while index < ArrSize
+	
+	let ActorRef := ActorsArray[index]
+	let Disposition := ScriptRef.GetDisposition ActorRef
+	printc "Актер [%n] относится к актеру [%n]: %g" ScriptRef ActorRef Disposition
+	let Disposition := ActorRef.GetDisposition ScriptRef
+	printc "Актер [%n] относится к актеру [%n]: %g" ActorRef ScriptRef Disposition
+	
+	let index := index + 1
+loop
+
+
+;sv_destruct OwnerId
+
+messagebox "factions"
+
+End

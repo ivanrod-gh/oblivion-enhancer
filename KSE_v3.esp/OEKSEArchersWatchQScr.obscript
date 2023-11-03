@@ -1,0 +1,282 @@
+﻿scn OEKSEArchersWatchQScr
+
+float fQuestDelayTime
+
+array_var OEKSEActorsInCellArray
+array_var OEKSEArchersArray
+array_var OEKSEItemsArr
+array_var OEKSECurrentPackagesArray
+array_var OEKSEPackageData
+
+short OEKSEActorsInCellCount
+short OEKSEArchersCount
+short OEKSEIndex
+short OEKSEIndex2
+short OEKSEIndex3
+short OEKSEIsInArchersArray
+short OEKSEContainsRef
+short OEKSEHasABow
+short OEKSEItemsCount
+short OEKSEIsDead
+short OEKSESVCountACTIVATE
+short OEKSEArcherIsOutOfRange
+short OEKSEOldInCombat
+short OEKSECurrentInCombat
+short OEKSEReadyToReequip
+short OEKSECurrentPackagesCount
+short OEKSEActorCanDoArcheryTraining
+short OEKSEOldHasARestrictRandomFlag
+short OEKSECurrentHasARestrictRandomFlag
+short OEKSEProcessLevel
+short OEKSEQuestLocked
+
+ref OEKSEScriptTarget
+ref OEKSEArcherRef
+ref OEKSEItemRef
+ref OEKSEPackageRef
+ref OEKSEEquippedWeapon
+
+string_var OEKSECurrentProcedure
+string_var OEKSEOldProcedure
+
+
+;легенда:
+;OEKSEArchersArray[OEKSEIndex][0]	- реф актера
+;OEKSEArchersArray[OEKSEIndex][1]	- флаг, говорящий о том, что актеру необходимо "перенадеть" лук
+;OEKSEArchersArray[OEKSEIndex][2][0]	- сохраненная процедура актера, которая им ранее выполнялась
+;OEKSEArchersArray[OEKSEIndex][2][1]	- флаг, говорящий о том, может ли данный актер-лучник тренироваться в стрельбе из лука или нет
+;OEKSEArchersArray[OEKSEIndex][3]	- сохраненное оружие актера, которое он ранее носил
+;OEKSEArchersArray[OEKSEIndex][4]	- флаг, говорящий о том, в бою ли актер на данный момент или нет
+;OEKSEArchersArray[OEKSEIndex][5]	- таймер, начинащий отсчитывать время с момента начала необходимости "перенадевания" лука конкретным актером
+;отключено OEKSEArchersArray[OEKSEIndex][6]	- флаг, говорящий о том, что у актера есть запрещающая рандомизацию метка (т.е. рандомизация уже была проведена)
+;OEKSEArchersArray[OEKSEIndex][7]	- флаг, говорящий о том, что актер уже перенадел лук
+
+Begin GameMode
+
+if GetGameLoaded || GetGameRestarted
+	let OEKSEActorsInCellArray := ar_Construct Array
+	let OEKSEArchersArray := ar_Construct Array
+	let fQuestDelayTime := 1
+	
+	set OEKSEQuestLocked to OEKSEQuestLocked - 1
+endif
+if OEKSEQuestLocked != 0
+	if OEKSEInitQ.OEKSEInitializationCount > 0
+		set OEKSEInitQ.OEKSEInitializationCount to OEKSEInitQ.OEKSEInitializationCount - 1
+		set OEKSEQuestLocked to 0
+	else	
+		return
+	endif
+endif
+
+if OEKSEArrowBugFix == 1
+	let OEKSEArchersCount := ar_size OEKSEArchersArray							;очистка массива сохраненных актеров-лучников от не имеющих рефа или находящихся слишко далеко
+	let OEKSEIndex := OEKSEArchersCount - 1
+	while OEKSEIndex >= 0
+		let OEKSEScriptTarget := OEKSEArchersArray[OEKSEIndex][0]
+		;let OEKSEContainsRef := 0
+		;let OEKSEContainsRef := IsReference OEKSEScriptTarget
+		;let OEKSEIsDead := 0
+		;if OEKSEScriptTarget.getdead == 1
+		;	let OEKSEIsDead := 1
+		;endif
+		let OEKSEArcherIsOutOfRange := 0
+		if OEKSEScriptTarget.GetDistance player > 5000
+			let OEKSEArcherIsOutOfRange := 1
+		endif
+		;set OEKSEProcessLevel to OEKSEScriptTarget.GetProcessLevel
+		if IsFormValid OEKSEScriptTarget == 0 || OEKSEScriptTarget.GetDead == 1 || OEKSEArcherIsOutOfRange == 1 || OEKSEScriptTarget.GetProcessLevel > 1 || OEKSEScriptTarget.GetDisabled == 1
+			ar_erase OEKSEArchersArray OEKSEIndex
+		endif
+		let OEKSEIndex := OEKSEIndex - 1
+	loop
+	
+	;отключено
+;	let OEKSEArchersCount := ar_size OEKSEArchersArray
+;	let OEKSEIndex := 0
+;	while OEKSEIndex < OEKSEArchersCount
+;		let OEKSEScriptTarget := OEKSEArchersArray[OEKSEIndex][0]
+;			if OEKSEScriptTarget.IsGuard == 1
+;				let OEKSEEquippedWeapon := OEKSEScriptTarget.getEquippedObject 16
+;				if OEKSEEquippedWeapon == 0
+;					let OEKSEItemsArr := ar_Construct Array
+;					let OEKSEItemsArr := OEKSEScriptTarget.GetItems 33
+;					let OEKSEItemsCount := ar_size OEKSEItemsArr
+;					if OEKSEItemsCount > 0
+;						let OEKSEIndex2 := 0
+;						while OEKSEIndex2 < OEKSEItemsCount
+;							let OEKSEItemRef := OEKSEItemsArr[OEKSEIndex2]
+;							if OEKSEScriptTarget.GetWeaponType OEKSEItemRef == 5
+;								OEKSEScriptTarget.equipitem OEKSEItemRef
+;								break
+;							endif
+;							let OEKSEIndex2 := OEKSEIndex2 + 1
+;						loop
+;					endif
+;				endif
+;			endif
+;		let OEKSEIndex := OEKSEIndex + 1
+;	loop
+	
+	let OEKSEActorsInCellArray := ar_Construct Array						;наполнение временного масива актерами-НПС (у созданий бага лука нет в принципе)
+	let OEKSEScriptTarget := GetFirstRef 35 1
+	while OEKSEScriptTarget
+		if OEKSEScriptTarget.GetDead == 1 || OEKSEScriptTarget.GetDisabled == 1
+			let OEKSEScriptTarget := GetNextRef
+			continue
+		endif
+		let OEKSEActorsInCellArray[ar_size OEKSEActorsInCellArray] := OEKSEScriptTarget
+		let OEKSEScriptTarget := GetNextRef
+	loop
+	
+	let OEKSEIndex := 0													;отслеживание лучников. дергает лук, когда это необходимо
+	let OEKSEArchersCount := ar_size OEKSEArchersArray
+	while OEKSEIndex < OEKSEArchersCount
+		if eval(OEKSEArchersArray[OEKSEIndex][7]) == 0
+			let OEKSEScriptTarget := OEKSEArchersArray[OEKSEIndex][0]
+			
+			;всякие лучные тренировки были убраны из проверки, ибо зря жрутся ресурсы цп
+;			let OEKSEActorCanDoArcheryTraining := OEKSEArchersArray[OEKSEIndex][2][1]
+;			if OEKSEActorCanDoArcheryTraining == 1
+;				let OEKSEOldProcedure := OEKSEArchersArray[OEKSEIndex][2][0]
+;				let OEKSECurrentProcedure := OEKSEScriptTarget.GetCurrentPackageProcedure
+;				let OEKSESVCountACTIVATE := sv_Count "ACTIVATE" OEKSECurrentProcedure	
+;				if eval OEKSEOldProcedure != OEKSECurrentProcedure
+;					if OEKSESVCountACTIVATE > 0
+;						let OEKSEArchersArray[OEKSEIndex][1] := 1
+;					endif
+;				endif
+;				let OEKSEArchersArray[OEKSEIndex][2][0] := OEKSECurrentProcedure 
+;			endif
+;			
+;			let OEKSEOldInCombat := OEKSEArchersArray[OEKSEIndex][4]
+;			let OEKSECurrentInCombat := OEKSEScriptTarget.IsInCombat
+;			if OEKSEOldInCombat == 0 && OEKSECurrentInCombat == 1
+;				let OEKSEArchersArray[OEKSEIndex][1] := 1
+;				let OEKSEArchersArray[OEKSEIndex][4] := OEKSECurrentInCombat
+;			elseif OEKSEOldInCombat == 1 && OEKSECurrentInCombat == 0 && OEKSEScriptTarget.GetIsAlerted == 0
+;				let OEKSEArchersArray[OEKSEIndex][4] := OEKSECurrentInCombat
+;			endif
+;			
+;			if KeaSettingRandomItem == 1
+;		;		let OEKSEOldHasARestrictRandomFlag := OEKSEArchersArray[OEKSEIndex][6]
+;				let OEKSECurrentHasARestrictRandomFlag := 0
+;				if OEKSEScriptTarget.getitemcount OEItemRandomizationRestrictToken == 1
+;					let OEKSECurrentHasARestrictRandomFlag := 1
+;				endif
+;		;		if OEKSEOldHasARestrictRandomFlag == 0 && OEKSECurrentHasARestrictRandomFlag == 1 && OEKSECurrentInCombat == 1
+;				if OEKSECurrentHasARestrictRandomFlag == 1 && OEKSECurrentInCombat == 1
+;					let OEKSEArchersArray[OEKSEIndex][1] := 1
+;				endif
+;		;		let OEKSEArchersArray[OEKSEIndex][6] := OEKSECurrentHasARestrictRandomFlag
+;			elseif OEKSECurrentInCombat == 1
+;				let OEKSEArchersArray[OEKSEIndex][1] := 1
+;			endif
+;			
+;			if eval(OEKSEArchersArray[OEKSEIndex][1]) == 1
+			if OEKSEScriptTarget.IsInCombat
+				let OEKSEItemRef := OEKSEScriptTarget.getEquippedObject 16
+				if getweapontype OEKSEItemRef == 5
+					let OEKSEReadyToReequip := 0
+					
+					if OEKSEScriptTarget.IsAnimGroupPlaying Idle == 1 || OEKSEScriptTarget.IsAnimGroupPlaying Forward == 1 || OEKSEScriptTarget.IsAnimGroupPlaying Backward == 1 || OEKSEScriptTarget.IsAnimGroupPlaying Left == 1 || OEKSEScriptTarget.IsAnimGroupPlaying Right == 1 || OEKSEScriptTarget.IsAnimGroupPlaying FastForward == 1 || OEKSEScriptTarget.IsAnimGroupPlaying FastBackward == 1 || OEKSEScriptTarget.IsAnimGroupPlaying FastLeft == 1 || OEKSEScriptTarget.IsAnimGroupPlaying FastRight == 1
+						let OEKSEReadyToReequip := 1
+					elseif OEKSEScriptTarget.IsAnimGroupPlaying Equip == 1 || OEKSEScriptTarget.IsAnimGroupPlaying AttackBow == 1 || OEKSEScriptTarget.IsAnimGroupPlaying TurnLeft == 1 || OEKSEScriptTarget.IsAnimGroupPlaying TurnRight == 1 
+					;|| OEKSEScriptTarget.IsAnimGroupPlaying AttackLeft == 1 || OEKSEScriptTarget.IsAnimGroupPlaying AttackRight == 1 || OEKSEScriptTarget.IsAnimGroupPlaying AttackPower == 1 || OEKSEScriptTarget.IsAnimGroupPlaying AttackForwardPower == 1 || OEKSEScriptTarget.IsAnimGroupPlaying AttackBackPower == 1 || OEKSEScriptTarget.IsAnimGroupPlaying AttackLeftPower == 1 || OEKSEScriptTarget.IsAnimGroupPlaying AttackRightPower == 1
+						let OEKSEReadyToReequip := 1
+					endif
+						
+					if OEKSEScriptTarget.IsAnimGroupPlaying DodgeForward == 1 || OEKSEScriptTarget.IsAnimGroupPlaying DodgeBack == 1 || OEKSEScriptTarget.IsAnimGroupPlaying DodgeLeft == 1 || OEKSEScriptTarget.IsAnimGroupPlaying DodgeRight == 1 || OEKSEScriptTarget.IsAnimGroupPlaying Unequip == 1 || OEKSEScriptTarget.IsAnimGroupPlaying DynamicIdle == 1 || OEKSEScriptTarget.IsAnimGroupPlaying SpecialIdle == 1 
+						let OEKSEReadyToReequip := 0
+					elseif OEKSEScriptTarget.IsAnimGroupPlaying BlockIdle == 1 || OEKSEScriptTarget.IsAnimGroupPlaying BlockHit == 1 || OEKSEScriptTarget.IsAnimGroupPlaying BlockAttack == 1 || OEKSEScriptTarget.IsAnimGroupPlaying Recoil == 1 || OEKSEScriptTarget.IsAnimGroupPlaying Stagger == 1 || OEKSEScriptTarget.IsAnimGroupPlaying Death == 1 || OEKSEScriptTarget.IsAnimGroupPlaying TorchIdle == 1 || OEKSEScriptTarget.IsAnimGroupPlaying CastSelf == 1 || OEKSEScriptTarget.IsAnimGroupPlaying CastTouch == 1
+						let OEKSEReadyToReequip := 0
+					elseif OEKSEScriptTarget.IsAnimGroupPlaying CastTarget == 1 || OEKSEScriptTarget.IsAnimGroupPlaying CastSelfAlt == 1 || OEKSEScriptTarget.IsAnimGroupPlaying CastTouchAlt == 1 || OEKSEScriptTarget.IsAnimGroupPlaying CastTargetAlt == 1 || OEKSEScriptTarget.IsAnimGroupPlaying JumpStart == 1 || OEKSEScriptTarget.IsAnimGroupPlaying JumpLoop == 1 || OEKSEScriptTarget.IsAnimGroupPlaying JumpLand == 1
+						let OEKSEReadyToReequip := 0
+					endif
+						
+					if OEKSEReadyToReequip == 1
+						OEKSEScriptTarget.unequipitem OEKSEItemRef
+						OEKSEScriptTarget.equipitem OEKSEItemRef
+						let OEKSEArchersArray[OEKSEIndex][1] := 0		;актеру не нужно перенадевать лук
+						let OEKSEArchersArray[OEKSEIndex][7] := 1		;он его уже перенадел
+					endif
+				endif
+			endif
+		endif
+		let OEKSEIndex := OEKSEIndex + 1
+	loop
+	
+	let OEKSEIndex := 0											;создание массива сохраненных актеров-лучников
+	let OEKSEActorsInCellCount := ar_size OEKSEActorsInCellArray
+	while OEKSEIndex < OEKSEActorsInCellCount
+		let OEKSEScriptTarget := OEKSEActorsInCellArray[OEKSEIndex]
+		let OEKSEIndex2 := 0
+		let OEKSEIsInArchersArray := 0
+		while OEKSEIndex2 < OEKSEArchersCount
+			let OEKSEArcherRef := OEKSEArchersArray[OEKSEIndex2][0]
+			if OEKSEScriptTarget == OEKSEArcherRef
+				let OEKSEIsInArchersArray := 1
+				break
+			endif
+			let OEKSEIndex2 := OEKSEIndex2 + 1
+		loop
+		if OEKSEIsInArchersArray == 0
+			let OEKSEItemsArr := OEKSEScriptTarget.GetItems 33
+			let OEKSEItemsCount := ar_size OEKSEItemsArr
+			let OEKSEIndex3 := 0
+			let OEKSEHasABow := 0
+			while OEKSEIndex3 < OEKSEItemsCount
+				let OEKSEItemRef := OEKSEItemsArr[OEKSEIndex3]
+				if GetWeaponType OEKSEItemRef == 5
+					let OEKSEHasABow := 1
+					break
+				endif
+				let OEKSEIndex3 := OEKSEIndex3 +1
+			loop
+			let OEKSEIsDead := OEKSEScriptTarget.getdead
+			
+			if OEKSEHasABow == 1 && OEKSEIsDead == 0 && OEKSEScriptTarget.GetDistance player <= 30000
+				let OEKSEArchersArray[OEKSEArchersCount] := ar_Construct Array
+				let OEKSEArchersArray[OEKSEArchersCount][0] := OEKSEScriptTarget
+				let OEKSEArchersArray[OEKSEArchersCount][1] := 0
+				let OEKSEArchersArray[OEKSEArchersCount][2] := 0
+				;отключено
+;				let OEKSEArchersArray[OEKSEArchersCount][2] := ar_Construct Array
+;				let OEKSECurrentProcedure := OEKSEScriptTarget.GetCurrentPackageProcedure
+;				let OEKSEArchersArray[OEKSEArchersCount][2][0] := OEKSECurrentProcedure
+;				let OEKSEArchersArray[OEKSEArchersCount][2][1] := 0
+;				let OEKSECurrentPackagesArray := OEKSEScriptTarget.GetActorPackages
+;				let OEKSECurrentPackagesCount := ar_size OEKSECurrentPackagesArray
+;				let OEKSEIndex3 := 0
+;				while OEKSEIndex3 < OEKSECurrentPackagesCount
+;					let OEKSEPackageRef := OEKSECurrentPackagesArray[OEKSEIndex3]
+;					let OEKSEPackageData := ar_Construct StringMap
+;					let OEKSEPackageData := GetPackageData OEKSEPackageRef
+;					if eval (OEKSEPackageData["Type"] == "UseItemAt")
+;						let OEKSEArchersArray[OEKSEArchersCount][2][1] := 1
+;					endif
+;					let OEKSEIndex3 := OEKSEIndex3 + 1
+;				loop
+				let OEKSEArchersArray[OEKSEArchersCount][3] := 0
+				let OEKSEArchersArray[OEKSEArchersCount][4] := 0
+				;отключено
+;				let OEKSECurrentInCombat := OEKSEScriptTarget.IsInCombat
+;				let OEKSEArchersArray[OEKSEArchersCount][4] := OEKSECurrentInCombat
+				let OEKSEArchersArray[OEKSEArchersCount][5] := 0
+				;отключено
+;				let OEKSECurrentHasARestrictRandomFlag := 0
+;				if OEKSEScriptTarget.getitemcount OEItemRandomizationRestrictToken == 1
+;					let OEKSECurrentHasARestrictRandomFlag := 1
+;				endif
+;				let OEKSEArchersArray[OEKSEArchersCount][6] := OEKSECurrentHasARestrictRandomFlag
+				let OEKSEArchersArray[OEKSEArchersCount][6] := 0
+				let OEKSEArchersArray[OEKSEArchersCount][7] := 0
+				let OEKSEArchersCount := ar_size OEKSEArchersArray
+			endif
+		endif
+		let OEKSEIndex := OEKSEIndex + 1
+	loop
+
+endif
+
+End

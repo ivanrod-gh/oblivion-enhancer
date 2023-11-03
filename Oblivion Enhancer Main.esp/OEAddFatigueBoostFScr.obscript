@@ -1,0 +1,72 @@
+﻿scn OEAddFatigueBoostFScr
+
+ref ScriptTarget
+short RandomDice
+short FatigueExisted
+float FatigueMod
+short FatigueDiff
+short FatigueBoostStrength
+short IsFatigueBoostCritical
+short FatigueBoostTokenCount
+float FatigueBoostChance
+float FatigueBoostVeryHighChance
+
+begin function { ScriptTarget }
+
+set FatigueBoostChance to OEAdditionalFatigueBoostChance + 0.99
+set FatigueBoostVeryHighChance to OEAdditionalFatigueBoostVeryHighChance + 0.99
+
+set FatigueExisted to ScriptTarget.getbaseav Fatigue + ScriptTarget.GetAVMod Fatigue script
+;debugprint "Актер [%n], значение запаса сил base + script = %g" ScriptTarget FatigueExisted
+set RandomDice to rand 1, FatigueBoostChance
+if RandomDice == 1
+
+	set RandomDice to rand 1, 3.99
+
+	if RandomDice == 1
+		set FatigueBoostStrength to 0
+	elseif RandomDice == 2
+		set FatigueBoostStrength to 1
+	elseif RandomDice == 3
+		set FatigueBoostStrength to -1
+	endif
+
+	set RandomDice to rand 1, FatigueBoostVeryHighChance
+	if RandomDice == 1
+		set IsFatigueBoostCritical to 1
+	endif
+	
+	if IsFatigueBoostCritical != 1
+		if FatigueBoostStrength == 0
+			set FatigueMod to (OEAdditionalFatigueBoostValue - 1) * 0.66
+		elseif FatigueBoostStrength == 1
+			set FatigueMod to OEAdditionalFatigueBoostValue - 1
+		elseif FatigueBoostStrength == -1
+			set FatigueMod to (OEAdditionalFatigueBoostValue - 1) * 0.33
+		endif
+		set FatigueDiff to FatigueExisted * FatigueMod
+	elseif IsFatigueBoostCritical == 1
+		set FatigueDiff to FatigueExisted * (OEAdditionalFatigueBoostVeryHighValue - 1)
+	endif
+	ScriptTarget.ModAVMod Fatigue script FatigueDiff
+	;;;;;;;;;;;;
+	set FatigueMod to FatigueMod + 1
+	if IsFatigueBoostCritical != 1
+		;debugprint "Актеру [%n] увеличена запас сил в %.2f раза" ScriptTarget FatigueMod
+	else
+		;debugprint "Актеру [%n] увеличена запас сил в 3 раза. Критическое увеличение!" ScriptTarget
+	endif
+	;;;;;;;;;;;;
+;;;;;;;;;;;;
+else
+	;debugprint "Актеру [%n] увеличение запаса сил не производилось" ScriptTarget
+;;;;;;;;;;;;
+endif
+
+set FatigueBoostTokenCount to ScriptTarget.getitemcount OEFatigueBoostToken
+ScriptTarget.removeitem OEFatigueBoostToken FatigueBoostTokenCount
+ScriptTarget.additem OEFatigueBoostToken 1
+
+;debugprint "Актер [%n], выдан токен функции усиления запаса сил" ScriptTarget
+
+end

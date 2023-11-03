@@ -1,0 +1,41 @@
+﻿scn OEAddSummonerToSummonersArrayFScr
+
+short RandomDice
+
+ref ScriptTarget
+ref ActorRef
+
+int EffectCode
+
+Begin Function {ScriptTarget, EffectCode}
+
+let OEGlobalWatchQ.OESummonersSubArray[ar_size OEGlobalWatchQ.OESummonersSubArray] := ScriptTarget
+
+;решение проблемы вылета от Supreme Magicka из-за использования уровневого существа вместо НПС
+if eval(GetMagicEffectCharsC EffectCode == "ZDRE")
+	let RandomDice := rand 0 3.99
+	if RandomDice == 0
+		let ActorRef := OESummonDremora3KynreeveMelee1
+	elseif RandomDice == 1
+		let ActorRef := OESummonDremora3KynreeveMelee2
+	elseif RandomDice == 2
+		let ActorRef := OESummonDremora3KynreeveMelee3
+	elseif RandomDice == 3
+		let ActorRef := OESummonDremora3KynreeveMelee4
+	endif
+	SetMagicEffectUsedObject ActorRef ZDRE
+elseif eval(GetMagicEffectCharsC EffectCode == "ZDRL")
+	let RandomDice := rand 0 3.99
+	if RandomDice == 0
+		let ActorRef := OESummonDremora5MarkynazMelee1
+	elseif RandomDice == 1
+		let ActorRef := OESummonDremora5MarkynazMelee2
+	elseif RandomDice == 2
+		let ActorRef := OESummonDremora5MarkynazMelee3
+	elseif RandomDice == 3
+		let ActorRef := OESummonDremora5MarkynazMelee4
+	endif
+	SetMagicEffectUsedObject ActorRef ZDRL
+endif
+
+end

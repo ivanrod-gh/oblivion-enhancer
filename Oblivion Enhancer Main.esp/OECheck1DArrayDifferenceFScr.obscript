@@ -1,0 +1,66 @@
+﻿scn OECheck1DArrayDifferenceFScr
+
+array_var Array1DNewArray
+array_var Array1DOldArray
+
+short ArrSize1
+short ArrSize2
+short index
+short ArraysIsEqual
+
+begin function { Array1DNewArray, Array1DOldArray }
+
+if OEInitQ.OECheck1DArrayDifferenceFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Вызов функции OECheck1DArrayDifferenceFScr - проверка двух 1-мерных массивов на равенство друг с другом (идентичность)"
+
+let ArrSize1 := ar_size Array1DNewArray
+let ArrSize2 := ar_size Array1DOldArray
+debugprint "Для сравнения поступили два 1-мерных массива размерами [%g] и [%g]" ArrSize1 ArrSize2
+
+if ArrSize1 != ArrSize2
+	debugprint "Размеры двух массивов не равны, а, значит, массивы, прерывание сравнения, возврат значения -1 по месту вызова с дампом массивов"
+	let ArraysIsEqual := -1
+endif
+
+if ArraysIsEqual != -1
+	let index := 0
+	while index < ArrSize1
+		if eval(Array1DNewArray[index] != Array1DOldArray[index])
+			let ArraysIsEqual := -1
+			debugprint "Записи с индексом %g у массивов не равны, прерывается сравнение, выполняется дамп обоих массивов и возвращается значение -1 по месту вызова" index
+			break
+		else
+			debugprint "Записи идентичны"
+		endif
+		let index := index + 1
+	loop
+endif
+
+if OEInitQ.OECheck1DArrayDifferenceFScrDebugMode == 1
+	if ArraysIsEqual == -1
+	debugprint "Дамп массива 1:"
+	debugprint "========================"
+	ar_dump Array1DNewArray
+	debugprint "========================"
+	debugprint "Дамп массива 2:"
+	debugprint "========================"
+	ar_dump Array1DOldArray
+	debugprint "========================"
+	endif
+endif
+
+if ArraysIsEqual != -1
+	debugprint "Признаков неравенства двух 1-мерных массивов не обнаружено, по-этому они признаны одинаковыми. Возврат значения 1 по месту вызова"
+	let ArraysIsEqual := 1
+endif
+
+SetFunctionValue ArraysIsEqual
+
+if OEInitQ.OECheck1DArrayDifferenceFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

@@ -1,0 +1,39 @@
+﻿scn OEKSEAmbientSoundBurnMEScr
+
+float timer
+
+ref Self
+
+begin gamemode
+
+if keaEffectExtender.kObjectScriptsBlockTimer > 0
+	return
+endif
+
+if Self == 0
+	let Self := GetContainer
+	if Self == 0
+		return
+	endif
+endif
+if Self != 0 && IsFormValid Self == 1 && Self.GetDisabled == 1
+	return
+endif
+
+if Self.GetDead == 1
+	removeme
+	return
+endif
+
+let timer := timer + getsecondspassed
+if timer > 1
+	if eval(ar_HasKey OEKSEBattleMagicAbilityQ.OEKSEAffectedActorsArray GetRawFormIdString Self) == 0
+		removeme
+		return
+	endif
+	let timer := 0
+endif
+
+PlaySound3D OEKSEAmbientSoundBurn
+
+end

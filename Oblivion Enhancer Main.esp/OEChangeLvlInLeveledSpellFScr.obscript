@@ -1,0 +1,40 @@
+﻿scn OEChangeLvlInLeveledSpellFScr
+
+short ArrSize1
+short index1
+short index2
+short NewLevel
+short NumLevItems
+short LevItemLevel
+
+ref SpellRef
+ref SpellRef2
+ref LeveledListRef
+
+begin function { SpellRef NewLevel }
+
+let ArrSize1 := ar_size OEInitQ.OEStandardSummonLeveledSpellsArray
+let index1 := 0
+while index1 < ArrSize1
+	let LeveledListRef := OEInitQ.OEStandardSummonLeveledSpellsArray[index1]
+	if OEInitQ.OESummonLvlSpellRecombFScrDebugMode == 1
+		call OEShowLeveledListByLevelFScr LeveledListRef
+	endif
+	let NumLevItems := GetNumLevitems LeveledListRef
+	let index2 := 0
+	while index2 < NumLevItems
+		let SpellRef2 := GetNthLevItem index2 LeveledListRef
+		if SpellRef == SpellRef2
+			RemoveFromLeveledList LeveledListRef SpellRef
+			AddToLeveledList LeveledListRef SpellRef NewLevel 1
+			if OEInitQ.OESummonLvlSpellRecombFScrDebugMode == 1
+				call OEShowLeveledListByLevelFScr LeveledListRef
+			endif
+			break
+		endif
+		let index2 := index2 + 1
+	loop
+	let index1 := index1 + 1
+loop
+
+end

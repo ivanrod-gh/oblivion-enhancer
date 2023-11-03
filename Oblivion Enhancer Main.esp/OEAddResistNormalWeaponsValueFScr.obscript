@@ -1,0 +1,102 @@
+﻿scn OEAddResistNormalWeaponsValueFScr
+
+ref ScriptTarget
+
+short NormalWeaponsImmuneTokenCount
+short NormalWeaponsMaximumResistTokenCount
+
+short NormalWeaponsResistLowTokenCount
+short NormalWeaponsResistMidTokenCount
+short NormalWeaponsResistHighTokenCount
+
+short ActorHasNormalWeaponsImmune
+short ActorHasNormalWeaponsMaximumResist
+
+float ResistNormalWeaponsMagSum
+
+float NormalWeaponsResistMod
+float NormalWeaponsResistNormal
+float NormalWeaponsResistExisted
+
+float ResistNormalWeaponsNew
+
+begin function { ScriptTarget }
+
+set ResistNormalWeaponsMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSNW + ScriptTarget.GetTotalAEAbilityMagnitude WKNW + ScriptTarget.GetTotalAELesserPowerMagnitude RSNW + ScriptTarget.GetTotalAELesserPowerMagnitude WKNW + ScriptTarget.GetTotalAEPowerMagnitude RSNW + ScriptTarget.GetTotalAEPowerMagnitude WKNW
+
+
+set NormalWeaponsImmuneTokenCount to ScriptTarget.getitemcount OENormalWeaponsImmuneToken
+set NormalWeaponsMaximumResistTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistMaximumToken
+if ResistNormalWeaponsMagSum >= 100
+	;debugprint "У актера [%n] есть врожденный иммунитет к обычному оружию" ScriptTarget
+	set ActorHasNormalWeaponsImmune to 1
+elseif NormalWeaponsImmuneTokenCount > 0
+	;debugprint "У актера [%n] есть токен иммунитета к обычному оружию" ScriptTarget
+	set ActorHasNormalWeaponsImmune to 1
+elseif NormalWeaponsMaximumResistTokenCount > 0
+	;debugprint "У актера [%n] есть токен максимальной защиты к обычному оружию" ScriptTarget
+	set ActorHasNormalWeaponsMaximumResist to 1
+endif
+
+if ActorHasNormalWeaponsMaximumResist == 1
+	set NormalWeaponsResistMod to OEActorResistNormalWeaponsMax
+	;debugprint "Актер [%n], NormalWeaponsResistMod = %g" ScriptTarget NormalWeaponsResistMod
+elseif ActorHasNormalWeaponsImmune == 1
+	set NormalWeaponsResistMod to 200
+	;debugprint "Актер [%n], NormalWeaponsResistMod = %g" ScriptTarget NormalWeaponsResistMod
+elseif ActorHasNormalWeaponsImmune == 0 && ActorHasNormalWeaponsMaximumResist == 0
+	set NormalWeaponsResistNormal to ScriptTarget.GetTotalActiveEffectMagnitude RSNW + ScriptTarget.GetTotalActiveEffectMagnitude WKNW + -(ScriptTarget.GetTotalAESpellMagnitude WKNW) + -(ScriptTarget.GetTotalAEEnchantmentMagnitude WKNW) + -(ScriptTarget.GetTotalAEAlchemyMagnitude WKNW)	;игнорирование уязвимости к обычному оружию, полученной посредством заклинаний, зачарований или алхимии
+	;debugprint "Актер [%n], NormalWeaponsResistNormal до диминишинга = %g" ScriptTarget NormalWeaponsResistNormal
+	
+	if NormalWeaponsResistNormal <= 50
+		set NormalWeaponsResistMod to NormalWeaponsResistNormal
+	elseif NormalWeaponsResistNormal > 50 && NormalWeaponsResistNormal <= 100
+		set NormalWeaponsResistMod to ( NormalWeaponsResistNormal - 50  ) / 2 + 50
+	elseif NormalWeaponsResistNormal > 100 && NormalWeaponsResistNormal <= 200
+		set NormalWeaponsResistMod to ( NormalWeaponsResistNormal - 100 ) / 8 + 75
+	elseif NormalWeaponsResistNormal > 200 && NormalWeaponsResistNormal <= 600
+		set NormalWeaponsResistMod to ( NormalWeaponsResistNormal - 200 ) / 32 + 87.5
+	elseif NormalWeaponsResistNormal > 600
+		set NormalWeaponsResistMod to 100
+	endif
+	if NormalWeaponsResistMod > OEActorResistNormalWeaponsMax
+		set NormalWeaponsResistMod to OEActorResistNormalWeaponsMax
+	endif
+	
+	set NormalWeaponsResistNormal to NormalWeaponsResistMod					;теперь нормальным значением сопротивления является такое, которое прошло через диминишинг
+	
+	set NormalWeaponsResistLowTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistLowToken
+	set NormalWeaponsResistMidTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistMidToken
+	set NormalWeaponsResistHighTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistHighToken
+	
+	if NormalWeaponsResistLowTokenCount > 0
+		set NormalWeaponsResistMod to NormalWeaponsResistMod + (OEActorResistNormalWeaponsMax - NormalWeaponsResistMod) / 3
+	elseif NormalWeaponsResistMidTokenCount > 0
+		set NormalWeaponsResistMod to NormalWeaponsResistMod + (OEActorResistNormalWeaponsMax - NormalWeaponsResistMod) / 4
+	elseif 	NormalWeaponsResistHighTokenCount > 0
+		set NormalWeaponsResistMod to NormalWeaponsResistMod + (OEActorResistNormalWeaponsMax - NormalWeaponsResistMod) / 2
+	endif
+
+	;debugprint "Актер [%n], NormalWeaponsResistMod = %g, NormalWeaponsResistNormal = %g" ScriptTarget NormalWeaponsResistMod NormalWeaponsResistNormal
+
+	;if NormalWeaponsResistMod < NormalWeaponsResistNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
+	;	set NormalWeaponsResistMod to NormalWeaponsResistNormal
+	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, NormalWeaponsResistMod = %g" ScriptTarget NormalWeaponsResistMod
+	;endif
+endif
+
+set NormalWeaponsResistMod to NormalWeaponsResistMod - ScriptTarget.getbaseav ResistNormalWeapons; - ScriptTarget.GetAVModC 61 script
+ScriptTarget.SetAVModC 65 max NormalWeaponsResistMod
+set NormalWeaponsResistExisted to ScriptTarget.getav resistNormalWeapons
+
+;debugprint "Актер [%n], назначенный резист NormalWeaponsResistMod = %g, NormalWeaponsResistExisted = %g" ScriptTarget NormalWeaponsResistMod NormalWeaponsResistExisted
+
+
+set ResistNormalWeaponsNew to NormalWeaponsResistExisted
+;debugprint "Вывод переменной ResistNormalWeaponsNew = %g из функции обратно в скрипт" ResistNormalWeaponsNew
+SetFunctionValue ResistNormalWeaponsNew
+
+;debugprint "конец функции"
+
+
+end

@@ -1,0 +1,317 @@
+﻿scn OEExtractLevelListsFScr
+
+array_var LeveledListArray
+array_var TempArr
+array_var InnerObjectTypeArray
+
+short ArrSize1
+short ArrSize2
+short ArrSize3
+short ArrSize4
+short NumLevItems
+short index1
+short index2
+short index3
+short index4
+short RefFounded
+short FoundedRefIndex
+short ItemSlot
+short LeveledListGroup
+short LeveledListGroup2
+short SlotId
+short SlotId2
+short SlotId3
+short MissplacedObjectTransferred
+short InnerObjectType
+short InnerObjectType2
+short InnerObjectType3
+short SameInnerObjectTypeFounded
+short SlotMaskId
+
+ref MainLevItemRef
+ref SecLevItemRef
+ref LevItemRef
+
+string_var InnerObjectTypesStr
+
+begin function { MainLevItemRef, LeveledListGroup, SlotId, InnerObjectTypeArray}
+
+debugprint "Вызов функции OEExtractLevelListsFScr - извлечение всех (в том числе - вложенных) объектов из уровневого списка и сохранение в виде массива"
+
+let LeveledListArray := ar_construct Array
+
+;извлечение уровневого списка во временный массив
+let TempArr := ar_construct Array
+debugprint "Рассматривается основной уровневый список [%i]" MainLevItemRef
+let NumLevItems := GetNumLevItems MainLevItemRef
+debugprint "Объектов в уровневом списке - %g" NumLevItems
+let index1 := 0
+while index1 < NumLevItems
+	let LevItemRef := GetNthLevItem index1 MainLevItemRef
+	debugprint "Объект [%n][%i] добавляется во временный массив" LevItemRef LevItemRef
+	let ArrSize2 := ar_size TempArr
+	let TempArr[ArrSize2] := LevItemRef
+	let index1 := index1 + 1
+loop
+
+;обработка временного массива - удаление повторяющихся записей
+let ArrSize1 := ar_size TempArr
+debugprint "Принят массив размером %g" ArrSize1
+let index1 := 0
+while index1 < ArrSize1
+	let LevItemRef := TempArr[index1]
+	debugprint "Объект [%n][%i] рассматривается" LevItemRef LevItemRef
+	let index2 := index1 + 1
+	let index3 := ArrSize1 - 1
+	let RefFounded := 0
+	while index3 > index1
+		let FoundedRefIndex := ar_find LevItemRef TempArr index2:index3
+		if FoundedRefIndex >= index2
+			ar_erase TempArr FoundedRefIndex
+			let RefFounded := 1
+			debugprint "Объект [%n][%i] присутствует в TempArr более 1 раза, удаление записи с индексом %g из массива" LevItemRef LevItemRef index3
+		else
+			debugprint "Объект [%n][%i] присутствует в TempArr в единственном экземпляре, прерывание поиска" LevItemRef LevItemRef
+			break
+		endif
+		let index3 := index3 - 1
+	loop
+	if RefFounded == 1
+		let ArrSize1 := ar_size TempArr
+	endif
+	let index1 := index1 + 1
+loop
+
+;передача объектов из временного массива в основной
+let ArrSize1 := ar_size TempArr
+debugprint "Передача объектов из временного массива в основной, размер временного массива предметов после поиска одинаковых записей - [%g]" ArrSize1
+let index1 := 0
+while index1 < ArrSize1
+	let LevItemRef := TempArr[index1]
+	debugprint "Рассматривается объект [%n][%i] с индексом [%g]" LevItemRef LevItemRef index1
+	let ArrSize2 := ar_size LeveledListArray
+	if eval(ar_find LevItemRef LeveledListArray) < 0
+		debugprint "Добавление [%n][%i] в массив LeveledListArray" LevItemRef LevItemRef
+		let LeveledListArray[ArrSize2] := LevItemRef
+	else
+		debugprint "Объект [%n][%i] уже присутствует в LeveledListArray" LevItemRef LevItemRef
+	endif
+
+	let index1 := index1 + 1
+loop
+
+let index1 := 0
+let ArrSize1 := ar_size LeveledListArray
+debugprint "Размер основного массива предметов - [%g]" ArrSize1
+if ArrSize1 > 0
+	while index1 < ArrSize1
+		let SecLevItemRef := LeveledListArray[index1]
+		debugprint "Рассматривается объект [%n][%i] с индексом [%g]" SecLevItemRef SecLevItemRef index1
+		if GetObjectType SecLevItemRef == 43
+			debugprint "Этот объект - уровневый список, добавление в основной массив всех объектов из этого уровневого списка"
+			;извлечение уровневого списка во временный массив
+			let TempArr := ar_construct Array
+			debugprint "Рассматривается уровневый список [%i]" SecLevItemRef
+			let NumLevItems := GetNumLevItems SecLevItemRef
+			debugprint "Объектов в уровневом списке - %g" NumLevItems
+			let index2 := 0
+			while index2 < NumLevItems
+				let LevItemRef := GetNthLevItem index2 SecLevItemRef
+				debugprint "Объект [%n][%i] добавляется во временный массив" LevItemRef LevItemRef
+				let ArrSize3 := ar_size TempArr
+				let TempArr[ArrSize3] := LevItemRef
+				let index2 := index2 + 1
+			loop
+			;обработка временного массива - удаление повторяющихся записей
+			let ArrSize3 := ar_size TempArr
+			let index2 := 0
+			while index2 < ArrSize3
+				let LevItemRef := TempArr[index2]
+				debugprint "Рассматривается объект [%n][%i]" LevItemRef LevItemRef
+				let index3 := index2 + 1
+				let index4 := ArrSize3 - 1
+				let RefFounded := 0
+				while index4 > index1
+					let FoundedRefIndex := ar_find LevItemRef TempArr index3:index4
+					if FoundedRefIndex >= index3
+						ar_erase TempArr FoundedRefIndex
+						let RefFounded := 1
+						debugprint "Объект [%n][%i] присутствует в TempArr более 1 раза, удаление записи с индексом %g из массива" LevItemRef LevItemRef index4
+					else
+						debugprint "Объект [%n][%i] присутствует в TempArr в единственном экземпляре, прерывание поиска" LevItemRef LevItemRef
+						break
+					endif
+					let index4 := index4 - 1
+				loop
+				if RefFounded == 1
+					let ArrSize3 := ar_size TempArr
+				endif
+				let index2 := index2 + 1
+			loop
+			;передача объектов из временного массива в основной
+			let ArrSize1 := ar_size TempArr
+			debugprint "Передача объектов из временного массива в основной, размер TempArr [%g]" ArrSize1
+			let index2 := 0
+			while index2 < ArrSize1
+				let LevItemRef := TempArr[index2]
+				debugprint "Рассматривается объект [%n][%i]" LevItemRef LevItemRef
+				let ArrSize3 := ar_size LeveledListArray
+				if eval(ar_find LevItemRef LeveledListArray) < 0
+					debugprint "Добавление [%n][%i] в массив LeveledListArray" LevItemRef LevItemRef
+					let LeveledListArray[ArrSize3] := LevItemRef
+				else
+					debugprint "Объект [%n][%i] уже присутствует в LeveledListArray" LevItemRef LevItemRef
+				endif
+				let index2 := index2 + 1
+			loop
+			
+			;для того, чтобы пресечь зацикливание при обработке зацикленных уровневых списков с большим уровнем вложенности
+			;уровневые списки из LeveledListArray удаляются отдельным циклом
+			;ar_erase LeveledListArray index1
+			let ArrSize1 := ar_size LeveledListArray
+			debugprint "Размер основного массива - %g" ArrSize1
+			;continue
+		else
+			debugprint "Этот объект не является уровневым списком, никак не обрабатывается и просто сохраняется в LeveledListArray"
+		endif
+		
+		let index1 := index1 + 1
+	loop
+endif
+
+;удаление уровневых списков из LeveledListArray и разбор пересортицы
+let ArrSize1 := ar_size LeveledListArray
+let index1 := ArrSize1 - 1
+if LeveledListGroup != 999
+	;с поиском пересортицы
+	debugprint "Производится обработка [%n][%i] с поиском пересортицы" MainLevItemRef MainLevItemRef
+	while index1 >= 0
+		let LevItemRef := LeveledListArray[index1]
+		debugprint "Рассматривается объект [%n][%i] с индексом [%g]" LevItemRef LevItemRef index1
+		if GetObjectType LevItemRef == 43
+			debugprint "Объект - уровневый список, он удаляется из массива" LevItemRef LevItemRef
+			ar_erase LeveledListArray index1
+		elseif GetObjectType LevItemRef != 20 && GetObjectType LevItemRef != 33
+			debugprint "Объект - не оружие и не броня, он удаляется из массива" LevItemRef LevItemRef
+			ar_erase LeveledListArray index1
+		else
+			let SlotId2 := GetEquipmentSlot LevItemRef
+			let InnerObjectTypesStr := ""
+			let SameInnerObjectTypeFounded := -1
+			if GetObjectType LevItemRef == 20
+				let InnerObjectType2 := GetArmorType LevItemRef
+			elseif GetObjectType LevItemRef == 33
+				let InnerObjectType2 := GetWeaponType LevItemRef
+			endif
+			if SlotId2 == 0 && GetObjectType LevItemRef == 20
+				let SlotMaskId := GetBipedSlotMask LevItemRef
+				if SlotMaskId == 1 || SlotMaskId == 2 || SlotMaskId == 3
+					let SlotId2 := 1
+					debugprint "Объекту [%n][%i] переназначен слот на [%g]" LevItemRef LevItemRef SlotId2
+				endif
+			endif
+			let index2 := 0
+			let ArrSize2 := ar_size InnerObjectTypeArray
+			while index2 < ArrSize2
+				let InnerObjectType := InnerObjectTypeArray[index2]
+				if InnerObjectType == InnerObjectType2
+					let SameInnerObjectTypeFounded := 1
+				endif
+				if eval(InnerObjectTypesStr == "")
+					let InnerObjectTypesStr := InnerObjectTypesStr + $InnerObjectType
+				else
+					let InnerObjectTypesStr := InnerObjectTypesStr + ", " + $InnerObjectType
+				endif
+				let InnerObjectTypesStr
+				let index2 := index2 + 1
+			loop
+			if SlotId != SlotId2 || SameInnerObjectTypeFounded == -1
+				debugprint "Обнаружен объект [%n][%i] со слотом [%g] и типом [%g], не подходящим данному уровневому списку (слот должен быть %g, тип должен быть [%z]). Поиск возможности для его перемещения в подходящий уровневый список." LevItemRef LevItemRef SlotId2 InnerObjectType2 SlotId InnerObjectTypesStr
+				let MissplacedObjectTransferred := -1
+				let index3 := 0
+				let ArrSize3 := ar_size OEInitQ.OELeveledListsMainArray
+				while index3 < ArrSize3
+					let SlotId3 := OEInitQ.OELeveledListsMainArray[index3][6]
+					let SameInnerObjectTypeFounded := -1
+					let index4 := 0
+					let ArrSize4 := ar_size OEInitQ.OELeveledListsMainArray[index3][7]
+					while index4 < ArrSize4
+						let InnerObjectType3 := OEInitQ.OELeveledListsMainArray[index3][7][index4]
+						if InnerObjectType2 == InnerObjectType3
+							let SameInnerObjectTypeFounded := 1
+						endif
+						let index4 := index4 + 1
+					loop
+					let LeveledListGroup2 := OEInitQ.OELeveledListsMainArray[index3][5]
+					if LeveledListGroup == LeveledListGroup2 && SlotId2 == SlotId3 && SameInnerObjectTypeFounded == 1
+						debugprint "Пересортица [%n][%i] передана в массив пересортицы с индексом [%g]" LevItemRef LevItemRef index3
+						let OEInitQ.OELeveledListsMainArray[index3][4][ar_size OEInitQ.OELeveledListsMainArray[index3][4]] := LevItemRef
+						let MissplacedObjectTransferred := 1
+						ar_erase LeveledListArray index1
+						break
+					endif
+					let index3 := index3 + 1
+				loop
+				if MissplacedObjectTransferred == -1
+					debugprint "Для объекта [%n][%i] со слотом [%g] и типом [%g] не найдено подходящего уровневого списка, он оставлен в текущем." LevItemRef LevItemRef SlotId2 InnerObjectType2
+				endif
+			endif
+		endif
+		let index1 := index1 - 1
+	loop
+	sv_destruct InnerObjectTypesStr
+else
+	;без поиска пересортицы
+	debugprint "Производится обработка [%n][%i] без поиска пересортицы" MainLevItemRef MainLevItemRef
+	while index1 >= 0
+		let LevItemRef := LeveledListArray[index1]
+		debugprint "Рассматривается объект [%n][%i] с индексом [%g]" LevItemRef LevItemRef index1
+		if GetObjectType LevItemRef == 43
+			debugprint "Объект - уровневый список, он удаляется из массива" LevItemRef LevItemRef
+			ar_erase LeveledListArray index1
+		elseif GetObjectType LevItemRef != 20 && GetObjectType LevItemRef != 33
+			debugprint "Объект - не оружие и не броня, он удаляется из массива" LevItemRef LevItemRef
+			ar_erase LeveledListArray index1
+		endif
+		let index1 := index1 - 1
+	loop
+endif
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	let ArrSize1 := ar_size LeveledListArray
+	debugprint "Итоговый уровневый массив имеет размер %g" ArrSize1
+	let index1 := 0
+	if ArrSize1 > 0
+		debugprint "Объекты уровневого массива:"
+		while index1 < ArrSize1
+			let LevItemRef := LeveledListArray[index1]
+			let ItemSlot := GetEquipmentSlot LevItemRef
+			debugprint "[%g] [%n][%i] [slot %g]" index1 LevItemRef LevItemRef ItemSlot
+			let index1 := index1 + 1
+		loop
+	else
+		debugprint "Уровневый массив [%i] пуст" MainLevItemRef
+	endif
+endif
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	let ArrSize1 := ar_size OEInitQ.OELeveledListsMainArray[index3][4]
+	debugprint "Итоговый массив пересортицы имеет размер %g" ArrSize1
+	let index1 := 0
+	if ArrSize1 > 0
+		debugprint "Объекты уровневого массива:"
+		while index1 < ArrSize1
+			let LevItemRef := OEInitQ.OELeveledListsMainArray[index3][4][index1]
+			let ItemSlot := GetEquipmentSlot LevItemRef
+			debugprint "[%g] [%n][%i] [slot %g]" index1 LevItemRef LevItemRef ItemSlot
+			let index1 := index1 + 1
+		loop
+	else
+		debugprint "Уровневый массив [%i] пуст" MainLevItemRef
+	endif
+endif
+
+
+SetFunctionValue LeveledListArray
+
+end

@@ -1,0 +1,949 @@
+﻿scn OEKSEkeaMEffectCheckAllowedSettingsFScr
+
+begin function {}
+
+if KeaNPSMquest.fQuestDelayTime < 0.01 || KeaNPSMquest.fQuestDelayTime > 0.5
+	set KeaNPSMquest.fQuestDelayTime to 0.1
+endif
+if KeaFontSize < -1000 || KeaFontSize > 1000
+	set KeaFontSize to -22
+endif
+if KeaHUDQ.kXModPos < -1000 || KeaHUDQ.kXModPos > 1000
+	set KeaHUDQ.kXModPos to -30
+endif
+if KeaMenuVisSetting < 0 || KeaMenuVisSetting > 1
+	set KeaMenuVisSetting to 1
+endif
+if KeaMenuVisPopupXmod < -1000 || KeaMenuVisPopupXmod > 1000
+	set KeaMenuVisPopupXmod to 10
+endif
+if KeaMenuVisPopupXmodContain < -1000 || KeaMenuVisPopupXmodContain > 1000
+	set KeaMenuVisPopupXmodContain to 20
+endif
+if KeaMenuVisPopupXmodMagic < -1000 || KeaMenuVisPopupXmodMagic > 1000
+	set KeaMenuVisPopupXmodMagic to 10
+endif
+if KeaMenuVisPopupXmodMagicNPS < -1000 || KeaMenuVisPopupXmodMagicNPS > 1000
+	set KeaMenuVisPopupXmodMagicNPS to 20
+endif
+if KeaMenuVisPopupXmodAlchim < -1000 || KeaMenuVisPopupXmodAlchim > 1000
+	set KeaMenuVisPopupXmodAlchim to 0
+endif
+if KeaInitModDelay < 0 || KeaInitModDelay > 20
+	set KeaInitModDelay to 5
+endif
+if KeaSettingMagicSystem < 0 || KeaSettingMagicSystem > 1
+	set KeaSettingMagicSystem to 1
+endif
+if KeaSettingRandomItem < 0 || KeaSettingRandomItem > 1
+	set KeaSettingRandomItem to 1
+endif
+if KeaSettingHorse < 0 || KeaSettingHorse > 1
+	set KeaSettingHorse to 0
+endif
+if KeaSettingHMF < 0 || KeaSettingHMF > 1
+	set KeaSettingHMF to 1
+endif
+if KeaSettingPoison < 0 || KeaSettingPoison > 1
+	set KeaSettingPoison to 1
+endif
+if KeaSettingWeaponPerks < 0 || KeaSettingWeaponPerks > 1
+	set KeaSettingWeaponPerks to 1
+endif
+if KeaSettingWounds < 0 || KeaSettingWounds > 1
+	set KeaSettingWounds to 0
+endif
+if KeaPracticeSystem < 0 || KeaPracticeSystem > 1
+	set KeaPracticeSystem to 0
+endif
+if KeaSettingArmorSystemNPS < 0 || KeaSettingArmorSystemNPS > 1
+	set KeaSettingArmorSystemNPS to 1
+endif
+if KeaLVLItemReqType < -1 || KeaLVLItemReqType > 2
+	set KeaLVLItemReqType to -1
+endif
+if KeaItemLvlOffset < 0 || KeaItemLvlOffset > 100
+	set KeaItemLvlOffset to 2
+endif
+if KeaSettingWSpeed < 0 || KeaSettingWSpeed > 1
+	set KeaSettingWSpeed to 1
+endif
+if KeaQuestAtron.KStatusQ < 0 || KeaQuestAtron.KStatusQ > 2
+	set KeaQuestAtron.KStatusQ to 0
+endif
+if KeaNPSwillSneak < 0 || KeaNPSwillSneak > 1
+	set KeaNPSwillSneak to 0
+endif
+if KeaChargeSpellSystem < 0 || KeaChargeSpellSystem > 1
+	set KeaChargeSpellSystem to 0
+endif
+if KeaAdditionalMagicFeatures < 0 || KeaAdditionalMagicFeatures > 1
+	set KeaAdditionalMagicFeatures to 0
+endif
+if KeaInertionWeapons < 0 || KeaInertionWeapons > 20
+	set KeaInertionWeapons to 7
+endif
+if KeaSettingSpeedFIX < 0 || KeaSettingSpeedFIX > 1
+	set KeaSettingSpeedFIX to 1
+endif
+if KeaMAGICresMOD < 0 || KeaMAGICresMOD > 1
+	set KeaMAGICresMOD to 1
+endif
+if KeaResistNormWeapSystem < 0 || KeaResistNormWeapSystem > 1
+	set KeaResistNormWeapSystem to 0
+endif
+if KeaGenSpellNameSystem < 0 || KeaGenSpellNameSystem > 1
+	set KeaGenSpellNameSystem to 1
+endif
+if KeaSpellCostSystem < 0 || KeaSpellCostSystem > 1
+	set KeaSpellCostSystem to 0
+endif
+if KeaMGTweakElemental < 0 || KeaMGTweakElemental > 1
+	set KeaMGTweakElemental to 1
+endif
+if KeaMGTweakFTHR < 0 || KeaMGTweakFTHR > 1
+	set KeaMGTweakFTHR to 1
+endif
+if KeaMGTweakABXX < 0 || KeaMGTweakABXX > 100
+	set KeaMGTweakABXX to 30
+endif
+if KeaMGTweakDIXX < 0 || KeaMGTweakDIXX > 1
+	set KeaMGTweakDIXX to 1
+endif
+if KeaSPLSRangeSelfMult < 0 || KeaSPLSRangeSelfMult > 10
+	set KeaSPLSRangeSelfMult to 0.8
+endif
+if KeaSPLSRangeTochMult < 0 || KeaSPLSRangeTochMult > 10
+	set KeaSPLSRangeTochMult to 1
+endif
+if KeaSPLSRangeTargetMult < 0 || KeaSPLSRangeTargetMult > 10
+	set KeaSPLSRangeTargetMult to 1.5
+endif
+if KeaSPLSNullCostEffectValue < 0 || KeaSPLSNullCostEffectValue > 10
+	set KeaSPLSNullCostEffectValue to 0.2
+endif
+if KeaSPLSEfCostMult < 0 || KeaSPLSEfCostMult > 10
+	set KeaSPLSEfCostMult to 0.1
+endif
+if KeaSPLSMagPow < 0 || KeaSPLSMagPow > 10
+	set KeaSPLSMagPow to 1.28
+endif
+if KeaSPLSDurMult < 0 || KeaSPLSDurMult > 10
+	set KeaSPLSDurMult to 1
+endif
+if KeaSPLSAreaMult < 0 || KeaSPLSAreaMult > 10
+	set KeaSPLSAreaMult to 0.15
+endif
+if KeaSPLSBunEffMult < 0 || KeaSPLSBunEffMult > 10
+	set KeaSPLSBunEffMult to 0.8
+endif
+if KeaSPLSBunEffMultLVL < 0 || KeaSPLSBunEffMultLVL > 10
+	set KeaSPLSBunEffMultLVL to 0.35
+endif
+if KeaSPLSlevelMod < 0 || KeaSPLSlevelMod > 10
+	set KeaSPLSlevelMod to 1
+endif
+if KeaSPLSlevel1 < 0 || KeaSPLSlevel1 > 10000
+	set KeaSPLSlevel1 to 26
+endif
+if KeaSPLSlevel2 < 0 || KeaSPLSlevel2 > 10000
+	set KeaSPLSlevel2 to 63
+endif
+if KeaSPLSlevel3 < 0 || KeaSPLSlevel3 > 10000
+	set KeaSPLSlevel3 to 150
+endif
+if KeaSPLSlevel4 < 0 || KeaSPLSlevel4 > 10000
+	set KeaSPLSlevel4 to 400
+endif
+if KeaDamages.kWDDestr < 1 || KeaDamages.kWDDestr > 100
+	set KeaDamages.kWDDestr to 5
+endif
+if KeaDamages.kWDDamage20 < 1 || KeaDamages.kWDDamage20 > 100
+	set KeaDamages.kWDDamage20 to 25
+endif
+if KeaDamages.kWDDamage40 < 1 || KeaDamages.kWDDamage40 > 100
+	set KeaDamages.kWDDamage40 to 60
+endif
+if KeaDamages.kWDDamageChance20 < 0 || KeaDamages.kWDDamageChance20 > 100
+	set KeaDamages.kWDDamageChance20 to 0
+endif
+if KeaDamages.kWDDamageChance40 < 0 || KeaDamages.kWDDamageChance40 > 100
+	set KeaDamages.kWDDamageChance40 to 10
+endif
+if KeaDamages.kWDDamageChanceDestr < 0 || KeaDamages.kWDDamageChanceDestr > 100
+	set KeaDamages.kWDDamageChanceDestr to 0
+endif
+if KeaDamages.kProtect10 < 0 || KeaDamages.kProtect10 > 100
+	set KeaDamages.kProtect10 to 10
+endif
+if kProtectNPS10 < 0 || kProtectNPS10 > 100
+	set kProtectNPS10 to 10
+endif
+if KeaArmorAbsorbPercent < 0 || KeaArmorAbsorbPercent > 100
+	set KeaArmorAbsorbPercent to 50
+endif
+if KeaArmorPartDFactor < 0 || KeaArmorPartDFactor > 10
+	set KeaArmorPartDFactor to 1
+endif
+if KeaArmorPartDFactorNPS < 0 || KeaArmorPartDFactorNPS > 10
+	set KeaArmorPartDFactorNPS to 1
+endif
+if KeaDamages.kProcTravm2 < 0.1 || KeaDamages.kProcTravm2 > 10
+	set KeaDamages.kProcTravm2 to 1.5
+endif
+if kProcTravmNPS < 0.1 || kProcTravmNPS > 10
+	set kProcTravmNPS to 1.7
+endif
+if KeaDamages.keaToggleThirdPerson < 0 || KeaDamages.keaToggleThirdPerson > 1
+	set KeaDamages.keaToggleThirdPerson to 0
+endif
+if KeaPlayerDodgeAnimOn < 0 || KeaPlayerDodgeAnimOn > 1
+	set KeaPlayerDodgeAnimOn to 1
+endif
+if KeaArmorAcrobatFactorMod < 0 || KeaArmorAcrobatFactorMod > 10
+	set KeaArmorAcrobatFactorMod to 0.3
+endif
+if KeaWoundsHealRestoreEfMax < 0 || KeaWoundsHealRestoreEfMax > 100
+	set KeaWoundsHealRestoreEfMax to 5
+endif
+if KeaTravmHealwithSleepMod < 0 || KeaTravmHealwithSleepMod > 100
+	set KeaTravmHealwithSleepMod to 3
+endif
+if KeaTravmHealwithBandageMod < 0 || KeaTravmHealwithBandageMod > 10
+	set KeaTravmHealwithBandageMod to .5
+endif
+if KeaWoundsPowerMult < 0 || KeaWoundsPowerMult > 10
+	set KeaWoundsPowerMult to 1.5
+endif
+if KeaLesBleedPowerBase < 0 || KeaLesBleedPowerBase > 100
+	set KeaLesBleedPowerBase to 2
+endif
+if KeaDMGpenaltyBackSide < 0 || KeaDMGpenaltyBackSide > 10
+	set KeaDMGpenaltyBackSide to 1.75
+endif
+if KeaDMGpenaltyBackSideArrow < 0 || KeaDMGpenaltyBackSideArrow > 10
+	set KeaDMGpenaltyBackSideArrow to 1.75
+endif
+if KeaDMGpenaltyIsAttack < 0 || KeaDMGpenaltyIsAttack > 10
+	set KeaDMGpenaltyIsAttack to 1.5
+endif
+if KeaDMGpenaltyIsAttackArrow < 0 || KeaDMGpenaltyIsAttackArrow > 10
+	set KeaDMGpenaltyIsAttackArrow to 1.75
+endif
+if KeaDMGPenStaggerBaseChance < 0 || KeaDMGPenStaggerBaseChance > 100
+	set KeaDMGPenStaggerBaseChance to 30
+endif
+if KeaDMGPenStaggerBaseAgi < 1 || KeaDMGPenStaggerBaseAgi > 100
+	set KeaDMGPenStaggerBaseAgi to 50
+endif
+if KeaPCToughtness < 0 || KeaPCToughtness > 1
+	set KeaPCToughtness to 1
+endif
+if KeaWondsHealRestoreEfMod < 1 || KeaWondsHealRestoreEfMod > 100
+	set KeaWondsHealRestoreEfMod to 15
+endif
+if KeaWoundsArmRest < 1 || KeaWoundsArmRest > 100
+	set KeaWoundsArmRest to 2
+endif
+if KeaWoundsArmAltRest < 1 || KeaWoundsArmAltRest > 100
+	set KeaWoundsArmAltRest to 5
+endif
+if KeaWoundsHeadRest < 1 || KeaWoundsHeadRest > 100
+	set KeaWoundsHeadRest to 2.5
+endif
+if KeaWoundsHeadAltRest < 1 || KeaWoundsHeadAltRest > 100
+	set KeaWoundsHeadAltRest to 5
+endif
+if KeaWoundsTorsRest < 1 || KeaWoundsTorsRest > 100
+	set KeaWoundsTorsRest to 2
+endif
+if KeaWoundsTorsAltRest < 1 || KeaWoundsTorsAltRest > 100
+	set KeaWoundsTorsAltRest to 3
+endif
+if KeaWoundsLegsRest < 1 || KeaWoundsLegsRest > 100
+	set KeaWoundsLegsRest to 1.5
+endif
+if KeaWoundsLegsAltRest < 1 || KeaWoundsLegsAltRest > 100
+	set KeaWoundsLegsAltRest to 3
+endif
+if KeaHUDQ.KeaHUDMinVisLevel < 1 || KeaHUDQ.KeaHUDMinVisLevel > 100
+	set KeaHUDQ.KeaHUDMinVisLevel to 15
+endif
+if KeaHUDEnemyWoundsVisible < 0 || KeaHUDEnemyWoundsVisible > 1
+	set KeaHUDEnemyWoundsVisible to 1
+endif
+if KeaFatigueRestoreMult < 0.0 || KeaFatigueRestoreMult > 100.0
+	set KeaFatigueRestoreMult to 10.0
+endif
+if KeaMagickaRestoreMult < 0.0 || KeaMagickaRestoreMult > 100.0
+	set KeaMagickaRestoreMult to 2.0
+endif
+if KeaHealthRestoreMult < 0.0 || KeaHealthRestoreMult > 100.0
+	set KeaHealthRestoreMult to 2.0
+endif
+if KeaNonMainSkillWeaponDiv < 0.1 || KeaNonMainSkillWeaponDiv > 10.0
+	set KeaNonMainSkillWeaponDiv to 1.3
+endif
+if KeaWeaponUpgradeTime < 0 || KeaWeaponUpgradeTime > 10
+	set KeaWeaponUpgradeTime to 4
+endif
+if KeaArcherySystem < 0 || KeaArcherySystem > 1
+	set KeaArcherySystem to 1
+endif
+if keaMagicArrowSpeedMult < 0 || keaMagicArrowSpeedMult > 10
+	set keaMagicArrowSpeedMult to 0.8
+endif
+if keaArrowMissBase < 0 || keaArrowMissBase > 100
+	set keaArrowMissBase to 25
+endif
+if KeaSniperModTime < 0 || KeaSniperModTime > 10
+	set KeaSniperModTime to 3.5
+endif
+if KeaRunArrowMissMod < 0 || KeaRunArrowMissMod > 10
+	set KeaRunArrowMissMod to 2
+endif
+if KeaMovArrowMissMod < 0 || KeaMovArrowMissMod > 10
+	set KeaMovArrowMissMod to 1.5
+endif
+if KeaSneakArrowMissMod < 0 || KeaSneakArrowMissMod > 10
+	set KeaSneakArrowMissMod to 0.5
+endif
+if KeaSniperModFatigueDrain < 0 || KeaSniperModFatigueDrain > 100
+	set KeaSniperModFatigueDrain to 1.5
+endif
+if KeaSniperModFatigBowAttackBs < 1 || KeaSniperModFatigBowAttackBs > 100
+	set KeaSniperModFatigBowAttackBs to 6
+endif
+if KeaSniperModRotateMax < 0 || KeaSniperModRotateMax > 10
+	set KeaSniperModRotateMax to 1
+endif
+if kArrowValueMissMod < 0 || kArrowValueMissMod > 1
+	set kArrowValueMissMod to 0
+endif
+if KeaArrowBaseValMiss < 1 || KeaArrowBaseValMiss > 100
+	set KeaArrowBaseValMiss to 13
+endif
+if KeaArrowBaseWeightMiss < 0.01 || KeaArrowBaseWeightMiss > 2
+	set KeaArrowBaseWeightMiss to 0.15
+endif
+if KeaArrowSpeedModWeight < 0 || KeaArrowSpeedModWeight > 10
+	set KeaArrowSpeedModWeight to 0.3
+endif
+if KeaArrowModDistancePower < 100 || KeaArrowModDistancePower > 2000
+	set KeaArrowModDistancePower to 400
+endif
+if KeaArrowWeightAttackMod < 0 || KeaArrowWeightAttackMod > 100
+	set KeaArrowWeightAttackMod to 5
+endif
+if KeaInertionWeaponsNPSmod < 0.1 || KeaInertionWeaponsNPSmod > 10
+	set KeaInertionWeaponsNPSmod to 1.8
+endif
+if KeaInertionStopRotBase < 0 || KeaInertionStopRotBase > 10
+	set KeaInertionStopRotBase to 1
+endif
+if KeaInertionStopRotMAX < 0 || KeaInertionStopRotMAX > 10
+	set KeaInertionStopRotMAX to 1.5
+endif
+if KeaArmorMassInertion < 0 || KeaArmorMassInertion > 10
+	set KeaArmorMassInertion to 0.25
+endif
+if KeaInertionpostEffectBASE < 0 || KeaInertionpostEffectBASE > 10
+	set KeaInertionpostEffectBASE to 1.5
+endif
+if KeaInertionpostEffectMAX < 0 || KeaInertionpostEffectMAX > 10
+	set KeaInertionpostEffectMAX to 0.5
+endif
+if KeaInertionpostEffectPlayerMod < 0 || KeaInertionpostEffectPlayerMod > 10
+	set KeaInertionpostEffectPlayerMod to 0.5
+endif
+if KeaShortBladeSpeed < 0 || KeaShortBladeSpeed > 1
+	set KeaShortBladeSpeed to 1
+endif
+if KeaShortBladeBloodMod < 0 || KeaShortBladeBloodMod > 10
+	set KeaShortBladeBloodMod to 0.35
+endif
+if KeaShortBladeBloodChanceNO < 0 || KeaShortBladeBloodChanceNO > 100
+	set KeaShortBladeBloodChanceNO to 85
+endif
+if keaShortBladeBloodTime < 0 || keaShortBladeBloodTime > 100
+	set keaShortBladeBloodTime to 10
+endif
+if KeaShortBladeShieldStrikeMod < 0 || KeaShortBladeShieldStrikeMod > 100
+	set KeaShortBladeShieldStrikeMod to 3
+endif
+if KeaShortBladeShieldStrikeChance < 0 || KeaShortBladeShieldStrikeChance > 100
+	set KeaShortBladeShieldStrikeChance to 40
+endif
+if KeaSettingRedBlink < 0 || KeaSettingRedBlink > 1
+	set KeaSettingRedBlink to 1
+endif
+if KeaBluntPushChanceMod < 0 || KeaBluntPushChanceMod > 10
+	set KeaBluntPushChanceMod to 1.4
+endif
+if KeaBluntXDamageChance < 0 || KeaBluntXDamageChance > 100
+	set KeaBluntXDamageChance to 0
+endif
+if KeaBluntXDamageMod < 0 || KeaBluntXDamageMod > 10
+	set KeaBluntXDamageMod to 1
+endif
+if KeaDaggerDamageMod < 0 || KeaDaggerDamageMod > 10
+	set KeaDaggerDamageMod to 2.5
+endif
+if KeaKnifeCriticalChanceMod < 0 || KeaKnifeCriticalChanceMod > 10
+	set KeaKnifeCriticalChanceMod to 0.3
+endif
+if KeaKnifeWoundsLevelMod < 0 || KeaKnifeWoundsLevelMod > 100
+	set KeaKnifeWoundsLevelMod to 10
+endif
+if Kea2HandPushChanceMod < 0 || Kea2HandPushChanceMod > 10
+	set Kea2HandPushChanceMod to 1.2
+endif
+if Kea2HandXDamageMod < 0 || Kea2HandXDamageMod > 10
+	set Kea2HandXDamageMod to 1.5
+endif
+if KeaAxeXDamageChance < 0 || KeaAxeXDamageChance > 100
+	set KeaAxeXDamageChance to 15
+endif
+if KeaAxeXDamageMod < 0 || KeaAxeXDamageMod > 10
+	set KeaAxeXDamageMod to 1.5
+endif
+if KeaAxeKnockChance < 0 || KeaAxeKnockChance > 100
+	set KeaAxeKnockChance to 20
+endif
+if KeaAxeTravmBonusChance < 0 || KeaAxeTravmBonusChance > 100
+	set KeaAxeTravmBonusChance to 0
+endif
+if KeaAxeTravmBonusMod < 0 || KeaAxeTravmBonusMod > 10
+	set KeaAxeTravmBonusMod to 1.5
+endif
+if KeaAxeARDamageMod < 0 || KeaAxeARDamageMod > 10
+	set KeaAxeARDamageMod to 0.6
+endif
+if KeaBluntARDamageMod < 0 || KeaBluntARDamageMod > 10
+	set KeaBluntARDamageMod to 1.2
+endif
+if Kea2handBladeARDamageMod < 0 || Kea2handBladeARDamageMod > 10
+	set Kea2handBladeARDamageMod to 0.3
+endif
+if KeaLongBladeDefendChanceMod < 0.1 || KeaLongBladeDefendChanceMod > 100
+	set KeaLongBladeDefendChanceMod to 7
+endif
+if KealongBladeAgiHitMod < 0 || KealongBladeAgiHitMod > 10
+	set KealongBladeAgiHitMod to 1.3
+endif
+if KeaKnockoutTime < 0 || KeaKnockoutTime > 10
+	set KeaKnockoutTime to 1
+endif
+if KeaLongSwordAbilStatsChanceMOD < 0 || KeaLongSwordAbilStatsChanceMOD > 10
+	set KeaLongSwordAbilStatsChanceMOD to 0.5
+endif
+if KeaLongSwordAbilSkillChanceMOD < 0 || KeaLongSwordAbilSkillChanceMOD > 10
+	set KeaLongSwordAbilSkillChanceMOD to 0.75
+endif
+if KeaDaggerKillChance < 0 || KeaDaggerKillChance > 100
+	set KeaDaggerKillChance to 0
+endif
+if KeaShortBladeKillChance < 0 || KeaShortBladeKillChance > 100
+	set KeaShortBladeKillChance to 0
+endif
+if KeaLongBladeKillChance < 0 || KeaLongBladeKillChance > 100
+	set KeaLongBladeKillChance to 0
+endif
+if KeaAxeKillChance < 0 || KeaAxeKillChance > 100
+	set KeaAxeKillChance to 0
+endif
+if KeaBluntKillChance < 0 || KeaBluntKillChance > 100
+	set KeaBluntKillChance to 0
+endif
+if KeaWSPDSpdBase < 1 || KeaWSPDSpdBase > 100
+	set KeaWSPDSpdBase to 50
+endif
+if KeaWSPDAgiBase < 1 || KeaWSPDAgiBase > 100
+	set KeaWSPDAgiBase to 50
+endif
+if KeaWSPDStrBase < 1 || KeaWSPDStrBase > 100
+	set KeaWSPDStrBase to 50
+endif
+if KeaWSPDEndBase < 1 || KeaWSPDEndBase > 100
+	set KeaWSPDEndBase to 50
+endif
+if KeaWSPDBladeBase < 1 || KeaWSPDBladeBase > 100
+	set KeaWSPDBladeBase to 50
+endif
+if KeaWSPDBluntBase < 1 || KeaWSPDBluntBase > 100
+	set KeaWSPDBluntBase to 50
+endif
+if KeaWSPDWeightBase < 1 || KeaWSPDWeightBase > 100
+	set KeaWSPDWeightBase to 18
+endif
+if KeaWSPDFatigueBase < 0.1 || KeaWSPDFatigueBase > 10
+	set KeaWSPDFatigueBase to 1
+endif
+if KeaWSPDPauseBase < 0.1 || KeaWSPDPauseBase > 10
+	set KeaWSPDPauseBase to 0.85
+endif
+if KeaWSPDPowerAttackPenaltyMod < 0 || KeaWSPDPowerAttackPenaltyMod > 10
+	set KeaWSPDPowerAttackPenaltyMod to 2.5
+endif
+if KeaWSPDMaxFatiguePen < 0 || KeaWSPDMaxFatiguePen > 1
+	set KeaWSPDMaxFatiguePen to 0.05
+endif
+if KeaWSPDMinPause < 0 || KeaWSPDMinPause > 10
+	set KeaWSPDMinPause to 0.75
+endif
+if KeaWSPDMaxPause < 0 || KeaWSPDMaxPause > 10
+	set KeaWSPDMaxPause to 2.5
+endif
+if KeaWSPDMinPause > KeaWSPDMaxPause
+	let KeaWSPDMinPause := KeaWSPDMaxPause
+endif
+if KeaWSPD2HandBonus < 0 || KeaWSPD2HandBonus > 10
+	set KeaWSPD2HandBonus to 1.5
+endif
+if KeaWeapSerTimeAxe < 0.1 || KeaWeapSerTimeAxe > 10
+	set KeaWeapSerTimeAxe to 0.7
+endif
+if KeaWeapSerTimeBlunt < 0.1 || KeaWeapSerTimeBlunt > 10
+	set KeaWeapSerTimeBlunt to 0.7
+endif
+if KeaWeapSerTimeLongBlade < 0.1 || KeaWeapSerTimeLongBlade > 10
+	set KeaWeapSerTimeLongBlade to 0.85
+endif
+if KeaWeapSerTimeShortBlade < 0.1 || KeaWeapSerTimeShortBlade > 10
+	set KeaWeapSerTimeShortBlade to 1
+endif
+if KeaWeapSerTimeKnife < 0.1 || KeaWeapSerTimeKnife > 10
+	set KeaWeapSerTimeKnife to 1.3
+endif
+if KeaWeapSerTimeNPCMod < 0.1 || KeaWeapSerTimeNPCMod > 10
+	set KeaWeapSerTimeNPCMod to 1.0
+endif
+if KeaWeapSerTimePCMod < 0.1 || KeaWeapSerTimePCMod > 10
+	set KeaWeapSerTimePCMod to 1.25
+endif
+if KeaWeapSerTime1HMod < 0.1 || KeaWeapSerTime1HMod > 10
+	set KeaWeapSerTime1HMod to 1.5
+endif
+
+if KeaWeaponmasKnockBase < 1 || KeaWeaponmasKnockBase > 100
+	set KeaWeaponmasKnockBase to 15
+endif
+if KeaWeaponmasKnockMod < 0.1 || KeaWeaponmasKnockMod > 100
+	set KeaWeaponmasKnockMod to 7
+endif
+if KeaWeaponKnockOutMAX < 0 || KeaWeaponKnockOutMAX > 100
+	set KeaWeaponKnockOutMAX to 50
+endif
+if KeaArrowmasKnockMod < 0 || KeaArrowmasKnockMod > 100
+	set KeaArrowmasKnockMod to 3
+endif
+if keaEffectExtender.fQuestDelayTime < 0.01 || keaEffectExtender.fQuestDelayTime > 1
+	set keaEffectExtender.fQuestDelayTime to 0.05
+endif
+if KeaEffectBounusVis < 0 || KeaEffectBounusVis > 1
+	set KeaEffectBounusVis to 1
+endif
+if KeaMAGICresMAX < 0 || KeaMAGICresMAX > 95
+	set KeaMAGICresMAX to 95
+endif
+if KeaBonLevelMod < 0 || KeaBonLevelMod > 100
+	set KeaBonLevelMod to 5
+endif
+if KeaBonOblGatesMod < 0 || KeaBonOblGatesMod > 100
+	set KeaBonOblGatesMod to 20
+endif
+if KeaBonIntelligenceMod < 0 || KeaBonIntelligenceMod > 100
+	set KeaBonIntelligenceMod to 5
+endif
+if KeaBonWillpowerMod < 0 || KeaBonWillpowerMod > 100
+	set KeaBonWillpowerMod to 5
+endif
+if KeaMagicNotLuckyCastSystem < 0 || KeaMagicNotLuckyCastSystem > 1
+	set KeaMagicNotLuckyCastSystem to 0
+endif
+if KeaMagicNotLuckyCastChanceMod < 0 || KeaMagicNotLuckyCastChanceMod > 10
+	set KeaMagicNotLuckyCastChanceMod to 1.3
+endif
+if keaEffectExtender.kModifCostPenalty < 0 || keaEffectExtender.kModifCostPenalty > 10
+	set keaEffectExtender.kModifCostPenalty to 0.4
+endif
+if keaEffectExtender.keaTelekines < 0 || keaEffectExtender.keaTelekines > 1
+	set keaEffectExtender.keaTelekines to 0
+endif
+if keaTelecDistanceOpt < 0 || keaTelecDistanceOpt > 10000
+	set keaTelecDistanceOpt to 400
+endif
+if keaTeclecTargetSTREND < 0.1 || keaTeclecTargetSTREND > 10
+	set keaTeclecTargetSTREND to 3
+endif
+if keaMagicModQ.KBloodMagicMod < 0.1 || keaMagicModQ.KBloodMagicMod > 100
+	set keaMagicModQ.KBloodMagicMod to 5
+endif
+if keaMagicModQ.KWillMagicMod < 0.1 || keaMagicModQ.KWillMagicMod > 10
+	set keaMagicModQ.KWillMagicMod to 1
+endif
+if keaMagicModQ.KWillMagicCostMod < 0.1 || keaMagicModQ.KWillMagicCostMod > 10
+	set keaMagicModQ.KWillMagicCostMod to 2
+endif
+if keaMagicModQ.KWillMagicTELEmod < 0.1 || keaMagicModQ.KWillMagicTELEmod > 10
+	set keaMagicModQ.KWillMagicTELEmod to 3
+endif
+if KeaWillMagicSilenceMOD < 0 || KeaWillMagicSilenceMOD > 10
+	set KeaWillMagicSilenceMOD to 0.5
+endif
+if keaMagicModQ.KHiMagicMod < 0.1 || keaMagicModQ.KHiMagicMod > 10
+	set keaMagicModQ.KHiMagicMod to 1.5
+endif
+if keaMagicModQ.KNecroMagicMod < 0.1 || keaMagicModQ.KNecroMagicMod > 10
+	set keaMagicModQ.KNecroMagicMod to 1
+endif
+if KeaNecroCrimeModPower < 0 || KeaNecroCrimeModPower > 10
+	set KeaNecroCrimeModPower to 0.5
+endif
+if KeaNecroPCLevelMod < 0 || KeaNecroPCLevelMod > 100
+	set KeaNecroPCLevelMod to 30
+endif
+if KeaNPSPowerMagic < 0 || KeaNPSPowerMagic > 1
+	set KeaNPSPowerMagic to 1
+endif
+if keaActorsPowerSpellLvl < 0 || keaActorsPowerSpellLvl > 99
+	set keaActorsPowerSpellLvl to 10
+endif
+if keaActorsPowerSpellMod < 0 || keaActorsPowerSpellMod > 10
+	set keaActorsPowerSpellMod to 1
+endif
+if KeaMESummonSystem < 0 || KeaMESummonSystem > 1
+	set KeaMESummonSystem to 0
+endif
+if KeaSummonedActorAggress < 0 || KeaSummonedActorAggress > 100
+	set KeaSummonedActorAggress to 20
+endif
+if KeaRSMABaseCost < 0 || KeaRSMABaseCost > 10
+	set KeaRSMABaseCost to 0.3
+endif
+if KeaAtronManarestorePotionMult < 0 || KeaAtronManarestorePotionMult > 1
+	set KeaAtronManarestorePotionMult to 0.3
+endif
+if KeaQuestAtron.kENCHPeriodRegen < 0 || KeaQuestAtron.kENCHPeriodRegen > 100
+	set KeaQuestAtron.kENCHPeriodRegen to 10
+endif
+if KeaQuestAtron.KAtronDiffBuffMult < 0.1 || KeaQuestAtron.KAtronDiffBuffMult > 10
+	set KeaQuestAtron.KAtronDiffBuffMult to 1.7
+endif
+if KeaChargeSpellStepTime < 0 || KeaChargeSpellStepTime > 10
+	set KeaChargeSpellStepTime to 0.5
+endif
+if KeaChargeSpellPower < 0 || KeaChargeSpellPower > 100
+	set KeaChargeSpellPower to 10
+endif
+if KeaChargeSpellCost < 0 || KeaChargeSpellCost > 10
+	set KeaChargeSpellCost to 1.5
+endif
+if KeaFireEffectAnimChance < 0 || KeaFireEffectAnimChance > 100
+	set KeaFireEffectAnimChance to 40
+endif
+if KeaFireEffectContAnimChanceNo < 0 || KeaFireEffectContAnimChanceNo > 100
+	set KeaFireEffectContAnimChanceNo to 30
+endif
+if KeaFireEffectFirePlaceMin < -10 || KeaFireEffectFirePlaceMin > -1
+	set KeaFireEffectFirePlaceMin to -5
+endif
+if KeaFireEffectFirePlaceMAX < 1 || KeaFireEffectFirePlaceMAX > 10
+	set KeaFireEffectFirePlaceMAX to 2
+endif
+if KeaFireEffectFireLifeTime < 2 || KeaFireEffectFireLifeTime > 120
+	set KeaFireEffectFireLifeTime to 60
+endif
+if KeaFireEffectFPlaceDMGMod < 0.01 || KeaFireEffectFPlaceDMGMod > 10
+	set KeaFireEffectFPlaceDMGMod to 0.1
+endif
+if KeaFrostEffectPowerMod < 0.1 || KeaFrostEffectPowerMod > 100
+	set KeaFrostEffectPowerMod to 15
+endif
+if KeaFrostEffectMinDuration < 0 || KeaFrostEffectMinDuration > 100
+	set KeaFrostEffectMinDuration to 7
+endif
+if KeaShockEffectAnimChance < 0 || KeaShockEffectAnimChance > 100
+	set KeaShockEffectAnimChance to 80
+endif
+if KeaShockEffectPushChance < 0.1 || KeaShockEffectPushChance > 10
+	set KeaShockEffectPushChance to 3
+endif
+if KeaEVENTSQ.KeaShockEffectProjSpeed < 0.1 || KeaEVENTSQ.KeaShockEffectProjSpeed > 10
+	set KeaEVENTSQ.KeaShockEffectProjSpeed to 4
+endif
+if KeaEFFECTnotUseWeaponDMG < 0 || KeaEFFECTnotUseWeaponDMG > 1
+	set KeaEFFECTnotUseWeaponDMG to 1
+endif
+if KeaEFFECTnotUsePoisonEffect < 0 || KeaEFFECTnotUsePoisonEffect > 1
+	set KeaEFFECTnotUsePoisonEffect to 0
+endif
+if KeaEFFECTnotUseFireOnEnchant < 0 || KeaEFFECTnotUseFireOnEnchant > 1
+	set KeaEFFECTnotUseFireOnEnchant to 0
+endif
+if KeaMagicShieldFactor < 0 || KeaMagicShieldFactor > 10
+	set KeaMagicShieldFactor to 0
+endif
+if KeaMagicShieldADDProtectMAX < 0 || KeaMagicShieldADDProtectMAX > 100
+	set KeaMagicShieldADDProtectMAX to 85
+endif
+if KeaBurdenEffectAtInMod < 0 || KeaBurdenEffectAtInMod > 10
+	set KeaBurdenEffectAtInMod to 0
+endif
+if KeaMurderNeedsForBadKarma < 1 || KeaMurderNeedsForBadKarma > 10
+	set KeaMurderNeedsForBadKarma to 3
+endif
+if keaTimePenalties.KeaHMFSleepRestore < 0.1 || keaTimePenalties.KeaHMFSleepRestore > 10
+	set keaTimePenalties.KeaHMFSleepRestore to 3
+endif
+if keaTimePenalties.KeaHMFWaitingRestore < 0.1 || keaTimePenalties.KeaHMFWaitingRestore > 2
+	set keaTimePenalties.KeaHMFWaitingRestore to 0.2
+endif
+if keaTimePenalties.KeaHMFHealthPenSp < 0 || keaTimePenalties.KeaHMFHealthPenSp > 10
+	set keaTimePenalties.KeaHMFHealthPenSp to 0.3
+endif
+if keaTimePenalties.KeaHMFMagickaPenSp < 0 || keaTimePenalties.KeaHMFMagickaPenSp > 10
+	set keaTimePenalties.KeaHMFMagickaPenSp to 0.3
+endif
+if keaTimePenalties.KeaHMFFatiguePenSp < 0 || keaTimePenalties.KeaHMFFatiguePenSp > 10
+	set keaTimePenalties.KeaHMFFatiguePenSp to 0.3
+endif
+if keaTimePenalties.KeaHMFRestHealthMin < 1 || keaTimePenalties.KeaHMFRestHealthMin > 100
+	set keaTimePenalties.KeaHMFRestHealthMin to 5
+endif
+if keaTimePenalties.KeaHMFRestMagicMin < 1 || keaTimePenalties.KeaHMFRestMagicMin > 100
+	set keaTimePenalties.KeaHMFRestMagicMin to 4
+endif
+if keaTimePenalties.KeaHMFRestFatigueMin < 1 || keaTimePenalties.KeaHMFRestFatigueMin > 100
+	set keaTimePenalties.KeaHMFRestFatigueMin to 10
+endif
+if keaWampTweak < 0 || keaWampTweak > 1
+	set keaWampTweak to 0
+endif
+if KeaFatigueLowVisible < 0 || KeaFatigueLowVisible > 2
+	set KeaFatigueLowVisible to 0
+endif
+if keaPCquest.keaTimeSkipModMAX < 0.01 || keaPCquest.keaTimeSkipModMAX > 10
+	set keaPCquest.keaTimeSkipModMAX to 0.35
+endif
+if keaPCquest.KeasecondsOFSkip < 0.01 || keaPCquest.KeasecondsOFSkip > 1
+	set keaPCquest.KeasecondsOFSkip to 0.1
+endif
+if keaPCquest.keaCombatTimeMin < 0 || keaPCquest.keaCombatTimeMin > 999
+	set keaPCquest.keaCombatTimeMin to 20
+endif
+if keaPCquest.KeaTimeSlowChanceMod < 0.1 || keaPCquest.KeaTimeSlowChanceMod > 100
+	set keaPCquest.KeaTimeSlowChanceMod to 3
+endif
+if KeaGlobMultipilerTimeMax < 1 || KeaGlobMultipilerTimeMax > 1000
+	set KeaGlobMultipilerTimeMax to 10
+endif
+if KeaAddingSpeedWithBulletTime < 0 || KeaAddingSpeedWithBulletTime > 1
+	set KeaAddingSpeedWithBulletTime to 1
+endif
+if KeaTimeSlowHealthFactor < 0.1 || KeaTimeSlowHealthFactor > 10
+	set KeaTimeSlowHealthFactor to 1.5
+endif
+if KeaSKILLWisdomMAX < 1 || KeaSKILLWisdomMAX > 1000
+	set KeaSKILLWisdomMAX to 100
+endif
+if KeaSKILLMedicMAX < 1 || KeaSKILLMedicMAX > 1000
+	set KeaSKILLMedicMAX to 100
+endif
+if KeaTravelOnHorseGoldMod < 0 || KeaTravelOnHorseGoldMod > 10
+	set KeaTravelOnHorseGoldMod to 1
+endif
+if KeaTravelGoldMod < 0 || KeaTravelGoldMod > 10
+	set KeaTravelGoldMod to 1
+endif
+if KeaMessageSpamDist < -1 || KeaMessageSpamDist > 10000
+	set KeaMessageSpamDist to 0
+endif
+if KeaMessageSpamOnlyPlayer < 0 || KeaMessageSpamOnlyPlayer > 1
+	set KeaMessageSpamOnlyPlayer to 1
+endif
+if KeaQTEXT.kTextOUTperiod < 1 || KeaQTEXT.kTextOUTperiod > 10
+	set KeaQTEXT.kTextOUTperiod to 2.5
+endif
+if KeaMODBASEArmor < 1 || KeaMODBASEArmor > 100
+	set KeaMODBASEArmor to 50
+endif
+if KeaMODBASEAxe < 1 || KeaMODBASEAxe > 100
+	set KeaMODBASEAxe to 50
+endif
+if KeaMODBASEBlunt < 1 || KeaMODBASEBlunt > 100
+	set KeaMODBASEBlunt to 50
+endif
+if KeaMODBASEBow < 1 || KeaMODBASEBow > 100
+	set KeaMODBASEBow to 50
+endif
+if KeaMODBASECloth < 1 || KeaMODBASECloth > 100
+	set KeaMODBASECloth to 50
+endif
+if KeaMODBASEKnife < 1 || KeaMODBASEKnife > 100
+	set KeaMODBASEKnife to 50
+endif
+if KeaMODBASELongBlade < 1 || KeaMODBASELongBlade > 100
+	set KeaMODBASELongBlade to 50
+endif
+if KeaMODBASEShortBlade < 1 || KeaMODBASEShortBlade > 100
+	set KeaMODBASEShortBlade to 50
+endif
+if KeaMODBASEStaff < 1 || KeaMODBASEStaff > 100
+	set KeaMODBASEStaff to 50
+endif
+if KeaRNDModItemsLVL < 0 || KeaRNDModItemsLVL > 10
+	set KeaRNDModItemsLVL to 1
+endif
+if KeaRNDModItemsLVL2Mode < 0 || KeaRNDModItemsLVL2Mode > 10
+	set KeaRNDModItemsLVL2Mode to 0.5
+endif
+if KeaLVMODgoldFactorLightArmor < 0 || KeaLVMODgoldFactorLightArmor > 10
+	set KeaLVMODgoldFactorLightArmor to 1.5
+endif
+if KeaLVMODgoldFactorHavyArmor < 0 || KeaLVMODgoldFactorHavyArmor > 10
+	set KeaLVMODgoldFactorHavyArmor to 1.6
+endif
+if KeaLVMODgoldFactorKnife < 0 || KeaLVMODgoldFactorKnife > 10
+	set KeaLVMODgoldFactorKnife to 1
+endif
+if KeaLVMODgoldFactorShortBlade < 0 || KeaLVMODgoldFactorShortBlade > 10
+	set KeaLVMODgoldFactorShortBlade to 1.2
+endif
+if KeaLVMODgoldFactorLongBlade < 0 || KeaLVMODgoldFactorLongBlade > 10
+	set KeaLVMODgoldFactorLongBlade to 1.4
+endif
+if KeaLVMODgoldFactorLong2HBlade < 0 || KeaLVMODgoldFactorLong2HBlade > 10
+	set KeaLVMODgoldFactorLong2HBlade to 1.4
+endif
+if KeaLVMODgoldFactorAxe < 0 || KeaLVMODgoldFactorAxe > 10
+	set KeaLVMODgoldFactorAxe to 1.2
+endif
+if KeaLVMODgoldFactorBlunt < 0 || KeaLVMODgoldFactorBlunt > 10
+	set KeaLVMODgoldFactorBlunt to 1
+endif
+if KeaLVMODgoldFactor2HAxe < 0 || KeaLVMODgoldFactor2HAxe > 10
+	set KeaLVMODgoldFactor2HAxe to 1.2
+endif
+if KeaLVMODgoldFactor2HBlunt < 0 || KeaLVMODgoldFactor2HBlunt > 10
+	set KeaLVMODgoldFactor2HBlunt to 1
+endif
+if KeaLVMODgoldFactorBow < 0 || KeaLVMODgoldFactorBow > 10
+	set KeaLVMODgoldFactorBow to 1.2
+endif
+if KeaLVMODgoldFactorStaff < 0 || KeaLVMODgoldFactorStaff > 10
+	set KeaLVMODgoldFactorStaff to 1
+endif
+if KeaLVMODgoldFactorCloth < 0 || KeaLVMODgoldFactorCloth > 10
+	set KeaLVMODgoldFactorCloth to 1
+endif
+if KeaLVMODgoldFactorEnchant < 0 || KeaLVMODgoldFactorEnchant > 10
+	set KeaLVMODgoldFactorEnchant to 1.5
+endif
+if KeaLVMODgoldFactorIgnorResist < 0 || KeaLVMODgoldFactorIgnorResist > 10
+	set KeaLVMODgoldFactorIgnorResist to 3
+endif
+if KeaIsRNDObjectChance < 0 || KeaIsRNDObjectChance > 100
+	set KeaIsRNDObjectChance to 10
+endif
+if KeaRandomWeaponPowerMod < 0.1 || KeaRandomWeaponPowerMod > 10
+	set KeaRandomWeaponPowerMod to 1
+endif
+if KeaRandomArmorPowerMod < 0.1 || KeaRandomArmorPowerMod > 10
+	set KeaRandomArmorPowerMod to 1
+endif
+if KeaRandomEnchantPowerMod < 0.1 || KeaRandomEnchantPowerMod > 10
+	set KeaRandomEnchantPowerMod to 1
+endif
+if KeaRandomStaffPowerMod < 0.1 || KeaRandomStaffPowerMod > 10
+	set KeaRandomStaffPowerMod to 1
+endif
+if KeaTraiderRNDItemMod < 0.1 || KeaTraiderRNDItemMod > 10
+	set KeaTraiderRNDItemMod to 1.4
+endif
+if KeaRNDinChest < 0 || KeaRNDinChest > 1
+	set KeaRNDinChest to 1
+endif
+if KeaRNDItemChestMult < 0.1 || KeaRNDItemChestMult > 10
+	set KeaRNDItemChestMult to 2
+endif
+if KeaRemoveExcessedIronArrow < 0 || KeaRemoveExcessedIronArrow > 1
+	set KeaRemoveExcessedIronArrow to 1
+endif
+if KeaStealthCalcPeriod < 0.1 || KeaStealthCalcPeriod > 100
+	set KeaStealthCalcPeriod to 5
+endif
+if KeaCalcStealthDistMAX < 100 || KeaCalcStealthDistMAX > 10000
+	set KeaCalcStealthDistMAX to 3500
+endif
+if KeaCalcStealthDistanceFactor < 0.1 || KeaCalcStealthDistanceFactor > 10
+	set KeaCalcStealthDistanceFactor to 1
+endif
+if KeaCalcStealthLightMAXfactor < 1 || KeaCalcStealthLightMAXfactor > 9
+	set KeaCalcStealthLightMAXfactor to 5
+endif
+if KeaCalcStealthLightPowerfactor < 0.1 || KeaCalcStealthLightPowerfactor > 10
+	set KeaCalcStealthLightPowerfactor to 0.8
+endif
+if KeaCalcStealthLightBase < 0.1 || KeaCalcStealthLightBase > 100
+	set KeaCalcStealthLightBase to 50
+endif
+if KeaCalcStealthChameleonFactor < 0.1 || KeaCalcStealthChameleonFactor > 10
+	set KeaCalcStealthChameleonFactor to 2
+endif
+if KeaStealthHasMod < 0.1 || KeaStealthHasMod > 100
+	set KeaStealthHasMod to 10.5
+endif
+if KeaStealthWillSneakMode < 0 || KeaStealthWillSneakMode > 1
+	set KeaStealthWillSneakMode to 0
+endif
+if KeaCalcStealthNEYEPenalty < 0 || KeaCalcStealthNEYEPenalty > 100
+	set KeaCalcStealthNEYEPenalty to 80
+endif
+if KeaCalcStealthDayPenalty < -100 || KeaCalcStealthDayPenalty > 100
+	set KeaCalcStealthDayPenalty to 50
+endif
+if KeaCalcStealth2HandWeaponPen < 0.01 || KeaCalcStealth2HandWeaponPen > 2
+	set KeaCalcStealth2HandWeaponPen to 0.2
+endif
+if KeaCalcStealthNoArmorPen < 0.01 || KeaCalcStealthNoArmorPen > 10
+	set KeaCalcStealthNoArmorPen to 1
+endif
+if KeaCalcStealthLightArmorPen < 0.01 || KeaCalcStealthLightArmorPen > 10
+	set KeaCalcStealthLightArmorPen to 0.5
+endif
+if KeaCalcStealthHeavyArmorPen < 0.01 || KeaCalcStealthHeavyArmorPen > 2
+	set KeaCalcStealthHeavyArmorPen to 0.1
+endif
+if KeaActorBaseMass < 1 || KeaActorBaseMass > 1000
+	set KeaActorBaseMass to 100
+endif
+if KeaLVLitemRebuildTimeMin < 0 || KeaLVLitemRebuildTimeMin > 100
+	set KeaLVLitemRebuildTimeMin to 1
+endif
+if KeaLVLitemRebuildDayWeight < 0.1 || KeaLVLitemRebuildDayWeight > 10
+	set KeaLVLitemRebuildDayWeight to 1.5
+endif
+if KeaLVLitemRebuildTimeMax < 1 || KeaLVLitemRebuildTimeMax > 1000
+	set KeaLVLitemRebuildTimeMax to 2
+endif
+if KeaLVLitemRebuildTimeMin > KeaLVLitemRebuildTimeMax
+	let KeaLVLitemRebuildTimeMin := KeaLVLitemRebuildTimeMax
+endif
+if KeaLVLitemRebuildCost < 1 || KeaLVLitemRebuildCost > 10
+	set KeaLVLitemRebuildCost to 2
+endif
+if KeaWeaponIgnoreNResist1 < 0 || KeaWeaponIgnoreNResist1 > 10
+	set KeaWeaponIgnoreNResist1 to 1
+endif
+if KeaWeaponIgnoreNResist2 < 0 || KeaWeaponIgnoreNResist2 > 1
+	set KeaWeaponIgnoreNResist2 to 0.75
+endif
+if KeaWeaponIgnoreNResist3 < 0 || KeaWeaponIgnoreNResist3 > 1
+	set KeaWeaponIgnoreNResist3 to 0.5
+endif
+if KeaHandToHandIgnoreNResist < 0 || KeaHandToHandIgnoreNResist > 10
+	set KeaHandToHandIgnoreNResist to 1
+endif
+
+end

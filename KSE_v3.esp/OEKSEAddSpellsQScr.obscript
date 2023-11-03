@@ -1,0 +1,73 @@
+﻿scn OEKSEAddSpellsQScr
+
+float fQuestDelayTime
+
+short DoOncePerInstance
+
+Begin GameMode
+
+set fQuestDelayTime to 5
+
+if DoOncePerInstance == 1
+	if KeaSettingMagicSystem == 1
+		PlayerRef.addspell OEKSESpStartManageEffectsPowerQ
+	elseif KeaSettingMagicSystem == 0
+		PlayerRef.removespell OEKSESpStartManageEffectsPowerQ
+	endif
+
+	if KeaMGTweakABXX > 0 && OEKSEAddTargetHealthAbsorbSpells == 1
+		RemoveAllEffectItems OEKSEStandardAbsorbHealthTarget1Novice
+		AddEffectItem ABHE OEKSEStandardAbsorbHealthTarget1Novice
+		SetNthEffectItemMagnitude 7 OEKSEStandardAbsorbHealthTarget1Novice 0
+		SetNthEffectItemDuration 1 OEKSEStandardAbsorbHealthTarget1Novice 0
+		SetNthEffectItemRange 2 OEKSEStandardAbsorbHealthTarget1Novice 0
+		RemoveAllEffectItems OEKSEStandardAbsorbHealthTarget2Apprentice
+		AddEffectItem ABHE OEKSEStandardAbsorbHealthTarget2Apprentice
+		SetNthEffectItemMagnitude 15 OEKSEStandardAbsorbHealthTarget2Apprentice 0
+		SetNthEffectItemDuration 1 OEKSEStandardAbsorbHealthTarget2Apprentice 0
+		SetNthEffectItemRange 2 OEKSEStandardAbsorbHealthTarget2Apprentice 0
+		RemoveAllEffectItems OEKSEStandardAbsorbHealthTarget3Journeyman
+		AddEffectItem ABHE OEKSEStandardAbsorbHealthTarget3Journeyman
+		SetNthEffectItemMagnitude 30 OEKSEStandardAbsorbHealthTarget3Journeyman 0
+		SetNthEffectItemDuration 1 OEKSEStandardAbsorbHealthTarget3Journeyman 0
+		SetNthEffectItemRange 2 OEKSEStandardAbsorbHealthTarget3Journeyman 0
+		
+		ThaurronRef.addspell OEKSEStandardAbsorbHealthTarget1Novice
+		ThaurronRef.addspell OEKSEStandardAbsorbHealthTarget2Apprentice
+		TrevaiaRef.addspell OEKSEStandardAbsorbHealthTarget3Journeyman
+		VolanaroRef.addspell OEKSEStandardAbsorbHealthTarget3Journeyman
+		MarcGulitteRef.addspell OEKSEStandardAbsorbHealthTarget3Journeyman
+	elseif OEKSEAddTargetHealthAbsorbSpells == 0
+		PlayerRef.removespell OEKSEStandardAbsorbHealthTarget1Novice
+		PlayerRef.removespell OEKSEStandardAbsorbHealthTarget2Apprentice
+		PlayerRef.removespell OEKSEStandardAbsorbHealthTarget3Journeyman
+		ThaurronRef.removespell OEKSEStandardAbsorbHealthTarget1Novice
+		ThaurronRef.removespell OEKSEStandardAbsorbHealthTarget2Apprentice
+		TrevaiaRef.removespell OEKSEStandardAbsorbHealthTarget3Journeyman
+		VolanaroRef.removespell OEKSEStandardAbsorbHealthTarget3Journeyman
+		MarcGulitteRef.removespell OEKSEStandardAbsorbHealthTarget3Journeyman
+	endif
+	
+	let DoOncePerInstance := 0
+endif
+
+
+if OEKSEFortificationAbility == 1 && OEKSEFortificationAbilityQ.OEKSEAbilityLevel > 0
+	PlayerRef.addspell OEKSESpFortificationAbilityQ
+elseif OEKSEFortificationAbility == 0 || OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 0
+	PlayerRef.removespell OEKSESpFortificationAbilityQ
+endif
+
+if OEKSEArcaneArcherAbility == 1 && OEKSEArcaneArcherAbilityQ.OEKSEAbilityLevel > 0
+	PlayerRef.addspell OEKSESpArcaneArcherAbilityQ
+elseif OEKSEArcaneArcherAbility == 0 || OEKSEArcaneArcherAbilityQ.OEKSEAbilityLevel == 0
+	PlayerRef.removespell OEKSESpArcaneArcherAbilityQ
+endif
+
+if OEKSEBattleMagicAbility == 1 && OEKSEBattleMagicAbilityQ.OEKSEAbilityLevel > 0
+	PlayerRef.addspell OEKSESpBattleMagicAbilityQ
+elseif OEKSEBattleMagicAbility == 0 || OEKSEBattleMagicAbilityQ.OEKSEAbilityLevel == 0
+	PlayerRef.removespell OEKSESpBattleMagicAbilityQ
+endif
+
+End

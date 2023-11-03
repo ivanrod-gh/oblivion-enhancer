@@ -1,0 +1,81 @@
+﻿scn OEAddParalysisResistTokenFScr
+
+ref ScriptTarget
+
+short RandomDice
+
+short ParalysisResistStrength
+float ResistParalysisMagSum
+short ParalysisImmuneTokenCount
+short ActorHasResistParalysisToken
+float ImmuneChance
+short IsParalysisImmune
+short ParalysisResistLowTokenCount
+short ParalysisResistMidTokenCount
+short ParalysisResistHighTokenCount
+
+begin function { ScriptTarget }
+
+set RandomDice to rand 1, 3.99
+
+if RandomDice == 1
+	set ParalysisResistStrength to 0
+elseif RandomDice == 2
+	set ParalysisResistStrength to 1
+elseif RandomDice == 3
+	set ParalysisResistStrength to -1
+endif
+
+set ImmuneChance to OEAdditionalParalysisImmuneChance + 0.99
+
+set ResistParalysisMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSPA + ScriptTarget.GetTotalAELesserPowerMagnitude RSPA + ScriptTarget.GetTotalAEPowerMagnitude RSPA
+
+;;debugprint "Актер [%n], ResistParalysisMagSum = %g" ScriptTarget ResistParalysisMagSum
+
+if ResistParalysisMagSum >= 100
+	set ParalysisImmuneTokenCount to ScriptTarget.getitemcount OEParalysisImmuneToken
+	ScriptTarget.removeitem OEParalysisImmuneToken ParalysisImmuneTokenCount
+	ScriptTarget.additem OEParalysisImmuneToken 1
+	set ActorHasResistParalysisToken to 1
+	;debugprint "Актеру [%n] выдан токен иммунитета от паралича, т.к. у него есть врожденный иммунитет от паралича" ScriptTarget
+endif
+if ActorHasResistParalysisToken == 0
+	if (OEAdditionalParalysisImmune == 1) && (OEAdditionalParalysisImmuneLevel <= player.getlevel)
+		set RandomDice to rand 1, ImmuneChance
+		if RandomDice == 1
+			set IsParalysisImmune to 1
+			set ParalysisImmuneTokenCount to ScriptTarget.getitemcount OEParalysisImmuneToken 
+			ScriptTarget.removeitem OEParalysisImmuneToken ParalysisImmuneTokenCount
+			ScriptTarget.additem OEParalysisImmuneToken 1
+			;debugprint "Актеру [%n] выдан токен иммунитета от паралича" ScriptTarget
+		endif
+	endif
+	if IsParalysisImmune != 1
+		if ParalysisResistStrength == -1
+			set ParalysisResistLowTokenCount to ScriptTarget.getitemcount OEParalysisResistLowToken
+			ScriptTarget.removeitem OEParalysisResistLowToken ParalysisResistLowTokenCount
+			ScriptTarget.additem OEParalysisResistLowToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от паралича пониженного уровня" ScriptTarget
+		elseif ParalysisResistStrength == 0
+			set ParalysisResistMidTokenCount to ScriptTarget.getitemcount OEParalysisResistMidToken
+			ScriptTarget.removeitem OEParalysisResistMidToken ParalysisResistMidTokenCount
+			ScriptTarget.additem OEParalysisResistMidToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от паралича среднего уровня" ScriptTarget
+		elseif ParalysisResistStrength == 1
+			set ParalysisResistHighTokenCount to ScriptTarget.getitemcount OEParalysisResistHighToken
+			ScriptTarget.removeitem OEParalysisResistHighToken ParalysisResistHighTokenCount
+			ScriptTarget.additem OEParalysisResistHighToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от паралича повышенного уровня" ScriptTarget
+		endif
+	endif
+endif
+
+;debugprint "Актеру [%n] выдан токен защиты паралича" ScriptTarget
+ScriptTarget.additem OEParalysisResistToken 1
+
+
+
+;debugprint "конец функции"
+
+
+end

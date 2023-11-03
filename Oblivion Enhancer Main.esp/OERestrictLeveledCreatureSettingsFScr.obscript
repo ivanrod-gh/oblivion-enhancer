@@ -1,0 +1,17 @@
+﻿scn OERestrictLeveledCreatureSettingsFScr
+
+short SettingsWasChanged
+
+begin function {}
+
+debugprint "Вызов функции OERestrictLeveledCreatureSettingsFScr - проверка актуальности настроек для RestrictLeveledCreature"
+
+let SettingsWasChanged := 0
+if OEInitQ.OELeveledCreatureMaxItemsToSpawnOld != OELeveledCreatureMaxItemsToSpawn || OEInitQ.OELeveledCreatureHandleSubListsOld != OELeveledCreatureHandleSubLists || OEInitQ.OELeveledCreatureMaxQuestItemsOld != OELeveledCreatureMaxQuestItems
+	let SettingsWasChanged := 1
+	debugprint "Настройки были изменены с последнего запуска"
+endif
+
+SetFunctionValue SettingsWasChanged
+
+end

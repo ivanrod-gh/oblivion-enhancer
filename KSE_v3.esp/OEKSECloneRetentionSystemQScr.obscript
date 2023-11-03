@@ -1,0 +1,402 @@
+﻿scn OEKSECloneRetentionSystemQScr
+
+;Это система удержание клонформ. Удалить клонформы из игры невозможно, но их можно перезаписывать и использовать вновь.
+
+float fQuestDelayTime 
+
+array_var BusySpellsArray	;содержит массив клонформ, в данный момент используемых игроком
+array_var FreeSpellsArray	;содержит массив неиспользуемых клонформ, которые можно выдать игроку
+array_var SpellsArray
+array_var EffectsArray
+array_var WhippedActorsArray
+
+short ActrosChecked
+short SpellsChecked
+short ActorWasChecked
+short ArrSize1
+short ArrSize2
+short ActorFound
+short BusyArrayArrSize
+short CloneFound
+short SpellCount
+short Index1
+short Index2
+short Index3
+short SpellInUse
+short PBASpellIndex
+short EffectCount
+short printtmp1
+short printtmp2
+short ClonedCount
+short CooldownTime
+short EffectIndex
+
+ref SpellClone
+ref SpellRef	;на самом деле не реф, а base
+ref WhippedActorRef
+ref ActorRef
+
+
+string_var SpellCloneName
+
+begin gamemode
+
+if OEKSEInitQ.OEKSECloneRetentionSystemQScrDebugMode == 1
+	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+endif
+
+let fQuestDelayTime := 1
+
+if KeaSettingMagicSystem  == 0 || OEKSECloneRetentionSystem == 0
+	if OEKSEInitQ.OEKSECloneRetentionSystemQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+
+debugprint "Проверка актеров на наличие отслеживаемых клонформ"
+
+;эта часть кода использовалась под событие OnMagicEffectHit, когда невозможно было назвать ударившее по объекту заклинание
+;после замены события на OnMagicApply нужда в этой части отпала
+;UPD: после замены части кода для использования HasSpell и IsSpellTarget действующая часть кода сильно упростилась
+;;проверка актеров, по которым попали магическим ударом, на валидный реф и наличие клонформ заклинаний
+;;только для актеров с кулдауном <= 5 (разгружает скрипт) или <=1 (обработка актера должна произойти в любом случае)
+;let ArrSize1 := (ar_size WhippedActorsArray) - 1
+;if OEKSEInitQ.OEKSECloneRetentionSystemQScrDebugMode == 1
+;	let printtmp1 := ar_size WhippedActorsArray
+;	debugprint "В массиве WhippedActorsArray изначально имеется [%g] актеров" printtmp1
+;	ar_dump WhippedActorsArray
+;endif
+;if ArrSize1 >= 0
+;	let Index1 := ArrSize1
+;	let ActrosChecked := 0
+;	let SpellsChecked := 0
+;	while Index1 >= 0
+;	let WhippedActorRef := WhippedActorsArray[Index1][0]
+;		let CooldownTime := WhippedActorsArray[Index1][1]
+;		let ActorWasChecked := WhippedActorsArray[Index1][2]
+;		;при кулдауне <2 секунд актер проверяется в любом случае
+;		if CooldownTime >= 2
+;			;в остальных случаях разгружаем скрипт условиями проверки
+;			if ActorWasChecked == 1 || ActrosChecked >= 10 || (ActrosChecked >= 3 && SpellsChecked >= 250) || CooldownTime > 5
+;				debugprint "Проверено [%g] актеров и [%g] заклинаний, у актера [%n] имеется кулдаун [%g] секунд и [уже проверен=%g], уход на другую итерацию цикла" ActrosChecked SpellsChecked WhippedActorRef CooldownTime ActorWasChecked
+;				let Index1 := Index1 - 1
+;				continue
+;			endif
+;		else
+;			if OEKSEInitQ.OEKSECloneRetentionSystemQScrDebugMode == 1
+;				if ActorWasChecked == 0
+;					debugprint "Обработка актера [%n] из-за истекающего кулдауна" WhippedActorRef
+;				else
+;					debugprint "Актер [%n] обработан еще раз перед перед его проверкой на владение клонформами" WhippedActorRef
+;				endif
+;			endif
+;		endif
+;		if IsFormValid WhippedActorRef == 1
+;			debugprint "Поверяется актер [%n] с кулдауном [%g] секунд" WhippedActorRef CooldownTime
+;			let CloneFound := 0
+;			let SpellsArray := ar_Construct Array
+;			let SpellsArray := WhippedActorRef.GetSpells
+;			let SpellCount := ar_size SpellsArray
+;			let Index2 := SpellCount - 1
+;			while Index2 >= 0
+;				let SpellsChecked := SpellsChecked + 1
+;				let SpellRef := SpellsArray[Index2]
+;				if IsClonedForm SpellRef == 0
+;					ar_erase SpellsArray Index2
+;				endif
+;				let Index2 := Index2 - 1	;мотает в обратную сторону
+;			loop
+;			let SpellCount := ar_size SpellsArray
+;			debugprint "Всего у актера [%n] имеется [%g] заклинаний-клонов" WhippedActorRef SpellCount
+;			let EffectsArray := ar_Construct Array
+;			let EffectCount := WhippedActorRef.GetActiveEffectCount
+;			let Index2 := 0
+;			while Index2 < EffectCount
+;				let SpellsChecked := SpellsChecked + 1
+;				let SpellRef := WhippedActorRef.GetNthActiveEffectMagicItem Index2
+;				if GetMagicItemType SpellRef == 1
+;					if IsClonedForm SpellRef == 1
+;						let EffectsArray[ar_size EffectsArray] := Index2
+;					endif
+;				endif
+;				let Index2 := Index2 + 1
+;			loop
+;			let EffectCount := ar_size EffectsArray
+;			debugprint "Всего у актера [%n] имеется [%g] эффектов от заклинаний-клонов" WhippedActorRef EffectCount
+;			if SpellCount != 0 || EffectCount != 0
+;				let CloneFound := 1
+;			endif
+;			if CloneFound == 0
+;				debugprint "У актера [%n] с индексом [%g] нет клонформ и он исключается из массива WhippedActorsArray" WhippedActorRef Index1
+;				ar_erase WhippedActorsArray Index1
+;			else
+;				debugprint "У актера [%n] с индексом [%g] найдена как минимум одна клонформа" WhippedActorRef Index1
+;				let WhippedActorsArray[Index1][2] := 1
+;			endif
+;		else
+;			debugprint "У актера [%n] с индексом [%g] неверный FormId и он исключается из массива WhippedActorsArray" WhippedActorRef Index1
+;			ar_erase WhippedActorsArray Index1
+;		endif
+;		let ActrosChecked := ActrosChecked + 1
+;		let Index1 := Index1 - 1
+;	loop
+;endif
+;
+;let ArrSize1 := (ar_size WhippedActorsArray) - 1
+;if ArrSize1 >= 0
+;	let Index1 := ArrSize1
+;	while Index1 >= 0
+;		let WhippedActorsArray[Index1][1] := WhippedActorsArray[Index1][1] - 1
+;		let Index1 := Index1 - 1
+;	loop
+;endif
+;
+;;проверка актеров, по которым попали магическим ударом, на наличие у них заклинаний-клонов (владелец/жертва)
+;let ArrSize1 := (ar_size WhippedActorsArray) - 1
+;if OEKSEInitQ.OEKSECloneRetentionSystemQScrDebugMode == 1
+;	let printtmp1 := ar_size WhippedActorsArray
+;	debugprint "В массиве WhippedActorsArray после обработки имеется [%g] актеров" printtmp1
+;	ar_dump WhippedActorsArray
+;endif
+;if ArrSize1 >= 0
+;	let ActrosChecked := 0
+;	let SpellsChecked := 0
+;	let Index1 := ArrSize1
+;	while Index1 >= 0
+;		let WhippedActorRef := WhippedActorsArray[Index1][0]
+;		let CooldownTime := WhippedActorsArray[Index1][1]
+;		;при кулдауне <-5 секунд актер проверяется в любом случае
+;		if CooldownTime >= -5
+;			;в остальных случаях разгружаем скрипт условиями проверки
+;			if ActrosChecked >= 10 || (ActrosChecked >= 3 && SpellsChecked >= 250) || CooldownTime > 0
+;				debugprint "Проверено [%g] актеров и [%g] заклинаний, у актера [%n] имеется кулдаун [%g] секунд, уход на другую итерацию цикла" ActrosChecked SpellsChecked WhippedActorRef CooldownTime
+;				let Index1 := Index1 - 1
+;				continue
+;			endif
+;		else
+;			debugprint "Внеплановая обработка актера [%n] из-за истекающего кулдауна" WhippedActorRef
+;		endif
+;		debugprint "Проверяется актер [%n] при кулдауне [%g] секунд" WhippedActorRef CooldownTime
+;		let BusyArrayArrSize := (ar_size BusySpellsArray) - 1
+;		let SpellsArray := ar_Construct Array
+;		let SpellsArray := WhippedActorRef.GetSpells
+;		let SpellCount := ar_size SpellsArray
+;		let Index2 := SpellCount - 1
+;		while Index2 >= 0
+;			let SpellRef := SpellsArray[Index2]
+;			if IsClonedForm SpellRef == 0
+;				ar_erase SpellsArray Index2
+;			endif
+;			let Index2 := Index2 - 1	;мотает в обратную сторону
+;		loop
+;		let SpellCount := ar_size SpellsArray
+;		debugprint "Всего у актера [%n] имеется [%g] заклинаний-клонов" WhippedActorRef SpellCount
+;		let EffectsArray := ar_Construct Array
+;		let EffectCount := WhippedActorRef.GetActiveEffectCount
+;		let Index2 := 0
+;		while Index2 < EffectCount
+;			let SpellRef := WhippedActorRef.GetNthActiveEffectMagicItem Index2
+;			if GetMagicItemType SpellRef == 1
+;				if IsClonedForm SpellRef == 1
+;					let EffectsArray[ar_size EffectsArray] := Index2
+;				endif
+;			endif
+;			let Index2 := Index2 + 1
+;		loop
+;		let EffectCount := ar_size EffectsArray
+;		debugprint "Всего у актера [%n] имеется [%g] эффектов от заклинаний-клонов" WhippedActorRef EffectCount
+;		let Index2 := 0
+;		while Index2 <= BusyArrayArrSize
+;			let CloneFound := 0
+;			let SpellClone := BusySpellsArray[Index2][0]
+;			if SpellCount > 0
+;				let Index3 := 0
+;				while Index3 < SpellCount
+;					let SpellsChecked := SpellsChecked + 1
+;					let SpellRef := SpellsArray[Index3]
+;					debugprint "У актера [%n] проверяется заклинание [%n][%i]" WhippedActorRef SpellRef SpellRef
+;					if SpellClone == SpellRef
+;						debugprint "У актера [%n] обнаружено заклинание-клон [%n] из массива BusySpellsArray" WhippedActorRef SpellClone
+;						let CloneFound := CloneFound + 1
+;						break
+;					else
+;						debugprint "Заклинание-клон [%n] != заклинанию актера [%n]" SpellClone SpellRef
+;					endif
+;					let Index3 := Index3 + 1
+;				loop
+;			endif
+;			if EffectCount > 0 && CloneFound == 0
+;				let Index3 := 0
+;				while Index3 < EffectCount
+;					let SpellsChecked := SpellsChecked + 1
+;					let EffectIndex := EffectsArray[Index3]
+;					let SpellRef := WhippedActorRef.GetNthActiveEffectMagicItem EffectIndex
+;					debugprint "У актера [%n] проверяется наложившее эффект заклинание [%n][%i]" WhippedActorRef SpellRef SpellRef
+;					if SpellClone == SpellRef
+;						debugprint "У актера [%n] обнаружено заклинание-клон [%n] из массива BusySpellsArray" WhippedActorRef SpellClone
+;						let CloneFound := CloneFound + 1
+;						break
+;					else
+;						debugprint "Заклинание-клон [%n] != заклинанию актера [%n]" SpellClone SpellRef
+;					endif
+;					let Index3 := Index3 + 1
+;				loop
+;			endif
+;			if CloneFound >= 1
+;				debugprint "У актера [%n] обнаружена отслеживаемая клонформа" WhippedActorRef
+;				let ArrSize1 := ar_size BusySpellsArray[Index2]
+;				let Index3 := 2
+;				let ActorFound := 0
+;				if ArrSize1 > 2
+;					while Index3 < ArrSize1
+;						let ActorRef := BusySpellsArray[Index2][Index3]
+;						if WhippedActorRef == ActorRef
+;							let ActorFound := ActorFound + 1
+;							break
+;						endif
+;						let Index3 := Index3 + 1
+;					loop
+;				endif
+;				;добавляется новый пользователь заклинания-клона
+;				if ActorFound == 0
+;					if OEKSEInitQ.OEKSECloneRetentionSystemQScrDebugMode == 1
+;						ar_dump BusySpellsArray[Index2]
+;					endif
+;					let BusySpellsArray[Index2][ar_size BusySpellsArray[Index2]] := WhippedActorRef
+;					debugprint "В массив BusySpellsArray к заклинанию-клону [%n] добавлен актер [%n]" SpellClone WhippedActorRef
+;					if OEKSEInitQ.OEKSECloneRetentionSystemQScrDebugMode == 1
+;						ar_dump BusySpellsArray[Index2]
+;					endif
+;				else
+;					debugprint "Актер [%n] уже присутствует в массиве BusySpellsArray заклинания-клона [%n]" WhippedActorRef SpellClone
+;				endif
+;			else
+;				debugprint "У актера [%n] не обнаружено отслеживаемых клонформ" WhippedActorRef
+;			endif
+;			let Index2 := Index2 + 1
+;		loop
+;		let ActrosChecked := ActrosChecked + 1
+;		debugprint "актер [%n] с индексом [%g] проверен на наличие отслеживаемых клонов заклинаний и удаляется из массива WhippedActorsArray" WhippedActorRef Index1
+;		ar_erase WhippedActorsArray Index1
+;		let Index1 := Index1 - 1	;мотает в обратную сторону
+;	loop
+;endif
+
+
+let ArrSize1 := (ar_size BusySpellsArray) - 1
+;проверяем следующую ячейку массива BusySpellsArray
+let PBASpellIndex := PBASpellIndex - 1
+if PBASpellIndex < 0
+	let PBASpellIndex := ArrSize1
+endif
+
+;если в массиве BusySpellsArray есть удерживаемые клоны заклинаний, которые кем-то используются (есть владелец/есть жертва)
+if ArrSize1 >= 0
+	let SpellClone := BusySpellsArray[PBASpellIndex][0]
+	let CooldownTime := BusySpellsArray[PBASpellIndex][1]
+	let ArrSize1 := ar_size BusySpellsArray[PBASpellIndex]
+	;если заклинание-клона SpellClone использует как минимум 1 актер
+	if ArrSize1 > 2	;если в BusySpellsArray[PBASpellIndex] есть актеры, т.е. как минимум ячейка [2] занята
+		debugprint "Проверяется использование заклинания-клона [%n], индекс в массиве=%g" SpellClone PBASpellIndex
+		let Index1 := ArrSize1 - 1
+		while Index1 > 1
+			let SpellInUse := 0
+			let ActorRef := BusySpellsArray[PBASpellIndex][Index1]
+			if IsFormValid ActorRef == 1
+				debugprint "Выполняется проверка актера [%n][%i]" ActorRef ActorRef
+				
+				if ActorRef.HasSpell SpellClone
+					debugprint "Актер [%n] использует клонформу [%n][%i]" ActorRef SpellRef SpellRef
+					let SpellInUse := SpellInUse + 1
+				else
+					debugprint "Актер [%n] не использует клонформу [%n][%i]" ActorRef SpellRef SpellRef
+				endif
+				if ActorRef.IsSpellTarget SpellClone
+					debugprint "Актер [%n] имеет эффект от клонформы [%n][%i]" ActorRef SpellRef SpellRef
+					let SpellInUse := SpellInUse + 1
+				else
+					debugprint "Актер [%n] не имеет эффекта от клонформы [%n][%i]" ActorRef SpellRef SpellRef
+				endif
+
+				if SpellInUse == 0
+					debugprint "Актер [%n] не имеет отношения к заклинанию-клону [%n] и удаляется из массива пользователей (владелец/жертва) этим заклинанием" ActorRef SpellClone
+					ar_erase BusySpellsArray[PBASpellIndex] Index1
+				endif
+			else
+				debugprint "Актер [%n] имеет невалидный реф и удаляется из массива BusySpellsArray" ActorRef
+				;если закинуть актера в дальние дали (типа [moveto "testinghall"]), то с него принудительно
+				;движком игры диспеллятся все эффекты. Ref актера при этом валидный и он нормально обрабатывается
+				;и скриптами, и изнутри самой игры при помощи той же консоли
+				ar_erase BusySpellsArray[PBASpellIndex] Index1
+			endif
+			let Index1 := Index1 - 1	;мотает в обратную сторону
+		loop
+		;проверяем, остались ли актеры, использующие SpellClone
+		let ArrSize1 := ar_size BusySpellsArray[PBASpellIndex]
+		if 	ArrSize1 == 2	;если таких актеров нет
+			debugprint "Заклинание-клон [%n] никем не используется, задается кулдаун до его удаления из списка занятых клонформ" SpellClone
+			let BusySpellsArray[PBASpellIndex][1] := 25	;задаем кулдаун = 25 секунд
+		else
+			debugprint "Заклинание-клон [%n] кем-то используется" SpellClone
+		endif		
+	endif
+
+
+
+	let ArrSize1 := ar_size BusySpellsArray
+	;уменьшаем кулдаун у всех заклинаний-клонов без пользователей (массив BusySpellsArray)
+	let Index1 := 0
+	while Index1 <= ArrSize1
+		if eval(ar_size BusySpellsArray[Index1]) == 2
+			let BusySpellsArray[Index1][1] := BusySpellsArray[Index1][1] - 1
+			if OEKSEInitQ.OEKSECloneRetentionSystemQScrDebugMode == 1
+				let SpellClone := BusySpellsArray[Index1][0]
+				let CooldownTime := BusySpellsArray[Index1][1]
+				debugprint "у заклинания-клона [%n][%i] уменьшилось время кулдауна на одну секунду до %g секунд" SpellClone SpellClone CooldownTime
+			endif
+		endif
+		let Index1 := Index1 + 1
+	loop
+
+	let ArrSize1 := (ar_size BusySpellsArray) - 1
+	let Index1 := ArrSize1
+	while Index1 >= 0
+		let ArrSize2 := ar_size BusySpellsArray[Index1]
+		;если заклинание-клон SpellClone не использует (не владелец/не жертва) ни один актер
+		if ArrSize2 < 3
+			let SpellClone := BusySpellsArray[Index1][0]
+			let CooldownTime := BusySpellsArray[Index1][1]
+			;если кулдаун прошел, то актер клонформу не использует и она передается в массив свободных клонформ
+			if CooldownTime <= 0
+				debugprint "у заклинания-клона [%n] истекло время кулдауна, оно удаляется из BusySpellsArray и передается в FreeSpellsArray" SpellClone
+				ar_erase BusySpellsArray Index1
+				;дополнительно проверка на то, что в FreeSpellsArray возвращается клонформа
+				if IsClonedForm SpellClone == 1
+					let FreeSpellsArray[ar_size FreeSpellsArray] := SpellClone
+				else
+					debugprint "в массиве BusySpellsArray оказалась не клонформа!"
+				endif
+			endif
+		endif
+		let Index1 := Index1 - 1
+	loop
+
+endif
+;массив свободных клонформ может быть любого размера
+;при fQuestDelayTime == 1 этот скрипт выполняется неспешно (раз в секунду) и "на балансе" может быть несколько десятков
+;клонформ, что для игры не критично
+
+if OEKSEInitQ.OEKSECloneRetentionSystemQScrDebugMode == 1
+	let printtmp1 := ar_size FreeSpellsArray
+	let printtmp2 := ar_size BusySpellsArray
+	debugprint "ar_size_Free=%g, ar_size_Busy=%g, ClonedCount=%g" printtmp1 printtmp2 ClonedCount
+	ar_dump FreeSpellsArray
+	ar_dump BusySpellsArray
+endif
+
+if OEKSEInitQ.OEKSECloneRetentionSystemQScrDebugMode == 1
+	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+endif
+
+end

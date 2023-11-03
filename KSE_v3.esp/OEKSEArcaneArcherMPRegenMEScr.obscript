@@ -1,0 +1,38 @@
+﻿scn OEKSEArcaneArcherMPRegenMEScr
+
+short counter
+float MagickaRegenRate
+float MagickaRegenAmount
+float MagickaMax
+float KeaMPenalty
+float timer
+float timer2
+
+begin scripteffectupdate
+
+if counter < 20
+	let counter := counter + 1
+	return
+endif
+
+let timer := timer - getsecondspassed
+if timer < 0
+	if KeaSettingHMF == 1
+		set KeaMPenalty to KeaMagicPenalty
+	else
+		set KeaMPenalty to 0
+	endif
+	let MagickaMax := player.getbaseav magicka + ( player.GetTotalAENonAbilityMagnitude FOSP Magicka ) + ( player.GetTotalAENonAbilityMagnitude DRSP Magicka ) - KeaMPenalty
+	
+	let MagickaRegenRate := 0.01 * OEKSEArcaneArcherMagickaReturnMult * player.getav agility * (player.getlevel * 5 + 100)
+	let MagickaRegenAmount := MagickaRegenRate * 0.1
+	let timer := 1
+endif
+
+let timer2 := timer2 - getsecondspassed
+if timer2 < 0 && player.getav magicka < (MagickaMax - 0.5)
+	player.ModAVMod magicka "damage" MagickaRegenAmount
+	let timer2 := 0.1
+endif
+
+end

@@ -1,0 +1,181 @@
+﻿scn OEKSEFortificationAbilityDebufferFScr
+
+array_var TempArray
+array_var EnemiesArray
+array_var ArrayElem
+
+short ArrSize1
+short index1
+short index2
+short MainDebuffTargetIsPresent
+short MinDistanceTargetKey
+short Distance
+short DistanceOld
+short RandomDice
+short DebuffIsAllowed
+
+ref ActorRef
+ref OEKSESpFortificationDebuffRef
+ref FADebuffMainTargetRef
+
+begin function {}
+
+let FADebuffMainTargetRef := OEKSEFortificationAbilityQ.OEKSEFADebuffMainTargetRef
+if FADebuffMainTargetRef
+else
+	let FADebuffMainTargetRef := PlayerRef
+endif
+
+let TempArray := ar_construct Array
+let ActorRef := GetFirstRef 69 2
+while ActorRef
+	if ActorRef.GetDead == 0 && ActorRef.GetDisabled == 0
+		if ActorRef.GetDistance PlayerRef < 500 && ( ActorRef.GetShouldAttack PlayerRef == 1 || ActorRef.GetCombatTarget == PlayerRef)
+			let TempArray[ar_size TempArray] := ActorRef
+		endif
+	endif
+	let ActorRef := GetNextRef
+loop
+
+let EnemiesArray := ar_construct Array
+let ArrSize1 := ar_size TempArray
+let index1 := ArrSize1 - 1
+while index1 >= 0
+	let index2 := ArrSize1 - 1
+	let DistanceOld := 9999
+	let MinDistanceTargetKey := 0
+	while index2 >= 0
+		let ActorRef := TempArray[index2]
+		let Distance := ActorRef.GetDistance FADebuffMainTargetRef
+		if Distance < DistanceOld
+			let DistanceOld := Distance
+			let MinDistanceTargetKey := index2
+		endif
+		let index2 := index2 - 1
+	loop
+	
+	let EnemiesArray[ar_size EnemiesArray] := TempArray[MinDistanceTargetKey]
+	ar_erase TempArray MinDistanceTargetKey
+	
+	let ArrSize1 := ar_size TempArray
+	let index1 := index1 - 1
+loop
+
+if OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 2
+	ar_erase EnemiesArray 5:999
+elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 3
+	ar_erase EnemiesArray 7:999
+endif
+
+let OEKSESpFortificationDebuffRef := OEKSESpFortificationDebuff
+
+let index1 := 0
+let ArrSize1 := ar_size EnemiesArray
+while index1 < ArrSize1
+	let ActorRef := EnemiesArray[index1]
+	
+	let RandomDice := Rand 0 99
+	if index1 == 0
+		if OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 1
+			if OEKSEFortificationAbLev1Enemy1KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 2
+			if OEKSEFortificationAbLev2Enemy1KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 3
+			if OEKSEFortificationAbLev3Enemy1KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 4
+			if OEKSEFortificationAbLev4Enemy1KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		endif
+	elseif index1 == 1
+		if OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 1
+			if OEKSEFortificationAbLev1Enemy2KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 2
+			if OEKSEFortificationAbLev2Enemy2KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 3
+			if OEKSEFortificationAbLev3Enemy2KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 4
+			if OEKSEFortificationAbLev4Enemy2KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		endif
+	elseif index1 == 2
+		if OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 1
+			if OEKSEFortificationAbLev1Enemy3KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 2
+			if OEKSEFortificationAbLev2Enemy3KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 3
+			if OEKSEFortificationAbLev3Enemy3KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 4
+			if OEKSEFortificationAbLev4Enemy3KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		endif
+	elseif index1 == 3
+		if OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 1
+			if OEKSEFortificationAbLev1Enemy4KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 2
+			if OEKSEFortificationAbLev2Enemy4KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 3
+			if OEKSEFortificationAbLev3Enemy4KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 4
+			if OEKSEFortificationAbLev4Enemy4KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		endif
+	elseif index1 == 4
+		if OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 1
+			if OEKSEFortificationAbLev1Enemy5KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 2
+			if OEKSEFortificationAbLev2Enemy5KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 3
+			if OEKSEFortificationAbLev3Enemy5KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 4
+			if OEKSEFortificationAbLev4Enemy5KnockdownChance > RandomDice
+				let DebuffIsAllowed := 1
+			endif
+		endif
+	endif
+	
+	if DebuffIsAllowed == 1
+		OEKSECaster.moveto ActorRef 0 0 150
+		OEKSECaster.Cast OEKSESpFortificationDebuffRef ActorRef
+		ActorRef.playMagicShaderVisuals effectDestruction 2
+		ActorRef.PlaySound3D SPLDestructionHit
+	endif
+	
+	let DebuffIsAllowed := 0
+	let index1 := index1 + 1 
+loop
+
+end

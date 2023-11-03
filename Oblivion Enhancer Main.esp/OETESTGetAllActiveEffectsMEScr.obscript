@@ -1,0 +1,35 @@
+﻿scn OETESTGetAllActiveEffectsMEScr
+
+ref Self
+ref EffectRef
+ref SpellRef
+ref CasterRef
+
+short index
+short EffectsCount
+short EffectMagnitude
+int EffectCode
+
+begin ScriptEffectStart
+
+let Self := GetSelf
+
+let EffectsCount := GetActiveEffectCount
+let index := 0
+if EffectsCount > 0
+	printc "Актер [%n][%i], его активные эффекты (%g штук):" Self Self EffectsCount
+	while index < EffectsCount
+		let EffectCode := GetNthActiveEffectCode index
+		let EffectRef := MagicEffectFromCode EffectCode
+		let EffectMagnitude := GetNthActiveEffectMagnitude index
+		let SpellRef := GetNthActiveEffectMagicItem index
+		let CasterRef := GetNthActiveEffectCaster index
+		printc "[%g] [Эффект: %n][%i][Магнитуда: %g] [Заклинание: %n][%i] [Кастер: %n]" index EffectRef EffectRef EffectMagnitude SpellRef SpellRef CasterRef
+		;CasterRef.Dispel SpellRef
+		let index := index + 1
+	loop
+endif
+
+messagebox "Effects"
+
+end

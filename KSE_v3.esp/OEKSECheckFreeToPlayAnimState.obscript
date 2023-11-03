@@ -1,0 +1,22 @@
+﻿scn OEKSECheckFreeToPlayAnimState
+
+; Возвращает 1/0, проверяя проигрываемые на объекте анимации
+; Вернет 1, если объект "свободен" для проигрывания новой анимации
+; Функция должна вызываться от имени объекта проверки
+
+short option	; 0 - вернет 0 при запрещенных анимациях и состояниях
+				; 1 - вернет 0 при запрещенных анимациях и состояниях и анимациях атаки и каста
+
+begin function { option }
+
+if GetDead || GetDisabled || GetUnconscious || GetKnockedState || IsAnimGroupPlaying DynamicIdle || IsAnimGroupPlaying SpecialIdle || IsAnimGroupPlaying DodgeForward || IsAnimGroupPlaying DodgeBack || IsAnimGroupPlaying DodgeLeft || IsAnimGroupPlaying DodgeRight
+	SetFunctionValue 0
+	return
+elseif option == 1 && ( IsAttacking || IsCasting )
+	SetFunctionValue 0
+	return
+endif
+
+SetFunctionValue 1
+
+end

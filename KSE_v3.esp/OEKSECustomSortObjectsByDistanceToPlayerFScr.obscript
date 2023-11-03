@@ -1,0 +1,19 @@
+﻿scn OEKSECustomSortObjectsByDistanceToPlayerFScr
+
+array_var ArrayElement1
+array_var ArrayElement2
+
+ref Object1Ref
+ref Object2Ref
+
+begin function { ArrayElement1 ArrayElement2 }
+
+let Object1Ref := ArrayElement1[0]
+let Object2Ref := ArrayElement2[0]
+if Object1Ref.GetDistance PlayerRef < Object2Ref.GetDistance PlayerRef
+	SetFunctionValue 1
+else
+	SetFunctionValue 0
+endif
+
+end

@@ -1,0 +1,30 @@
+﻿scn OECheckLeveledListSettingsFScr
+
+short SettingsWasChanged
+
+begin function {}
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Вызов функции OECheckLeveledListSettingsFScr - проверка актуальности настроек для LeveledList"
+
+let SettingsWasChanged := 0
+if OEInitQ.OELeveledListTopGearLevelOld != OELeveledListTopGearLevel || OEInitQ. OELeveledListCommonToMagicRatioOld != OELeveledListCommonToMagicRatio || OEInitQ.OELeveledListUseFiller1Old != OELeveledListUseFiller1 || OEInitQ.OELeveledListLvlOffset1Old != OELeveledListLvlOffset1 || OEInitQ.OELeveledListLvlDeep1Old != OELeveledListLvlDeep1 || OEInitQ.OELeveledListLvlRepeat1Old != OELeveledListLvlRepeat1 || OEInitQ.OELeveledListUseFiller2Old != OELeveledListUseFiller2
+	let SettingsWasChanged := 1
+	debugprint "Настройки были изменены с последнего запуска"
+endif
+;злобный компилятор не дает впихнуть все в одну строку
+if OEInitQ.OELeveledListLvlOffset2Old != OELeveledListLvlOffset2 || OEInitQ.OELeveledListLvlDeep2Old != OELeveledListLvlDeep2 || OEInitQ.OELeveledListLvlRepeat2Old != OELeveledListLvlRepeat2
+	let SettingsWasChanged := 1
+	debugprint "Настройки были изменены с последнего запуска"
+endif
+
+SetFunctionValue SettingsWasChanged
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

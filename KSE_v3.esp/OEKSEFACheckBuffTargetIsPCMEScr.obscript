@@ -1,0 +1,35 @@
+﻿scn OEKSEFACheckBuffTargetIsPCMEScr
+
+short counter
+int EffectIndex
+
+ref Self
+ref SpellRef
+
+begin scripteffectupdate
+
+;Укрепление - проверки цели - положительное усиление накладывается только на игрока
+
+let counter := counter + 1
+if counter >= 10
+	let Self := GetSelf
+	if Self
+		if Self != PlayerRef
+			let EffectIndex := GetScriptActiveEffectIndex
+			let SpellRef := Self.GetNthActiveEffectMagicItem EffectIndex
+			Self.Dispel SpellRef
+		elseif Self == PlayerRef
+			if OEKSEFortificationAbilityQ.OEKSEAbilityActive != 2
+				PlayerRef.Dispel OEKSESpFortificationLevel1
+				PlayerRef.Dispel OEKSESpFortificationLevel2
+				PlayerRef.Dispel OEKSESpFortificationLevel3
+				PlayerRef.Dispel OEKSESpFortificationLevel4
+			else
+				let EffectIndex := GetScriptActiveEffectIndex
+				Self.DispelNthActiveEffect EffectIndex
+			endif
+		endif
+	endif
+endif
+
+end

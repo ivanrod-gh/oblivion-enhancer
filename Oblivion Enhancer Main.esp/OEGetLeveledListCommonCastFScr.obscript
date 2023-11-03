@@ -1,0 +1,35 @@
+﻿scn OEGetLeveledListCommonCastFScr
+
+array_var LeveledListCommonCastArray
+
+short index
+short NumLevItems
+short LevItemLevel
+short LevItemCount
+
+ref LeveledListRef
+ref LevItemRef
+
+begin function { LeveledListRef }
+
+debugprint "Вызов функции OECheckCastsDifferenceFScr - создание обычного слепка уровневого списка"
+
+let LeveledListCommonCastArray := ar_construct Array
+let NumLevItems := GetNumLevItems LeveledListRef
+let index := 0
+while index < NumLevItems
+	let LevItemRef := GetNthLevItem index LeveledListRef
+	let LevItemLevel := GetNthLevItemLevel index LeveledListRef
+	let LevItemCount := GetNthLevItemCount index LeveledListRef
+	let LeveledListCommonCastArray[index] := ar_construct Array
+	let LeveledListCommonCastArray[index][0] := LevItemRef
+	let LeveledListCommonCastArray[index][1] := LevItemLevel
+	let LeveledListCommonCastArray[index][2] := LevItemCount
+	let index := index + 1
+loop
+
+debugprint "Для уровневого списка [%i] создан новый слепок размером [%g] (уровневый список содержит объектов: %g)" LeveledListRef index NumLevItems
+
+SetFunctionValue LeveledListCommonCastArray
+
+end

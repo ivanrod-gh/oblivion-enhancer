@@ -1,0 +1,114 @@
+﻿scn OEShowPackedLeveledListByLevelFScr
+
+array_var LeveledListSubArray
+
+short ArrSize1
+short ArrSize2
+;short ArrSize3
+;short ArrSize4
+;short ArrSize5
+short index1
+short index2
+short index3
+short index4
+;short index5
+short NumLevItems1
+;short NumLevItems2
+short NumLevItems3
+short NumLevItems4
+;short NumLevItems5
+short LevItemLevel
+;short LevItemCounter
+short QualityLevel
+
+ref LevItemRef
+ref LeveledListRef
+ref LeveledListRef2
+
+begin function { LeveledListRef }
+
+debugprint "Вызов функции OEShowPackedLeveledListByLevelFScr - тестовый вывод групп предметов и их уровня у уровневого списка (тройная запаковка)"
+
+debugprint "Переданный штатный уровневый список [%i] состоит из:" LeveledListRef
+let NumLevItems1 := GetNumLevItems LeveledListRef
+let index1 := 0
+while index1 < NumLevItems1
+	let LevItemRef := GetNthLevItem index1 LeveledListRef
+	let LevItemLevel := GetNthLevItemLevel index1 LeveledListRef
+	debugprint "[%g] [%i]" LevItemLevel LevItemRef
+	let index1 := index1 + 1
+loop
+
+;извлечение уровневого списка-клонформы для упаковки из уровневого списка
+let LeveledListRef := GetNthLevItem 0 LeveledListRef
+
+;приведение уровневого списка к простому виду для чтения
+;создание пустого массива по уровням
+let LeveledListSubArray := ar_construct Array
+let ArrSize1 := OELeveledListTopGearLevel + 1
+let index1 := 0
+while index1 < ArrSize1
+	let LeveledListSubArray[index1] := ar_construct Array
+	let index1 := index1 + 1
+loop
+
+;наполнение массива из уровневого списка-клонформы
+let NumLevItems1 := GetNumLevItems LeveledListRef
+let index1 := 0
+while index1 < NumLevItems1
+	let LevItemRef := GetNthLevItem index1 LeveledListRef
+	let LevItemLevel := GetNthLevItemLevel index1 LeveledListRef
+	let LeveledListSubArray[LevItemLevel][ar_size LeveledListSubArray[LevItemLevel]] := LevItemRef
+	let index1 := index1 + 1
+loop
+
+;вывод в лог сформированного массива
+debugprint "Выполняется распаковка и вывод в лог"
+let ArrSize1 := ar_size LeveledListSubArray
+let index1 := 0
+while index1 < ArrSize1
+	let ArrSize2 := ar_size LeveledListSubArray[index1]
+	if ArrSize2 > 0
+		let index2 := 0
+		while index2 < ArrSize2
+			let LeveledListRef := LeveledListSubArray[index1][index2]
+			let index3 := 0
+			let NumLevItems3 := GetNumLevItems LeveledListRef
+			debugprint "[%g] Уровневый список [%i], содержит [%g] объектов:" index1 LeveledListRef NumLevItems3
+			while index3 < NumLevItems3
+				let LevItemRef := GetNthLevItem index3 LeveledListRef
+				if GetObjectType LevItemRef != 43
+					let QualityLevel := OEInitQ.OELeveledListQualityArray[GetRawFormIdString LeveledListRef]
+					if GetEnchantment LevItemRef
+						debugprint ">[%g] [%g][%g шт.][магич.]" index1 QualityLevel NumLevItems3
+					else
+						debugprint ">[%g] [%g][%g шт.]" index1 QualityLevel NumLevItems3
+					endif
+					break
+				else
+					let LeveledListRef2 := LevItemRef
+					let NumLevItems4 := GetNumLevItems LeveledListRef2
+					let index4 := 0
+					while index4 < NumLevItems4
+						let LevItemRef := GetNthLevItem index4 LeveledListRef2
+						let QualityLevel := OEInitQ.OELeveledListQualityArray[GetRawFormIdString LeveledListRef2]
+						if GetEnchantment LevItemRef
+							debugprint ">>[%g] [%g][%g шт.][магич.]" index1 QualityLevel NumLevItems4
+						else
+							debugprint ">>[%g] [%g][%g шт.]" index1 QualityLevel NumLevItems4
+						endif
+						break
+						let index4 := index4 + 1
+					loop
+				endif
+				let index3 := index3 + 1
+			loop
+			let index2 := index2 + 1
+		loop
+	else
+		debugprint "[%g] -" index1
+	endif
+	let index1 := index1 + 1
+loop
+
+end

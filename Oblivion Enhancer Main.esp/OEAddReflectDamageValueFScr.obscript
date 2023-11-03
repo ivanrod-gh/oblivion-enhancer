@@ -1,0 +1,102 @@
+﻿scn OEAddReflectDamageValueFScr
+
+ref ScriptTarget
+
+short ReflectDamage100TokenCount
+short MaximumReflectDamageTokenCount
+
+short ReflectDamageLowTokenCount
+short ReflectDamageMidTokenCount
+short ReflectDamageHighTokenCount
+
+short ActorHasReflectDamage100
+short ActorHasMaximumReflectDamage
+
+float ReflectDamagemagsum
+
+float ReflectDamageMod
+float ReflectDamageNormal
+float ReflectDamageExisted
+
+float ReflectDamageNew
+
+begin function { ScriptTarget }
+
+set ReflectDamagemagsum to ScriptTarget.GetTotalAEAbilityMagnitude REDG  + ScriptTarget.GetTotalAELesserPowerMagnitude REDG + ScriptTarget.GetTotalAEPowerMagnitude REDG
+
+
+set ReflectDamage100TokenCount to ScriptTarget.getitemcount OEReflectDamage100Token
+set MaximumReflectDamageTokenCount to ScriptTarget.getitemcount OEReflectDamageMaximumToken
+if ReflectDamagemagsum >= 100
+	;debugprint "У актера [%n] есть 100-процентное отражение урона" ScriptTarget
+	set ActorHasReflectDamage100 to 1
+elseif ReflectDamage100TokenCount > 0
+	;debugprint "У актера [%n] есть токен на 100-процентное отражение урона" ScriptTarget
+	set ActorHasReflectDamage100 to 1
+elseif MaximumReflectDamageTokenCount > 0
+	;debugprint "У актера [%n] есть токен на максимальное отражения урона" ScriptTarget
+	set ActorHasMaximumReflectDamage to 1
+endif
+
+if ActorHasMaximumReflectDamage == 1
+	set ReflectDamageMod to OEActorReflectDamageMax
+	;debugprint "Актер [%n], ReflectDamageMod = %g" ScriptTarget ReflectDamageMod
+elseif ActorHasReflectDamage100 == 1
+	set ReflectDamageMod to 200
+	;debugprint "Актер [%n], ReflectDamageMod = %g" ScriptTarget ReflectDamageMod
+elseif ActorHasReflectDamage100 == 0 && ActorHasMaximumReflectDamage == 0
+	set ReflectDamageNormal to ScriptTarget.GetTotalActiveEffectMagnitude REDG
+	;debugprint "Актер [%n], ReflectDamageNormal до диминишинга = %g" ScriptTarget ReflectDamageNormal
+	
+	if ReflectDamageNormal <= 50
+		set ReflectDamageMod to ReflectDamageNormal
+	elseif ReflectDamageNormal > 50 && ReflectDamageNormal <= 100
+		set ReflectDamageMod to ( ReflectDamageNormal - 50  ) / 2 + 50
+	elseif ReflectDamageNormal > 100 && ReflectDamageNormal <= 200
+		set ReflectDamageMod to ( ReflectDamageNormal - 100 ) / 8 + 75
+	elseif ReflectDamageNormal > 200 && ReflectDamageNormal <= 600
+		set ReflectDamageMod to ( ReflectDamageNormal - 200 ) / 32 + 87.5
+	elseif ReflectDamageNormal > 600
+		set ReflectDamageMod to 100
+	endif
+	if ReflectDamageMod > OEActorReflectDamageMax
+		set ReflectDamageMod to OEActorReflectDamageMax
+	endif
+	
+	set ReflectDamageNormal to ReflectDamageMod					;теперь нормальным значением сопротивления является такое, которое прошло через диминишинг
+	
+	set ReflectDamageLowTokenCount to ScriptTarget.getitemcount OEReflectDamageLowToken
+	set ReflectDamageMidTokenCount to ScriptTarget.getitemcount OEReflectDamageMidToken
+	set ReflectDamageHighTokenCount to ScriptTarget.getitemcount OEReflectDamageHighToken
+	
+	if ReflectDamageLowTokenCount > 0
+		set ReflectDamageMod to ReflectDamageMod + (OEActorReflectDamageMax - ReflectDamageMod) / 3
+	elseif ReflectDamageMidTokenCount > 0
+		set ReflectDamageMod to ReflectDamageMod + (OEActorReflectDamageMax - ReflectDamageMod) / 4
+	elseif 	ReflectDamageHighTokenCount > 0
+		set ReflectDamageMod to ReflectDamageMod + (OEActorReflectDamageMax - ReflectDamageMod) / 2
+	endif
+
+	;debugprint "Актер [%n], ReflectDamageMod = %g, ReflectDamageNormal = %g" ScriptTarget ReflectDamageMod ReflectDamageNormal
+
+	;if ReflectDamageMod < ReflectDamageNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
+	;	set ReflectDamageMod to ReflectDamageNormal
+	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, ReflectDamageMod = %g" ScriptTarget ReflectDamageMod
+	;endif
+endif
+
+set ReflectDamageMod to ReflectDamageMod - ScriptTarget.getbaseav ReflectDamage; - ScriptTarget.GetAVModC 61 script
+ScriptTarget.SetAVModC 59 max ReflectDamageMod
+set ReflectDamageExisted to ScriptTarget.getav ReflectDamage
+
+;debugprint "Актер [%n], назначенное значение  ReflectDamageMod = %g, ReflectDamageExisted = %g" ScriptTarget ReflectDamageMod ReflectDamageExisted
+
+
+set ReflectDamageNew to ReflectDamageExisted
+;debugprint "Вывод переменной ReflectDamageNew = %g из функции обратно в скрипт" ReflectDamageNew
+SetFunctionValue ReflectDamageNew
+
+;debugprint "конец функции"
+
+
+end

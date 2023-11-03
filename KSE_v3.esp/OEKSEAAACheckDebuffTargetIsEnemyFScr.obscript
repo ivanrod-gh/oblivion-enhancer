@@ -1,0 +1,28 @@
+﻿scn OEKSEAAACheckDebuffTargetIsEnemyFScr
+
+short counter
+int EffectIndex
+
+ref Self
+ref SpellRef
+
+begin scripteffectupdate
+
+;Волшебный стрелок - проверки цели - дебафф должен накладывается только на врагов
+
+let counter := counter + 1
+if counter >= 10
+	let Self := GetSelf
+	if Self
+		let EffectIndex := GetScriptActiveEffectIndex
+		if Self == PlayerRef || OEKSEArcaneArcherAbilityQ.OEKSEAbilityActive != 2
+			let SpellRef := Self.GetNthActiveEffectMagicItem EffectIndex
+			Self.Dispel SpellRef
+		else
+			Self.playMagicShaderVisuals effectEnchantIllusion 1
+			Self.DispelNthActiveEffect EffectIndex
+		endif
+	endif
+endif
+
+end

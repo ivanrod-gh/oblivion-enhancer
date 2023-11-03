@@ -1,0 +1,72 @@
+﻿scn OEAddMagickaBoostFScr
+
+ref ScriptTarget
+short RandomDice
+short MagickaExisted
+float MagickaMod
+short MagickaDiff
+short MagickaBoostStrength
+short IsMagickaBoostCritical
+short MagickaBoostTokenCount
+float MagickaBoostChance
+float MagickaBoostVeryHighChance
+
+begin function { ScriptTarget }
+
+set MagickaBoostChance to OEAdditionalMagickaBoostChance + 0.99
+set MagickaBoostVeryHighChance to OEAdditionalMagickaBoostVeryHighChance + 0.99
+
+set MagickaExisted to ScriptTarget.getbaseav Magicka + ScriptTarget.GetAVMod Magicka script
+;debugprint "Актер [%n], значение маны base + script = %g" ScriptTarget MagickaExisted
+set RandomDice to rand 1, MagickaBoostChance
+if RandomDice == 1 && MagickaExisted > 0
+
+	set RandomDice to rand 1, 3.99
+
+	if RandomDice == 1
+		set MagickaBoostStrength to 0
+	elseif RandomDice == 2
+		set MagickaBoostStrength to 1
+	elseif RandomDice == 3
+		set MagickaBoostStrength to -1
+	endif
+
+	set RandomDice to rand 1, MagickaBoostVeryHighChance
+	if RandomDice == 1
+		set IsMagickaBoostCritical to 1
+	endif
+	
+	if IsMagickaBoostCritical != 1
+		if MagickaBoostStrength == 0
+			set MagickaMod to (OEAdditionalMagickaBoostValue - 1) * 0.66
+		elseif MagickaBoostStrength == 1
+			set MagickaMod to OEAdditionalMagickaBoostValue - 1
+		elseif MagickaBoostStrength == -1
+			set MagickaMod to (OEAdditionalMagickaBoostValue - 1) * 0.33
+		endif
+		set MagickaDiff to MagickaExisted * MagickaMod
+	elseif IsMagickaBoostCritical == 1
+		set MagickaDiff to MagickaExisted * (OEAdditionalMagickaBoostVeryHighValue - 1)
+	endif
+	ScriptTarget.ModAVMod Magicka script MagickaDiff
+	;;;;;;;;;;;;
+	set MagickaMod to MagickaMod + 1
+	if IsMagickaBoostCritical != 1
+		;debugprint "Актеру [%n] увеличена мана в %.2f раза" ScriptTarget MagickaMod
+	else
+		;debugprint "Актеру [%n] увеличена мана в 3 раза. Критическое увеличение!" ScriptTarget
+	endif
+	;;;;;;;;;;;;
+;;;;;;;;;;;;
+else
+	;debugprint "Актеру [%n] увеличение маны не производилось" ScriptTarget
+;;;;;;;;;;;;
+endif
+
+set MagickaBoostTokenCount to ScriptTarget.getitemcount OEMagickaBoostToken
+ScriptTarget.removeitem OEMagickaBoostToken MagickaBoostTokenCount
+ScriptTarget.additem OEMagickaBoostToken 1
+
+;debugprint "Актер [%n], выдан токен функции усиления маны" ScriptTarget
+
+end

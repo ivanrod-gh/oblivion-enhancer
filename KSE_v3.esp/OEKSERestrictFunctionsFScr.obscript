@@ -1,0 +1,760 @@
+﻿scn OEKSERestrictFunctionsFScr
+
+float ResistFireMagSum
+float ResistFireMod
+float ResistFrostMagSum
+float ResistFrostMod
+float ResistShockMagSum
+float ResistShockMod
+float ResistMagicMagSum
+float ResistMagicMod
+float ResistPoisonMagSum
+float ResistPoisonMod
+float ResistDiseaseMod
+float ResistParalysisMagSum
+float ResistparalysisMod
+float ResistNormalWeaponsMagSum
+float ResistNormalWeaponsMod
+float ReflectDamageMagSum
+float ReflectdamageMod
+float ChameleonMagSum
+float ChameleonMod
+float SpellAbsorbChanceMagSum
+float SpellAbsorbChanceMod
+float SpellReflectChanceMagSum
+float SpellReflectChanceMod
+
+;OEKSEAttributeStrengthTeoretic			0
+;OEKSEAttributeIntelligenceTeoretic		1
+;OEKSEAttributeWillpowerTeoretic		2
+;OEKSEAttributeAgilityTeoretic			3
+;OEKSEAttributeSpeedTeoretic			4
+;OEKSEAttributeEnduranceTeoretic		5
+;OEKSEAttributePersonalityTeoretic		6
+;OEKSEAttributeLuckTeoretic				7
+
+;OEKSESkillArmorerTeoretic				12
+;OEKSESkillAthleticsTeoretic			13
+;OEKSESkillBladeTeoretic				14
+;OEKSESkillBlockTeoretic				15
+;OEKSESkillBluntTeoretic				16
+;OEKSESkillHandToHandTeoretic			17
+;OEKSESkillHeavyArmorTeoretic			18
+;OEKSESkillAlchemyTeoretic				19
+;OEKSESkillAlterationTeoretic			20
+;OEKSESkillConjurationTeoretic			21
+;OEKSESkillDestructionTeoretic			22
+;OEKSESkillIllusionTeoretic				23
+;OEKSESkillMysticismTeoretic			24
+;OEKSESkillRestorationTeoretic			25
+;OEKSESkillAcrobaticsTeoretic			26
+;OEKSESkillLightArmorTeoretic			27
+;OEKSESkillMarksmanTeoretic				28
+;OEKSESkillMercantileTeoretic			29
+;OEKSESkillSecurityTeoretic				30
+;OEKSESkillSneakTeoretic				31
+;OEKSESkillSpeechcraftTeoretic			32
+
+
+short AttributeStrengthMod
+short AttributeIntelligenceMod
+short AttributeWillpowerMod
+short AttributeAgilityMod
+short AttributeSpeedMod
+short AttributeEnduranceMod
+short AttributePersonalityMod
+short AttributeLuckMod
+short SkillArmorerMod
+short SkillAthleticsMod
+short SkillBladeMod
+short SkillBlockMod
+short SkillBluntMod
+short SkillHandToHandMod
+short SkillHeavyArmorMod
+short SkillAlchemyMod
+short SkillAlterationMod
+short SkillConjurationMod
+short SkillDestructionMod
+short SkillIllusionMod
+short SkillMysticismMod
+short SkillRestorationMod
+short SkillAcrobaticsMod
+short SkillLightArmorMod
+short SkillMarksmanMod
+short SkillMercantileMod
+short SkillSecurityMod
+short SkillSneakMod
+short SkillSpeechcraftMod
+
+float HealthMod
+float MagickaMod
+float FatigueMod
+
+float HealthPen
+float KeaMPenalty
+float KeaFPenalty
+float MagickaDrain
+
+ref none1
+ref none2
+
+begin function { none1, none2 }
+
+;функция была переделана так, чтобы ее можно было размазать на полсекунды (меньше фризов)
+
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 1 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let ResistFireMagSum := player.GetTotalActiveEffectMagnitude RSFI + player.GetTotalActiveEffectMagnitude FISH + player.GetTotalActiveEffectMagnitude WKFI
+	set OEKSEResistFireTeoretic to ResistFireMagSum
+	if ResistFireMagSum <= 50
+		set ResistFireMod to ResistFireMagSum
+	elseif ResistFireMagSum > 50 && ResistFireMagSum <= 100
+		set ResistFireMod to ( ResistFireMagSum - 50  ) / 2 + 50
+	elseif ResistFireMagSum > 100 && ResistFireMagSum <= 200
+		set ResistFireMod to ( ResistFireMagSum - 100 ) / 8 + 75
+	elseif ResistFireMagSum > 200 && ResistFireMagSum <= 400
+		set ResistFireMod to ( ResistFireMagSum - 200 ) / 32 + 87.5
+	elseif ResistFireMagSum > 400
+		set ResistFireMod to 93.75
+	endif
+	if OEKSEFlatRestrictions == 1
+		if ResistFireMod > OEKSEResistModMax
+			set ResistFireMod to OEKSEResistModMax
+		endif
+	endif
+	set ResistFireMod to ResistFireMod - player.getbaseav ResistFire
+	player.SetAVModC 61 max ResistFireMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 2 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let ResistFrostMagSum := player.GetTotalActiveEffectMagnitude RSFR + player.GetTotalActiveEffectMagnitude FRSH + player.GetTotalActiveEffectMagnitude WKFR
+	set OEKSEResistFrostTeoretic to ResistFrostMagSum
+	if ResistFrostMagSum <= 50
+		set ResistFrostMod to ResistFrostMagSum
+	elseif ResistFrostMagSum > 50 && ResistFrostMagSum <= 100
+		set ResistFrostMod to ( ResistFrostMagSum - 50  ) / 2 + 50
+	elseif ResistFrostMagSum > 100 && ResistFrostMagSum <= 200
+		set ResistFrostMod to ( ResistFrostMagSum - 100 ) / 8 + 75
+	elseif ResistFrostMagSum > 200 && ResistFrostMagSum <= 400
+		set ResistFrostMod to ( ResistFrostMagSum - 200 ) / 32 + 87.5
+	elseif ResistFrostMagSum > 400
+		set ResistFrostMod to 93.75
+	endif
+	if OEKSEFlatRestrictions == 1
+		if ResistFrostMod > OEKSEResistModMax
+			set ResistFrostMod to OEKSEResistModMax
+		endif
+	endif
+	set ResistFrostMod to ResistFrostMod - player.getbaseav ResistFrost
+	player.SetAVModC 62 max ResistFrostMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 3 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let ResistShockMagSum := player.GetTotalActiveEffectMagnitude RSSH + player.GetTotalActiveEffectMagnitude LISH + player.GetTotalActiveEffectMagnitude WKSH
+	if OEKSEFlatRestrictions == 1
+	endif
+	set OEKSEResistShockTeoretic to ResistShockMagSum
+	if ResistShockMagSum <= 50
+		set ResistShockMod to ResistShockMagSum
+	elseif ResistShockMagSum > 50 && ResistShockMagSum <= 100
+		set ResistShockMod to ( ResistShockMagSum - 50  ) / 2 + 50
+	elseif ResistShockMagSum > 100 && ResistShockMagSum <= 200
+		set ResistShockMod to ( ResistShockMagSum - 100 ) / 8 + 75
+	elseif ResistShockMagSum > 200 && ResistShockMagSum <= 400
+		set ResistShockMod to ( ResistShockMagSum - 200 ) / 32 + 87.5
+	elseif ResistShockMagSum > 400
+		set ResistShockMod to 93.75
+	endif
+	if OEKSEFlatRestrictions == 1
+		if ResistShockMod > OEKSEResistModMax
+			set ResistShockMod to OEKSEResistModMax
+		endif
+	endif
+	set ResistShockMod to ResistShockMod - player.getbaseav ResistShock
+	player.SetAVModC 68 max ResistShockMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 4 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let ResistMagicMagSum := player.GetTotalActiveEffectMagnitude RSMA + player.GetTotalActiveEffectMagnitude WKMA
+	set OEKSEResistMagicTeoretic to ResistMagicMagSum
+	if ResistMagicMagSum <= 50
+		set ResistMagicMod to ResistMagicMagSum
+	elseif ResistMagicMagSum > 50 && ResistMagicMagSum <= 100
+		set ResistMagicMod to ( ResistMagicMagSum - 50  ) / 2 + 50
+	elseif ResistMagicMagSum > 100 && ResistMagicMagSum <= 200
+		set ResistMagicMod to ( ResistMagicMagSum - 100 ) / 8 + 75
+	elseif ResistMagicMagSum > 200 && ResistMagicMagSum <= 400
+		set ResistMagicMod to ( ResistMagicMagSum - 200 ) / 32 + 87.5
+	elseif ResistMagicMagSum > 400
+		set ResistMagicMod to 93.75
+	endif
+	if OEKSEFlatRestrictions == 1
+		if ResistMagicMod > OEKSEResistModMax
+			set ResistMagicMod to OEKSEResistModMax
+		endif
+	endif
+	; НЕ ИСПОЛЬЗОВАТЬ getbaseav2 - при отрицательных значениях вернет 2^32
+	set ResistMagicMod to ResistMagicMod - player.getbaseav ResistMagic
+	player.SetAVModC 64 max ResistMagicMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 5 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let ResistPoisonMagSum := player.GetTotalActiveEffectMagnitude RSPO + player.GetTotalActiveEffectMagnitude WKPO
+	set OEKSEResistPoisonTeoretic to ResistPoisonMagSum
+	if ResistPoisonMagSum <= 50
+		set ResistPoisonMod to ResistPoisonMagSum
+	elseif ResistPoisonMagSum > 50 && ResistPoisonMagSum <= 100
+		set ResistPoisonMod to ( ResistPoisonMagSum - 50  ) / 2 + 50
+	elseif ResistPoisonMagSum > 100 && ResistPoisonMagSum <= 200
+		set ResistPoisonMod to ( ResistPoisonMagSum - 100 ) / 8 + 75
+	elseif ResistPoisonMagSum > 200 && ResistPoisonMagSum <= 400
+		set ResistPoisonMod to ( ResistPoisonMagSum - 200 ) / 32 + 87.5
+	elseif ResistPoisonMagSum > 400
+		set ResistPoisonMod to 93.75
+	endif
+	if OEKSEFlatRestrictions == 1
+		if ResistPoisonMod > OEKSEResistModMax
+			set ResistPoisonMod to OEKSEResistModMax
+		endif
+	endif
+	set ResistPoisonMod to ResistPoisonMod - player.getbaseav ResistPoison 
+	player.SetAVModC 67 max ResistPoisonMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 6 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let ResistNormalWeaponsMagSum := player.GetTotalActiveEffectMagnitude RSNW + player.GetTotalActiveEffectMagnitude WKNW
+	set OEKSEResistNormalWeaponsTeoretic to ResistNormalWeaponsMagSum
+	if ResistNormalWeaponsMagSum <= 50
+		set ResistNormalWeaponsMod to ResistNormalWeaponsMagSum
+	elseif ResistNormalWeaponsMagSum > 50 && ResistNormalWeaponsMagSum <= 100
+		set ResistNormalWeaponsMod to ( ResistNormalWeaponsMagSum - 50  ) / 2 + 50
+	elseif ResistNormalWeaponsMagSum > 100 && ResistNormalWeaponsMagSum <= 200
+		set ResistNormalWeaponsMod to ( ResistNormalWeaponsMagSum - 100 ) / 8 + 75
+	elseif ResistNormalWeaponsMagSum > 200 && ResistNormalWeaponsMagSum <= 400
+		set ResistNormalWeaponsMod to ( ResistNormalWeaponsMagSum - 200 ) / 32 + 87.5
+	elseif ResistNormalWeaponsMagSum > 400
+		set ResistNormalWeaponsMod to 93.75
+	endif
+	if OEKSEFlatRestrictions == 1
+		if ResistNormalWeaponsMod > OEKSESpecialModMax
+			set ResistNormalWeaponsMod to OEKSESpecialModMax
+		endif
+	endif
+	set ResistNormalWeaponsMod to ResistNormalWeaponsMod - player.getbaseav ResistNormalWeapons 
+	player.SetAVModC 65 max ResistNormalWeaponsMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 7 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let ReflectDamageMagSum := player.GetTotalActiveEffectMagnitude REDG
+	set OEKSEReflectDamageTeoretic to ReflectDamageMagSum
+	if ReflectDamageMagSum <= 50
+		set ReflectdamageMod to ReflectDamageMagSum
+	elseif ReflectDamageMagSum > 50 && ReflectDamageMagSum <= 100
+		set ReflectdamageMod to ( ReflectDamageMagSum - 50  ) / 2 + 50
+	elseif ReflectDamageMagSum > 100 && ReflectDamageMagSum <= 200
+		set ReflectdamageMod to ( ReflectDamageMagSum - 100 ) / 8 + 75
+	elseif ReflectDamageMagSum > 200 && ReflectDamageMagSum <= 400
+		set ReflectdamageMod to ( ReflectDamageMagSum - 200 ) / 32 + 87.5
+	elseif ReflectDamageMagSum > 400
+		set ReflectdamageMod to 93.75
+	endif
+	if OEKSEFlatRestrictions == 1
+		if ReflectdamageMod > OEKSESpecialModMax
+			set ReflectdamageMod to OEKSESpecialModMax
+		endif
+	endif
+	set ReflectdamageMod to ReflectdamageMod - player.getbaseav ReflectDamage 
+	player.SetAVModC 59 max ReflectdamageMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 8 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let ChameleonMagSum := player.GetTotalActiveEffectMagnitude CHML
+	set OEKSEChameleonTeoretic to ChameleonMagSum
+	if ChameleonMagSum <= 50
+		set ChameleonMod to ChameleonMagSum
+	elseif ChameleonMagSum > 50 && ChameleonMagSum <= 100
+		set ChameleonMod to ( ChameleonMagSum - 50  ) / 2 + 50
+	elseif ChameleonMagSum > 100 && ChameleonMagSum <= 200
+		set ChameleonMod to ( ChameleonMagSum - 100 ) / 8 + 75
+	elseif ChameleonMagSum > 200 && ChameleonMagSum <= 400
+		set ChameleonMod to ( ChameleonMagSum - 200 ) / 32 + 87.5
+	elseif ChameleonMagSum > 400
+		set ChameleonMod to 93.75
+	endif
+	if OEKSEFlatRestrictions == 1
+		if ChameleonMod > OEKSEResistModMax
+			set ChameleonMod to OEKSEResistModMax
+		endif
+	endif
+	set ChameleonMod to ChameleonMod - player.getbaseav Chameleon 
+	player.SetAVModC 46 max ChameleonMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 9 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let SpellAbsorbChanceMagSum := player.GetTotalActiveEffectMagnitude SABS
+	set OEKSESpellAbsorbChanceTeoretic to SpellAbsorbChanceMagSum
+	if SpellAbsorbChanceMagSum <= 50
+		set SpellAbsorbChanceMod to SpellAbsorbChanceMagSum
+	elseif SpellAbsorbChanceMagSum > 50 && SpellAbsorbChanceMagSum <= 100
+		set SpellAbsorbChanceMod to ( SpellAbsorbChanceMagSum - 50  ) / 2 + 50
+	elseif SpellAbsorbChanceMagSum > 100 && SpellAbsorbChanceMagSum <= 200
+		set SpellAbsorbChanceMod to ( SpellAbsorbChanceMagSum - 100 ) / 8 + 75
+	elseif SpellAbsorbChanceMagSum > 200 && SpellAbsorbChanceMagSum <= 400
+		set SpellAbsorbChanceMod to ( SpellAbsorbChanceMagSum - 200 ) / 32 + 87.5
+	elseif SpellAbsorbChanceMagSum > 400
+		set SpellAbsorbChanceMod to 93.75
+	endif
+	if OEKSEFlatRestrictions == 1
+		if SpellAbsorbChanceMod > OEKSESpecialModMax
+			set SpellAbsorbChanceMod to OEKSESpecialModMax
+		endif
+	endif
+	set SpellAbsorbChanceMod to SpellAbsorbChanceMod - player.getbaseav SpellAbsorbChance
+	player.SetAVModC 52 max SpellAbsorbChanceMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 10 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let SpellReflectChanceMagSum := player.GetTotalActiveEffectMagnitude RFLC
+	set OEKSESpellReflectChanceTeoretic to SpellReflectChanceMagSum
+	if SpellReflectChanceMagSum <= 50
+		set SpellReflectChanceMod to SpellReflectChanceMagSum
+	elseif SpellReflectChanceMagSum > 50 && SpellReflectChanceMagSum <= 100
+		set SpellReflectChanceMod to ( SpellReflectChanceMagSum - 50  ) / 2 + 50
+	elseif SpellReflectChanceMagSum > 100 && SpellReflectChanceMagSum <= 200
+		set SpellReflectChanceMod to ( SpellReflectChanceMagSum - 100 ) / 8 + 75
+	elseif SpellReflectChanceMagSum > 200 && SpellReflectChanceMagSum <= 400
+		set SpellReflectChanceMod to ( SpellReflectChanceMagSum - 200 ) / 32 + 87.5
+	elseif SpellReflectChanceMagSum > 400
+		set SpellReflectChanceMod to 93.75
+	endif
+	if OEKSEFlatRestrictions == 1
+		if SpellReflectChanceMod > OEKSESpecialModMax
+			set SpellReflectChanceMod to OEKSESpecialModMax
+		endif
+	endif
+	set SpellReflectChanceMod to SpellReflectChanceMod - player.getbaseav SpellReflectChance
+	player.SetAVModC 53 max SpellReflectChanceMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 11 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let ResistDiseaseMod := player.GetTotalActiveEffectMagnitude RSDI + player.GetTotalActiveEffectMagnitude WKDI
+	set OEKSEResistDiseaseTeoretic to ResistDiseaseMod
+	if ResistDiseaseMod > 100
+		set ResistDiseaseMod to 100
+	endif
+	set ResistDiseaseMod to ResistDiseaseMod - player.getbaseav ResistDisease
+	player.SetAVModC 63 max ResistDiseaseMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 12 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	let ResistParalysisMagSum := player.GetTotalActiveEffectMagnitude RSPA
+	set OEKSEResistParalysisTeoretic to ResistParalysisMagSum
+	if ResistParalysisMagSum <= 50
+		set ResistparalysisMod to ResistParalysisMagSum
+	elseif ResistParalysisMagSum > 50 && ResistParalysisMagSum <= 150
+		set ResistparalysisMod to ( ResistParalysisMagSum - 50  ) / 2 + 50
+	elseif ResistParalysisMagSum > 150
+		set ResistparalysisMod to 100
+	endif
+	set ResistparalysisMod to ResistparalysisMod - player.getbaseav Resistparalysis 
+	player.SetAVModC 66 max ResistparalysisMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 13 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set AttributeStrengthMod to ( player.GetTotalAENonAbilityMagnitude FOAT Strength ) + ( player.GetTotalAENonAbilityMagnitude ABAT Strength ) + ( player.GetTotalAENonAbilityMagnitude DRAT Strength ) + OEKSEPCAbsorbAttributeStrength
+	set OEKSEAttributeStrengthTeoretic to AttributeStrengthMod + player.GetAVMod Strength damage
+	if AttributeStrengthMod > OEKSEAttributesModMax - player.GetAVMod Strength damage
+		set AttributeStrengthMod to OEKSEAttributesModMax - player.GetAVMod Strength damage
+	endif
+	player.SetAVModC 0 max AttributeStrengthMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 14 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set AttributeIntelligenceMod to ( player.GetTotalAENonAbilityMagnitude FOAT Intelligence ) + ( player.GetTotalAENonAbilityMagnitude ABAT Intelligence ) + ( player.GetTotalAENonAbilityMagnitude DRAT Intelligence ) + OEKSEPCAbsorbAttributeIntelligence
+	set OEKSEAttributeIntelligenceTeoretic to AttributeIntelligenceMod + player.GetAVMod Intelligence damage
+	if AttributeIntelligenceMod > OEKSEAttributesModMax - player.GetAVMod Intelligence damage
+		set AttributeIntelligenceMod to OEKSEAttributesModMax - player.GetAVMod Intelligence damage
+	endif
+	player.SetAVModC 1 max AttributeIntelligenceMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 15 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set AttributeWillpowerMod to ( player.GetTotalAENonAbilityMagnitude FOAT Willpower ) + ( player.GetTotalAENonAbilityMagnitude ABAT Willpower ) + ( player.GetTotalAENonAbilityMagnitude DRAT Willpower ) + OEKSEPCAbsorbAttributeWillpower
+	set OEKSEAttributeWillpowerTeoretic to AttributeWillpowerMod + player.GetAVMod Willpower damage
+	if AttributeWillpowerMod > OEKSEAttributesModMax - player.GetAVMod Willpower damage
+		set AttributeWillpowerMod to OEKSEAttributesModMax - player.GetAVMod Willpower damage
+	endif
+	player.SetAVModC 2 max AttributeWillpowerMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 16 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set AttributeAgilityMod to ( player.GetTotalAENonAbilityMagnitude FOAT Agility ) + ( player.GetTotalAENonAbilityMagnitude ABAT Agility ) + ( player.GetTotalAENonAbilityMagnitude DRAT Agility ) + OEKSEPCAbsorbAttributeAgility
+	set OEKSEAttributeAgilityTeoretic to AttributeAgilityMod + player.GetAVMod Agility damage
+	if AttributeAgilityMod > OEKSEAttributesModMax - player.GetAVMod Agility damage
+		set AttributeAgilityMod to OEKSEAttributesModMax - player.GetAVMod Agility damage
+	endif
+	player.SetAVModC 3 max AttributeAgilityMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 17 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set AttributeSpeedMod to ( player.GetTotalAENonAbilityMagnitude FOAT Speed ) + ( player.GetTotalAENonAbilityMagnitude ABAT Speed ) + ( player.GetTotalAENonAbilityMagnitude DRAT Speed ) + OEKSEPCAbsorbAttributeSpeed
+	set OEKSEAttributeSpeedTeoretic to AttributeSpeedMod + player.GetAVMod Speed damage
+	if AttributeSpeedMod > OEKSEAttributeSpeedModMax - player.GetAVMod Speed damage
+		set AttributeSpeedMod to OEKSEAttributeSpeedModMax - player.GetAVMod Speed damage
+	endif
+	player.SetAVModC 4 max AttributeSpeedMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 18 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set AttributeEnduranceMod to ( player.GetTotalAENonAbilityMagnitude FOAT Endurance ) + ( player.GetTotalAENonAbilityMagnitude ABAT Endurance ) + ( player.GetTotalAENonAbilityMagnitude DRAT Endurance ) + OEKSEPCAbsorbAttributeEndurance
+	set OEKSEAttributeEnduranceTeoretic to AttributeEnduranceMod + player.GetAVMod Endurance damage
+	if AttributeEnduranceMod > OEKSEAttributesModMax - player.GetAVMod Endurance damage
+		set AttributeEnduranceMod to OEKSEAttributesModMax - player.GetAVMod Endurance damage
+	endif
+	player.SetAVModC 5 max AttributeEnduranceMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 19 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set AttributePersonalityMod to ( player.GetTotalAENonAbilityMagnitude FOAT Personality ) + ( player.GetTotalAENonAbilityMagnitude ABAT Personality ) + ( player.GetTotalAENonAbilityMagnitude DRAT Personality ) + OEKSEPCAbsorbAttributePersonality
+	set OEKSEAttributePersonalityTeoretic to AttributePersonalityMod + player.GetAVMod Personality damage
+	if AttributePersonalityMod > OEKSEAttributesModMax - player.GetAVMod Personality damage
+		set AttributePersonalityMod to OEKSEAttributesModMax - player.GetAVMod Personality damage
+	endif
+	player.SetAVModC 6 max AttributePersonalityMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 20 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set AttributeLuckMod to ( player.GetTotalAENonAbilityMagnitude FOAT Luck ) + ( player.GetTotalAENonAbilityMagnitude ABAT Luck ) + ( player.GetTotalAENonAbilityMagnitude DRAT Luck ) + OEKSEPCAbsorbAttributeLuck
+	set OEKSEAttributeLuckTeoretic to AttributeLuckMod + player.GetAVMod Luck damage
+	if AttributeLuckMod > OEKSEAttributeLuckModMax - player.GetAVMod Luck damage
+		set AttributeLuckMod to OEKSEAttributeLuckModMax - player.GetAVMod Luck damage
+	endif
+	player.SetAVModC 7 max AttributeLuckMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 21 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillArmorerMod to ( player.GetTotalAENonAbilityMagnitude FOSK Armorer ) + ( player.GetTotalAENonAbilityMagnitude ABSK Armorer ) + ( player.GetTotalAENonAbilityMagnitude DRSK Armorer ) + OEKSEPCAbsorbSkillArmorer
+	set OEKSESkillArmorerTeoretic to SkillArmorerMod
+	if SkillArmorerMod > OEKSESkillsModMax
+		set SkillArmorerMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 12 max SkillArmorerMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 22 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillAthleticsMod to ( player.GetTotalAENonAbilityMagnitude FOSK Athletics ) + ( player.GetTotalAENonAbilityMagnitude ABSK Athletics ) + ( player.GetTotalAENonAbilityMagnitude DRSK Athletics ) + OEKSEPCAbsorbSkillAthletics
+	set OEKSESkillAthleticsTeoretic to SkillAthleticsMod
+	if SkillAthleticsMod > OEKSESkillsModMax
+		set SkillAthleticsMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 13 max SkillAthleticsMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 23 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillBladeMod to ( player.GetTotalAENonAbilityMagnitude FOSK Blade ) + ( player.GetTotalAENonAbilityMagnitude ABSK Blade ) + ( player.GetTotalAENonAbilityMagnitude DRSK Blade ) + OEKSEPCAbsorbSkillBlade
+	set OEKSESkillBladeTeoretic to SkillBladeMod
+	if SkillBladeMod > OEKSESkillsModMax
+		set SkillBladeMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 14 max SkillBladeMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 24 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillBlockMod to ( player.GetTotalAENonAbilityMagnitude FOSK Block ) + ( player.GetTotalAENonAbilityMagnitude ABSK Block ) + ( player.GetTotalAENonAbilityMagnitude DRSK Block ) + OEKSEPCAbsorbSkillBlock
+	set OEKSESkillBlockTeoretic to SkillBlockMod
+	if SkillBlockMod > OEKSESkillsModMax
+		set SkillBlockMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 15 max SkillBlockMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 25 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillBluntMod to ( player.GetTotalAENonAbilityMagnitude FOSK Blunt ) + ( player.GetTotalAENonAbilityMagnitude ABSK Blunt ) + ( player.GetTotalAENonAbilityMagnitude DRSK Blunt ) + OEKSEPCAbsorbSkillBlunt
+	set OEKSESkillBluntTeoretic to SkillBluntMod
+	if SkillBluntMod > OEKSESkillsModMax
+		set SkillBluntMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 16 max SkillBluntMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 26 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillHandToHandMod to ( player.GetTotalAENonAbilityMagnitude FOSK HandToHand ) + ( player.GetTotalAENonAbilityMagnitude ABSK HandToHand ) + ( player.GetTotalAENonAbilityMagnitude DRSK HandToHand ) + OEKSEPCAbsorbSkillHandToHand
+	set OEKSESkillHandToHandTeoretic to SkillHandToHandMod
+	if SkillHandToHandMod > OEKSESkillsModMax
+		set SkillHandToHandMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 17 max SkillHandToHandMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 27 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillHeavyArmorMod to ( player.GetTotalAENonAbilityMagnitude FOSK HeavyArmor ) + ( player.GetTotalAENonAbilityMagnitude ABSK HeavyArmor ) + ( player.GetTotalAENonAbilityMagnitude DRSK HeavyArmor ) + OEKSEPCAbsorbSkillHeavyArmor
+	set OEKSESkillHeavyArmorTeoretic to SkillHeavyArmorMod
+	if SkillHeavyArmorMod > OEKSESkillsModMax
+		set SkillHeavyArmorMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 18 max SkillHeavyArmorMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 28 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillAlchemyMod to ( player.GetTotalAENonAbilityMagnitude FOSK Alchemy ) + ( player.GetTotalAENonAbilityMagnitude ABSK Alchemy ) + ( player.GetTotalAENonAbilityMagnitude DRSK Alchemy ) + OEKSEPCAbsorbSkillAlchemy
+	set OEKSESkillAlchemyTeoretic to SkillAlchemyMod
+	if SkillAlchemyMod > OEKSESkillsModMax
+		set SkillAlchemyMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 19 max SkillAlchemyMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 29 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillAlterationMod to ( player.GetTotalAENonAbilityMagnitude FOSK Alteration ) + ( player.GetTotalAENonAbilityMagnitude ABSK Alteration ) + ( player.GetTotalAENonAbilityMagnitude DRSK Alteration ) + OEKSEPCAbsorbSkillAlteration
+	set OEKSESkillAlterationTeoretic to SkillAlterationMod
+	if SkillAlterationMod > OEKSESkillsModMax
+		set SkillAlterationMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 20 max SkillAlterationMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 30 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillConjurationMod to ( player.GetTotalAENonAbilityMagnitude FOSK Conjuration ) + ( player.GetTotalAENonAbilityMagnitude ABSK Conjuration ) + ( player.GetTotalAENonAbilityMagnitude DRSK Conjuration ) + OEKSEPCAbsorbSkillConjuration
+	set OEKSESkillConjurationTeoretic to SkillConjurationMod
+	if SkillConjurationMod > OEKSESkillsModMax
+		set SkillConjurationMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 21 max SkillConjurationMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 31 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillDestructionMod to ( player.GetTotalAENonAbilityMagnitude FOSK Destruction ) + ( player.GetTotalAENonAbilityMagnitude ABSK Destruction ) + ( player.GetTotalAENonAbilityMagnitude DRSK Destruction ) + OEKSEPCAbsorbSkillDestruction
+	set OEKSESkillDestructionTeoretic to SkillDestructionMod
+	if SkillDestructionMod > OEKSESkillsModMax
+		set SkillDestructionMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 22 max SkillDestructionMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 32 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillIllusionMod to ( player.GetTotalAENonAbilityMagnitude FOSK Illusion ) + ( player.GetTotalAENonAbilityMagnitude ABSK Illusion ) + ( player.GetTotalAENonAbilityMagnitude DRSK Illusion ) + OEKSEPCAbsorbSkillIllusion
+	set OEKSESkillIllusionTeoretic to SkillIllusionMod
+	if SkillIllusionMod > OEKSESkillsModMax
+		set SkillIllusionMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 23 max SkillIllusionMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 33 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillMysticismMod to ( player.GetTotalAENonAbilityMagnitude FOSK Mysticism ) + ( player.GetTotalAENonAbilityMagnitude ABSK Mysticism ) + ( player.GetTotalAENonAbilityMagnitude DRSK Mysticism ) + OEKSEPCAbsorbSkillMysticism
+	set OEKSESkillMysticismTeoretic to SkillMysticismMod
+	if SkillMysticismMod > OEKSESkillsModMax
+		set SkillMysticismMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 24 max SkillMysticismMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 34 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillRestorationMod to ( player.GetTotalAENonAbilityMagnitude FOSK Restoration ) + ( player.GetTotalAENonAbilityMagnitude ABSK Restoration ) + ( player.GetTotalAENonAbilityMagnitude DRSK Restoration ) + OEKSEPCAbsorbSkillRestoration
+	set OEKSESkillRestorationTeoretic to SkillRestorationMod
+	if SkillRestorationMod > OEKSESkillsModMax
+		set SkillRestorationMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 25 max SkillRestorationMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 35 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillAcrobaticsMod to ( player.GetTotalAENonAbilityMagnitude FOSK Acrobatics ) + ( player.GetTotalAENonAbilityMagnitude ABSK Acrobatics ) + ( player.GetTotalAENonAbilityMagnitude DRSK Acrobatics ) + OEKSEPCAbsorbSkillAcrobatics
+	set OEKSESkillAcrobaticsTeoretic to SkillAcrobaticsMod
+	if SkillAcrobaticsMod > OEKSESkillAcrobaticsModMax
+		set SkillAcrobaticsMod to OEKSESkillAcrobaticsModMax
+	endif
+	player.SetAVModC 26 max SkillAcrobaticsMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 36 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillLightArmorMod to ( player.GetTotalAENonAbilityMagnitude FOSK LightArmor ) + ( player.GetTotalAENonAbilityMagnitude ABSK LightArmor ) + ( player.GetTotalAENonAbilityMagnitude DRSK LightArmor ) + OEKSEPCAbsorbSkillLightArmor
+	set OEKSESkillLightArmorTeoretic to SkillLightArmorMod
+	if SkillLightArmorMod > OEKSESkillsModMax
+		set SkillLightArmorMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 27 max SkillLightArmorMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 37 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillMarksmanMod to ( player.GetTotalAENonAbilityMagnitude FOSK Marksman ) + ( player.GetTotalAENonAbilityMagnitude ABSK Marksman ) + ( player.GetTotalAENonAbilityMagnitude DRSK Marksman ) + OEKSEPCAbsorbSkillMarksman
+	set OEKSESkillMarksmanTeoretic to SkillMarksmanMod
+	if SkillMarksmanMod > OEKSESkillsModMax
+		set SkillMarksmanMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 28 max SkillMarksmanMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 38 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillMercantileMod to ( player.GetTotalAENonAbilityMagnitude FOSK Mercantile ) + ( player.GetTotalAENonAbilityMagnitude ABSK Mercantile ) + ( player.GetTotalAENonAbilityMagnitude DRSK Mercantile ) + OEKSEPCAbsorbSkillMercantile
+	set OEKSESkillMercantileTeoretic to SkillMercantileMod
+	if SkillMercantileMod > OEKSESkillsModMax
+		set SkillMercantileMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 29 max SkillMercantileMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 39 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillSecurityMod to ( player.GetTotalAENonAbilityMagnitude FOSK Security ) + ( player.GetTotalAENonAbilityMagnitude ABSK Security ) + ( player.GetTotalAENonAbilityMagnitude DRSK Security ) + OEKSEPCAbsorbSkillSecurity
+	set OEKSESkillSecurityTeoretic to SkillSecurityMod
+	if SkillSecurityMod > OEKSESkillsModMax
+		set SkillSecurityMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 30 max SkillSecurityMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 40 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillSneakMod to ( player.GetTotalAENonAbilityMagnitude FOSK Sneak ) + ( player.GetTotalAENonAbilityMagnitude ABSK Sneak ) + ( player.GetTotalAENonAbilityMagnitude DRSK Sneak ) + OEKSEPCAbsorbSkillSneak
+	set OEKSESkillSneakTeoretic to SkillSneakMod
+	if SkillSneakMod > OEKSESkillsModMax
+		set SkillSneakMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 31 max SkillSneakMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 41 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set SkillSpeechcraftMod to ( player.GetTotalAENonAbilityMagnitude FOSK Speechcraft ) + ( player.GetTotalAENonAbilityMagnitude ABSK Speechcraft ) + ( player.GetTotalAENonAbilityMagnitude DRSK Speechcraft ) + OEKSEPCAbsorbSkillSpeechcraft
+	set OEKSESkillSpeechcraftTeoretic to SkillSpeechcraftMod
+	if SkillSpeechcraftMod > OEKSESkillsModMax
+		set SkillSpeechcraftMod to OEKSESkillsModMax
+	endif
+	player.SetAVModC 32 max SkillSpeechcraftMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 42 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set HealthMod to ( player.GetTotalAENonAbilityMagnitude FOHE Health ) + ( player.GetTotalAENonAbilityMagnitude DRHE Health )
+	if KeaSettingHMF == 1
+		set HealthPen to KeaHealthPenalty
+	else
+		set HealthPen to 0
+	endif
+	set OEKSEHealthTeoretic to HealthMod - HealthPen
+	set HealthMod to HealthMod - HealthPen
+	if HealthMod > OEKSEHealthModMax
+		set HealthMod to OEKSEHealthModMax
+	endif
+	player.SetAVModC 8 max HealthMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 43 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set MagickaMod to ( player.GetTotalAENonAbilityMagnitude FOSP Magicka ) + ( player.GetTotalAENonAbilityMagnitude DRSP Magicka )
+	if KeaSettingHMF == 1
+		set KeaMPenalty to KeaMagicPenalty
+	else
+		set KeaMPenalty to 0
+	endif
+	if OEKSEFortificationAbility == 1
+		let MagickaDrain := OEKSEFortificationAbilityQ.OEKSEFAMagickaDrain
+	else
+		let MagickaDrain := 0
+	endif
+	set OEKSEMagickaTeoretic to MagickaMod - KeaMPenalty - MagickaDrain
+	call OEKSEGlobalAVSetterFScr
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStep == 44 || OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 0
+	set FatigueMod to ( player.GetTotalAENonAbilityMagnitude FOFA Fatigue ) + ( player.GetTotalAENonAbilityMagnitude DRFA Fatigue )
+	if KeaSettingHMF == 1
+		set KeaFPenalty to KeaFatiguepenalty
+	else
+		set KeaFPenalty to 0
+	endif
+	set OEKSEFatigueTeoretic to FatigueMod - KeaFPenalty
+	set FatigueMod to FatigueMod - KeaFPenalty
+	if FatigueMod > OEKSEFatigueModMax
+		set FatigueMod to OEKSEFatigueModMax
+	endif
+	player.SetAVModC 10 max FatigueMod
+	if OEKSERestrictFunctionsQ.OEKSERestrictFunctionsStepedMode == 1
+		RestoreIP 100
+	endif
+endif
+
+SaveIP 100
+
+end

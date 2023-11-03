@@ -1,0 +1,94 @@
+﻿scn OEAddResistNormalWeaponsTokenFScr
+
+ref ScriptTarget
+
+short RandomDice
+
+short NormalWeaponsResistStrength
+float ResistNormalWeaponsMagSum
+short NormalWeaponsImmuneTokenCount
+short NormalWeaponsMaximumResistTokenCount
+short ActorHasResistNormalWeaponsToken
+float ResistChance
+float MaximumResistChance
+short IsNormalWeaponsResistMaximum
+short NormalWeaponsResistLowTokenCount
+short NormalWeaponsResistMidTokenCount
+short NormalWeaponsResistHighTokenCount
+short NormalWeaponsResistNoneTokenCount
+
+
+begin function { ScriptTarget }
+
+set RandomDice to rand 1, 3.99
+
+if RandomDice == 1
+	set NormalWeaponsResistStrength to -1
+elseif RandomDice == 2
+	set NormalWeaponsResistStrength to 0
+elseif RandomDice == 3
+	set NormalWeaponsResistStrength to 1
+endif
+
+set ResistChance to OEAdditionalNormalWeaponsResistChance + 0.99
+set MaximumResistChance to OEAdditionalNormalWeaponsMaximumResistChance + 0.99
+
+set ResistNormalWeaponsMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSNW + ScriptTarget.GetTotalAEAbilityMagnitude WKNW + ScriptTarget.GetTotalAELesserPowerMagnitude RSNW + ScriptTarget.GetTotalAELesserPowerMagnitude WKNW + ScriptTarget.GetTotalAEPowerMagnitude RSNW + ScriptTarget.GetTotalAEPowerMagnitude WKNW
+
+;;debugprint "Актер [%n], ResistNormalWeaponsMagSum = %g" ScriptTarget ResistNormalWeaponsMagSum
+
+if ResistNormalWeaponsMagSum >= 100
+	set NormalWeaponsImmuneTokenCount to ScriptTarget.getitemcount OENormalWeaponsImmuneToken
+	ScriptTarget.removeitem OENormalWeaponsImmuneToken NormalWeaponsImmuneTokenCount
+	ScriptTarget.additem OENormalWeaponsImmuneToken 1
+	set ActorHasResistNormalWeaponsToken to 1
+	;debugprint "Актеру [%n] выдан токен иммунитета от обычного оружия, т.к. у него есть врожденный иммунитет от обычного оружия" ScriptTarget
+endif
+if ActorHasResistNormalWeaponsToken == 0
+	set RandomDice to rand 1, ResistChance
+	if RandomDice == 1
+		if (OEAdditionalNormalWeaponsMaximumResist == 1) && (OEAdditionalNormalWeaponsMaximumResistLevel <= player.getlevel)
+			set RandomDice to rand 1, MaximumResistChance
+			if RandomDice == 1
+				set IsNormalWeaponsResistMaximum to 1
+				set NormalWeaponsMaximumResistTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistMaximumToken 
+				ScriptTarget.removeitem OENormalWeaponsResistMaximumToken NormalWeaponsMaximumResistTokenCount
+				ScriptTarget.additem OENormalWeaponsResistMaximumToken 1
+				;debugprint "Актеру [%n] выдан токен максимальной защиты от обычного оружия" ScriptTarget
+			endif
+		endif
+		if IsNormalWeaponsResistMaximum != 1
+			if NormalWeaponsResistStrength == -1
+				set NormalWeaponsResistLowTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistLowToken
+				ScriptTarget.removeitem OENormalWeaponsResistLowToken NormalWeaponsResistLowTokenCount
+				ScriptTarget.additem OENormalWeaponsResistLowToken 1
+				;debugprint "Актеру [%n] выдан токен защиты от обычного оружия пониженного уровня" ScriptTarget
+			elseif NormalWeaponsResistStrength == 0
+				set NormalWeaponsResistMidTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistMidToken
+				ScriptTarget.removeitem OENormalWeaponsResistMidToken NormalWeaponsResistMidTokenCount
+				ScriptTarget.additem OENormalWeaponsResistMidToken 1
+				;debugprint "Актеру [%n] выдан токен защиты от обычного оружия среднего уровня" ScriptTarget
+			elseif NormalWeaponsResistStrength == 1
+				set NormalWeaponsResistHighTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistHighToken
+				ScriptTarget.removeitem OENormalWeaponsResistHighToken NormalWeaponsResistHighTokenCount
+				ScriptTarget.additem OENormalWeaponsResistHighToken 1
+				;debugprint "Актеру [%n] выдан токен защиты от обычного оружия повышенного уровня" ScriptTarget
+			endif
+		endif
+	else
+		set NormalWeaponsResistNoneTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistNoneToken
+		ScriptTarget.removeitem OENormalWeaponsResistNoneToken NormalWeaponsResistNoneTokenCount
+		ScriptTarget.additem OENormalWeaponsResistNoneToken 1
+		;debugprint "Актеру [%n] выдан токен отсутствия защиты от обычного оружия" ScriptTarget
+	endif
+endif
+
+;debugprint "Актеру [%n] выдан токен защиты от обычного оружия" ScriptTarget
+ScriptTarget.additem OENormalWeaponsResistToken 1
+
+
+
+;debugprint "конец функции"
+
+
+end

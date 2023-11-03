@@ -1,0 +1,98 @@
+﻿scn OEAddParalysisResistValueFScr
+
+ref ScriptTarget
+
+float ActorGlobalNormalResistLow
+float ActorGlobalNormalResistHigh
+
+short ParalysisImmuneTokenCount
+
+short ParalysisResistLowTokenCount
+short ParalysisResistMidTokenCount
+short ParalysisResistHighTokenCount
+
+short ActorHasParalysisImmune
+
+float ResistParalysisMagSum
+
+float ParalysisResistMod
+float ParalysisResistNormal
+float ParalysisResistExisted
+
+float ResistParalysisNew
+
+begin function { ScriptTarget }
+
+set ResistParalysisMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSPA + ScriptTarget.GetTotalAELesserPowerMagnitude RSPA + ScriptTarget.GetTotalAEPowerMagnitude RSPA
+
+set ParalysisImmuneTokenCount to ScriptTarget.getitemcount OEParalysisImmuneToken
+if ResistParalysisMagSum >= 100
+	;debugprint "У актера [%n] есть врожденный иммунитет к параличу" ScriptTarget
+	set ActorHasParalysisImmune to 1
+elseif ParalysisImmuneTokenCount > 0
+	;debugprint "У актера [%n] есть токен иммунитета к параличу" ScriptTarget
+	set ActorHasParalysisImmune to 1
+endif
+
+
+if ActorHasParalysisImmune == 1
+	set ParalysisResistMod to 200
+	;debugprint "Актер [%n], ParalysisResistMod = %g" ScriptTarget ParalysisResistMod
+elseif ActorHasParalysisImmune == 0
+	set ActorGlobalNormalResistLow to OEActorGlobalNormalResist - (OEActorResistParalysisMax - OEActorGlobalNormalResist)*(sqrt OEAdditionalElementalResistDifference - 1)
+	set ActorGlobalNormalResistHigh to OEActorGlobalNormalResist + (OEActorResistParalysisMax - OEActorGlobalNormalResist)*(1 - 1/sqrt OEAdditionalElementalResistDifference)
+	set ParalysisResistNormal to ScriptTarget.GetTotalActiveEffectMagnitude RSPA
+	;debugprint "Актер [%n], ParalysisResistNormal до диминишинга = %g" ScriptTarget ParalysisResistNormal
+	
+	if ParalysisResistNormal <= 50
+		set ParalysisResistMod to ParalysisResistNormal
+	elseif ParalysisResistNormal > 50 && ParalysisResistNormal <= 100
+		set ParalysisResistMod to ( ParalysisResistNormal - 50  ) / 2 + 50
+	elseif ParalysisResistNormal > 100 && ParalysisResistNormal <= 200
+		set ParalysisResistMod to ( ParalysisResistNormal - 100 ) / 8 + 75
+	elseif ParalysisResistNormal > 200 && ParalysisResistNormal <= 600
+		set ParalysisResistMod to ( ParalysisResistNormal - 200 ) / 32 + 87.5
+	elseif ParalysisResistNormal > 600
+		set ParalysisResistMod to 100
+	endif
+	if ParalysisResistMod > OEActorResistParalysisMax
+		set ParalysisResistMod to OEActorResistParalysisMax
+	endif
+	
+	set ParalysisResistNormal to ParalysisResistMod					;теперь нормальным значением сопротивления является такое, которое прошло через диминишинг
+	
+	set ParalysisResistLowTokenCount to ScriptTarget.getitemcount OEParalysisResistLowToken
+	set ParalysisResistMidTokenCount to ScriptTarget.getitemcount OEParalysisResistMidToken
+	set ParalysisResistHighTokenCount to ScriptTarget.getitemcount OEParalysisResistHighToken
+	
+	if ParalysisResistLowTokenCount > 0
+		set ParalysisResistMod to ParalysisResistMod + (OEActorResistParalysisMax - ParalysisResistMod) * ActorGlobalNormalResistLow / 100
+	elseif ParalysisResistMidTokenCount > 0
+		set ParalysisResistMod to ParalysisResistMod + (OEActorResistParalysisMax - ParalysisResistMod) * OEActorGlobalNormalResist / 100
+	elseif 	ParalysisResistHighTokenCount > 0
+		set ParalysisResistMod to ParalysisResistMod + (OEActorResistParalysisMax - ParalysisResistMod) * ActorGlobalNormalResistHigh / 100
+	endif
+
+	;debugprint "Актер [%n], ParalysisResistMod = %g, ParalysisResistNormal = %g" ScriptTarget ParalysisResistMod ParalysisResistNormal
+
+	;if ParalysisResistMod < ParalysisResistNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
+	;	set ParalysisResistMod to ParalysisResistNormal
+	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, ParalysisResistMod = %g" ScriptTarget ParalysisResistMod
+	;endif
+endif
+
+set ParalysisResistMod to ParalysisResistMod - ScriptTarget.getbaseav resistParalysis; - ScriptTarget.GetAVModC 61 script
+ScriptTarget.SetAVModC 66 max ParalysisResistMod
+set ParalysisResistExisted to ScriptTarget.getav resistParalysis
+
+;debugprint "Актер [%n], назначенный резист ParalysisResistMod = %g, ParalysisResistExisted = %g" ScriptTarget ParalysisResistMod ParalysisResistExisted
+
+
+set ResistParalysisNew to ParalysisResistExisted
+;debugprint "Вывод переменной ResistParalysisNew = %g из функции обратно в скрипт" ResistParalysisNew
+SetFunctionValue ResistParalysisNew
+
+;debugprint "конец функции"
+
+
+end

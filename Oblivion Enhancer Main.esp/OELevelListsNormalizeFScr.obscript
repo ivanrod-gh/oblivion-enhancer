@@ -1,0 +1,454 @@
+﻿scn OELevelListsNormalizeFScr
+
+array_var LelevelListCommonCastNewArray
+array_var LelevelListCommonCastOldArray
+array_var LeveledListArray
+array_var LeveledListsGroupsArray
+array_var InnerObjectTypeArray
+
+short ArrSize1
+short ArrSize2
+short ArrSize3
+short ArrSize4
+short ArrSize5
+short index1
+short index2
+short index3
+short index4
+;short index5
+short CastsIsEqual
+short InvalidRefFound
+short SlotId
+short NumLevItems
+;short LevItemLevel
+short LevItemCount
+short LeveledListGroup
+short LeveledListGroup2
+short GroupDependenceIndex
+short GroupWasWiped
+short SettingsWasChanged
+short SkipLeveledList
+
+ref LevItemRef
+ref LeveledListRef
+
+begin function { }
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Вызов функции OELevelListsNormalizeFScr - нормализация уровневых списков"
+
+;перерасчет ценности предметов (оружие, броня, зачарованные версии этих предметов)
+;call OECalcItemsValueFScr	-> в init.
+
+;проверка введенных настроек
+let SettingsWasChanged := call OECheckLeveledListSettingsFScr
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+if SettingsWasChanged == 1
+	debugprint "Настройки с момента последнего запуска игры были изменены! Очистка всех нормированных массивов и связанных с ними уровневых списков-клонформ"
+	let index1 := 0
+	let ArrSize1 := ar_size OEInitQ.OELeveledListsMainArray
+	while index1 < ArrSize1
+		if eval(ar_size OEInitQ.OELeveledListsMainArray[index1][1]) > 0
+			let OEInitQ.OELeveledListsMainArray[index1][1] := ar_construct Array
+			debugprint "Слепок [%g] обнулён" index1
+		endif
+		let index1 := index1 + 1
+	loop
+	let OEInitQ.OELeveledListTopGearLevelOld := OELeveledListTopGearLevel
+	let OEInitQ.OELeveledListCommonToMagicRatioOld := OELeveledListCommonToMagicRatio
+	let OEInitQ.OELeveledListUseFiller1Old := OELeveledListUseFiller1
+	let OEInitQ.OELeveledListLvlOffset1Old := OELeveledListLvlOffset1
+	let OEInitQ.OELeveledListLvlDeep1Old := OELeveledListLvlDeep1
+	let OEInitQ.OELeveledListLvlRepeat1Old := OELeveledListLvlRepeat1
+	let OEInitQ.OELeveledListUseFiller2Old := OELeveledListUseFiller2
+	let OEInitQ.OELeveledListLvlOffset2Old := OELeveledListLvlOffset2
+	let OEInitQ.OELeveledListLvlDeep2Old := OELeveledListLvlDeep2
+	let OEInitQ.OELeveledListLvlRepeat2Old := OELeveledListLvlRepeat2
+	debugprint "Новые настройки сохранены"
+endif
+
+;поиск групп в OEInitQ.OELeveledListsMainArray
+let index1 := 0
+let LeveledListsGroupsArray := ar_construct Array
+let ArrSize1 := ar_size OEInitQ.OELeveledListsMainArray
+while index1 < ArrSize1
+	let LeveledListGroup := OEInitQ.OELeveledListsMainArray[index1][5]
+	if eval(ar_find LeveledListGroup LeveledListsGroupsArray) < 0
+		debugprint "В массиве уровневых списков обнаружена новая группа: %g. Группа добавлена в массив групп." LeveledListGroup
+		let LeveledListsGroupsArray[ar_size LeveledListsGroupsArray] := LeveledListGroup
+	endif
+	let index1 := index1 + 1
+loop
+;пересортировка массива групп
+ar_Sort LeveledListsGroupsArray
+;предварительная зачистка флагов "группа была очищена"
+let index1 := 0
+let ArrSize1 := ar_size OEInitQ.OELeveledListGroupDependenciesArray
+while index1 < ArrSize1
+	if eval(ar_size OEInitQ.OELeveledListGroupDependenciesArray[index1]) > 1
+		let OEInitQ.OELeveledListGroupDependenciesArray[index1][2] := 0
+		debugprint "Считается, что ненормированные и нормированные массивы зависимой группы с индексом [%g] еще не очищены" index1
+	else
+		debugprint "Независимая группа с индексом %g не нуждается в полной очистке" index1
+	endif
+	let index1 := index1 + 1
+loop
+
+debugprint "Определение правильности ранее созданных слепков уровневых списков. Создание и сохранение новых в случае необходимости."
+let ArrSize1 := ar_size OEInitQ.OELeveledListsMainArray
+let index1 := 0
+while index1 < ArrSize1
+	let SkipLeveledList := OEInitQ.OELeveledListsMainArray[index1][11]
+	if SkipLeveledList != -1
+		let LeveledListRef := OEInitQ.OELeveledListsMainArray[index1][0]
+		debugprint "Рассматривается уровневый список [%i], индекс [%g]" LeveledListRef index1
+		let LelevelListCommonCastNewArray := call OEGetLeveledListCommonCastFScr LeveledListRef
+		let LelevelListCommonCastOldArray := OEInitQ.OELeveledListsMainArray[index1][1]
+		let CastsIsEqual := call OECheckCastsDifferenceFScr LelevelListCommonCastNewArray LelevelListCommonCastOldArray
+		
+		if CastsIsEqual == 1
+			let InvalidRefFound := 0
+			let index2 := 0
+			let ArrSize2 := ar_size OEInitQ.OELeveledListsMainArray[index1][10]
+			debugprint "Слепки совпадают, проверяются уровневые списки-клонформы с индексом [%g]" index1
+			while index2 < ArrSize2
+				let LeveledListRef := OEInitQ.OELeveledListsMainArray[index1][10][index2]
+				debugprint "Проверяется уровневый список-клонформа [%n][%i]" LeveledListRef LeveledListRef
+				let NumLevItems := GetNumLevItems LeveledListRef
+				let index3 := 0
+				while index3 < NumLevItems
+					let LevItemRef := GetNthLevItem index3 LeveledListRef
+					debugprint "Проверяется уровневый объект [%n][%i]" LevItemRef LevItemRef
+					if GetObjectType LevItemRef != 43
+						if IsFormValid LevItemRef == 0
+							let InvalidRefFound := 1
+							debugprint "Обнаружен невалидный реф! Прерывание поиска, отправка запроса на очистку всех связанных массивов и уровневых списков-клонформ"
+							break
+						endif
+					else
+						debugprint "Объект [%n][%i] - клонформа, вложенная в кллонформу, она сама не проверяется, а ее содержимое проверяется отдельно - на уровень выше. Прерывание проверки [%n][%i]" LevItemRef LevItemRef LeveledListRef LeveledListRef
+						break
+					endif
+					let index3 := index3 + 1
+				loop
+				if InvalidRefFound == 1
+					break
+				endif
+				let index2 := index2 + 1
+			loop
+			if InvalidRefFound == 0
+				debugprint "Все рассмотренные рефы - валидные"
+			endif
+		endif
+		
+		if CastsIsEqual != 1 || InvalidRefFound == 1
+			if CastsIsEqual != 1 && OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+				debugprint "Новый и старый простой слепок уровневого списка [%i] не совпадают. Обнуление соответствующих заполненных нормированных массивов и уровневых списков-клонформ. Если уровневый список состоит в группе - то во всей группе и вышестоящих группах" LeveledListRef
+			endif
+			let LeveledListGroup := OEInitQ.OELeveledListsMainArray[index1][5]
+			let GroupDependenceIndex := -1
+			let GroupWasWiped := -1
+			let index2 := 0
+			let ArrSize2 := ar_size OEInitQ.OELeveledListGroupDependenciesArray
+			while index2 < ArrSize2
+				let LeveledListGroup2 := OEInitQ.OELeveledListGroupDependenciesArray[index2][0]
+				if LeveledListGroup == LeveledListGroup2
+					let GroupDependenceIndex := index2
+					if eval(ar_size OEInitQ.OELeveledListGroupDependenciesArray[index2]) > 1
+						let GroupWasWiped := OEInitQ.OELeveledListGroupDependenciesArray[index2][2]
+						debugprint "Будет рассмотрена зависимая группа с индексом [%g], флаг очистки группы = [%g]" index2 GroupWasWiped
+					endif
+					break
+				endif
+				let index2 := index2 + 1
+			loop
+			debugprint "Индекс в массиве групповых зависимостей у данного уровневого списка - [%g], флаг очистки группы - [%g]" GroupDependenceIndex GroupWasWiped
+			if GroupDependenceIndex == 0
+				if eval(ar_size OEInitQ.OELeveledListsMainArray[index1][2]) > 0
+					let OEInitQ.OELeveledListsMainArray[index1][2] := ar_construct Array
+					debugprint "Нормированный массив из независимой группы с индексом [%g] обнулён" index1
+				endif
+				if eval(ar_size OEInitQ.OELeveledListsMainArray[index1][3]) > 0
+					let OEInitQ.OELeveledListsMainArray[index1][3] := ar_construct Array
+					debugprint "Ненормированный массив из независимой группы с индексом [%g] обнулён" index1
+				endif
+				if eval(ar_size OEInitQ.OELeveledListsMainArray[index1][10]) > 0
+					let index2 := 0
+					let ArrSize2 := ar_size OEInitQ.OELeveledListsMainArray[index1][10]
+					while index2 < ArrSize2
+						let LeveledListRef := OEInitQ.OELeveledListsMainArray[index1][10][index2]
+						ClearLeveledList LeveledListRef
+						let OEInitQ.OEFreeLeveledListsArray[ar_size OEInitQ.OEFreeLeveledListsArray] := LeveledListRef
+						debugprint "Уровневый список-клонформа [%i] очищена и возвращена в OEFreeLeveledListsArray" LeveledListRef
+						if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+							let ArrSize5 := ar_size OEInitQ.OEFreeLeveledListsArray
+							debugprint "Размер OEFreeLeveledListsArray после получения клонформы - [%g]" ArrSize5
+						endif
+						if eval(ar_HasKey OEInitQ.OELeveledListQualityArray GetRawFormIdString LeveledListRef) == 1
+							ar_erase OEInitQ.OELeveledListQualityArray GetRawFormIdString LeveledListRef
+							debugprint "Информация о клонформе удалена из OELeveledListQualityArray"
+							if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+								let ArrSize5 := ar_size OEInitQ.OELeveledListQualityArray
+								debugprint "Размер OELeveledListQualityArray после удаления информации о клонформе - [%g]" ArrSize5
+							endif
+						else
+							debugprint "Критическая ошибка скрипта! Информации о клонформе изначально не было в OELeveledListQualityArray!"
+						endif
+						let index2 := index2 + 1
+					loop
+					let OEInitQ.OELeveledListsMainArray[index1][10] := ar_construct Array
+					debugprint "Массив уровневых списков-клонформ из независимой группы с индексом [%g] обнулён" index1
+				endif
+			elseif GroupDependenceIndex > 0 && GroupWasWiped == 0
+				let index2 := 0
+				let ArrSize2 := ar_size OEInitQ.OELeveledListGroupDependenciesArray[GroupDependenceIndex][1]
+				debugprint "Количество зависимых групп - %g" ArrSize2
+				while index2 < ArrSize2
+					let LeveledListGroup := OEInitQ.OELeveledListGroupDependenciesArray[GroupDependenceIndex][1][index2]
+					debugprint "Идет рассмотрение массивов группы %g" LeveledListGroup
+					let index3 := 0
+					let ArrSize3 := ar_size OEInitQ.OELeveledListGroupDependenciesArray
+					while index3 < ArrSize3
+						let LeveledListGroup2 := OEInitQ.OELeveledListGroupDependenciesArray[index3][0]
+						if LeveledListGroup == LeveledListGroup2
+							let GroupWasWiped := OEInitQ.OELeveledListGroupDependenciesArray[index3][2]
+							break
+						endif
+						let index3 := index3 + 1
+					loop
+					if GroupWasWiped == 0
+						let index3 := 0
+						let ArrSize3 := ArrSize1
+						while index3 < ArrSize3
+							let LeveledListGroup2 := OEInitQ.OELeveledListsMainArray[index3][5]
+							if LeveledListGroup == LeveledListGroup2
+								if eval(ar_size OEInitQ.OELeveledListsMainArray[index3][2]) > 0
+									let OEInitQ.OELeveledListsMainArray[index3][2] := ar_construct Array
+									debugprint "Нормированный массив из зависимой группы с индексом [%g] обнулён" index3
+								endif
+								if eval(ar_size OEInitQ.OELeveledListsMainArray[index3][3]) > 0
+									let OEInitQ.OELeveledListsMainArray[index3][3] := ar_construct Array
+									debugprint "Ненормированный массив из зависимой группы с индексом [%g] обнулён" index3
+								endif
+								if eval(ar_size OEInitQ.OELeveledListsMainArray[index3][10]) > 0
+									let index4 := 0
+									let ArrSize4 := ar_size OEInitQ.OELeveledListsMainArray[index3][10]
+									while index4 < ArrSize4
+										let LeveledListRef := OEInitQ.OELeveledListsMainArray[index3][10][index4]
+										ClearLeveledList LeveledListRef
+										let OEInitQ.OEFreeLeveledListsArray[ar_size OEInitQ.OEFreeLeveledListsArray] := LeveledListRef
+										debugprint "Уровневый список-клонформа [%i] очищена и возвращена в OEFreeLeveledListsArray" LeveledListRef
+										if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+											let ArrSize5 := ar_size OEInitQ.OEFreeLeveledListsArray
+											debugprint "Размер OEFreeLeveledListsArray после получения клонформы - [%g]" ArrSize5
+										endif
+										if eval(ar_HasKey OEInitQ.OELeveledListQualityArray GetRawFormIdString LeveledListRef) == 1
+											ar_erase OEInitQ.OELeveledListQualityArray GetRawFormIdString LeveledListRef
+											debugprint "Информация о клонформе удалена из OELeveledListQualityArray"
+											if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+												let ArrSize5 := ar_size OEInitQ.OELeveledListQualityArray
+												debugprint "Размер OELeveledListQualityArray после удаления информации о клонформе - [%g]" ArrSize5
+											endif
+										else
+											debugprint "Критическая ошибка скрипта! Информации о клонформе изначально не было в OELeveledListQualityArray!"
+										endif
+										let index4 := index4 + 1
+									loop
+									let OEInitQ.OELeveledListsMainArray[index3][10] := ar_construct Array
+									debugprint "Массив уровневых списков-клонформ из зависимой группы с индексом [%g] обнулён" index3
+								endif
+								
+							endif
+							let index3 := index3 + 1
+						loop
+						let index3 := 0
+						let ArrSize3 := ar_size OEInitQ.OELeveledListGroupDependenciesArray
+						while index3 < ArrSize3
+							let LeveledListGroup2 := OEInitQ.OELeveledListGroupDependenciesArray[index3][0]
+							if LeveledListGroup == LeveledListGroup2
+								let OEInitQ.OELeveledListGroupDependenciesArray[index3][2] := 1
+								debugprint "Устанавливается, что ненормированные и нормированные массивы зависимой группы с индексом [%g] были очищены" index3
+								break
+							endif
+							let index3 := index3 + 1
+						loop
+					else
+						debugprint "Массивы данной связанной группы уже были зачищены ранее"
+					endif
+					let index2 := index2 + 1
+				loop
+			else
+				debugprint "Этот уровневый список и связанные с ним массивы уже были зачищены"
+			endif
+		else
+			debugprint "Новый и старый простой слепок уровневого списка [%i] совпадают, для этого уровневого списка будет использован ранее уже нормализованный массив объектов." LeveledListRef
+		endif
+		debugprint "Сохранение нового обычного слепка"
+		let OEInitQ.OELeveledListsMainArray[index1][1] := LelevelListCommonCastNewArray
+	else
+		debugprint "Уровневый список с индексом [%g] отмечен как необрабатываемый, обработка не произведена" index1
+	endif
+	let index1 := index1 + 1
+loop
+
+;извлечение уровневых списков в ненормированные массивы согласно группам
+let index1 := 0
+let ArrSize1 := ar_size LeveledListsGroupsArray
+let ArrSize2 := ar_size OEInitQ.OELeveledListsMainArray
+while index1 < ArrSize1
+	let LeveledListGroup := LeveledListsGroupsArray[index1]
+	if LeveledListGroup == 999
+		debugprint "Рассматриваются уровневые списки без группы (группа 999)" LeveledListGroup
+	else
+		debugprint "Рассматриваются уровневые списки группы %g" LeveledListGroup
+	endif
+	let index2 := 0
+	while index2 < ArrSize2
+		let SkipLeveledList := OEInitQ.OELeveledListsMainArray[index2][11]
+		if SkipLeveledList != -1
+			let LeveledListGroup2 := OEInitQ.OELeveledListsMainArray[index2][5]
+			if LeveledListGroup == LeveledListGroup2
+				;если для уровневого списка не найден ненормированный массив
+				if eval(ar_size OEInitQ.OELeveledListsMainArray[index2][3]) == 0 && eval(ar_size OEInitQ.OELeveledListsMainArray[index2][2]) == 0
+					let LeveledListRef := OEInitQ.OELeveledListsMainArray[index2][0]
+					debugprint "Ненормированный массив уровневого списка [%n][%i] не найден. Он создается заново" LeveledListRef LeveledListRef
+					let SlotId := OEInitQ.OELeveledListsMainArray[index2][6]
+					let InnerObjectTypeArray := OEInitQ.OELeveledListsMainArray[index2][7]
+					;извлечение уровневого списка в уровневый массив
+					let LeveledListArray := call OEExtractLevelListsFScr LeveledListRef LeveledListGroup SlotId InnerObjectTypeArray
+					;сохранение ненормированного массива
+					let OEInitQ.OELeveledListsMainArray[index2][3] := LeveledListArray
+				endif
+			endif
+		endif
+		let index2 := index2 + 1
+	loop
+	;конец первичной обработки группы уровневых списков
+	
+	;перемещение пересортицы в ненормированные массивы. не для группы 999 ( = уровневые списки без группы)
+	if LeveledListGroup != 999
+		let index2 := 0
+		while index2 < ArrSize2
+			let SkipLeveledList := OEInitQ.OELeveledListsMainArray[index2][11]
+			if SkipLeveledList != -1
+				let LeveledListGroup2 := OEInitQ.OELeveledListsMainArray[index2][5]
+				if LeveledListGroup == LeveledListGroup2
+					let ArrSize3 := ar_size OEInitQ.OELeveledListsMainArray[index2][4]
+					if ArrSize3 > 0
+						debugprint "Обнаружен массив пересортицы с индексом [%g] и размером [%g]. Перемещение объектов в ненормированный массив" index2 ArrSize3
+						let index3 := 0
+						while index3 < ArrSize3
+							let LeveledListRef := OEInitQ.OELeveledListsMainArray[index2][4][index3]
+							if eval(ar_find LeveledListRef OEInitQ.OELeveledListsMainArray[index2][3]) < 0
+								debugprint "Перемещение [%n][%i] в ненормированный массив" LeveledListRef LeveledListRef
+								let OEInitQ.OELeveledListsMainArray[index2][3][ar_size OEInitQ.OELeveledListsMainArray[index2][3]] := LeveledListRef
+							else
+								debugprint "[%n][%i] уже присутствует в ненормированном массиве." LeveledListRef LeveledListRef
+							endif
+							let index3 := index3 + 1
+						loop
+						let OEInitQ.OELeveledListsMainArray[index2][4] := ar_construct Array
+						debugprint "Содержимое массива пересортицы с индексом [%g] передано, массив очищен" index2
+					else
+						debugprint "Массив пересортицы с индексом [%g] пуст" index2
+					endif
+				endif
+			endif
+			let index2 := index2 + 1
+		loop
+	endif
+	
+	;отключено, т.к. малоэффективно
+	;замена уровневых списков из ненормированных массивов в группе для ускорения обработки групп высших порядков (LL0<LL1<LL2)
+;	let index2 := 0
+;	while index2 < ArrSize2
+;		let LeveledListGroup2 := OEInitQ.OELeveledListsMainArray[index2][5]
+;		if LeveledListGroup == LeveledListGroup2
+;			let LeveledListRef := OEInitQ.OELeveledListsMainArray[index2][0]
+;			ClearLeveledList LeveledListRef
+;			let index3 := 0
+;			let ArrSize3 := ar_size OEInitQ.OELeveledListsMainArray[index2][3]
+;			while index3 < ArrSize3
+;				let LevItemRef := OEInitQ.OELeveledListsMainArray[index2][3][index3]
+;				AddToLeveledList LeveledListRef LevItemRef 1 1
+;				let index3 := index3 + 1
+;			loop
+;			let NumLevItems := GetNumLevItems LeveledListRef
+;			debugprint "Уровневый список [%n][%i] был очищен и наполнен объектами соответствующего ненормированного массива. Размер уровневого списка - [%g]" LeveledListRef LeveledListRef NumLevItems
+;		endif
+;		let index2 := index2 + 1
+;	loop
+	
+	let index1 := index1 + 1
+loop
+
+;переработка ненормированных уровневых массивов в нормированные
+let index1 := 0
+let ArrSize1 := ar_size OEInitQ.OELeveledListsMainArray
+while index1 < ArrSize1
+	let SkipLeveledList := OEInitQ.OELeveledListsMainArray[index1][11]
+	if SkipLeveledList != -1
+		;если для уровневого списка не найден нормированный массив
+		if eval(ar_size OEInitQ.OELeveledListsMainArray[index1][2]) == 0
+			let LeveledListRef := OEInitQ.OELeveledListsMainArray[index1][0]
+			debugprint "Нормированный массив уровневого списка [%n][%i] с индексом [%g] не найден. Он создается заново" LeveledListRef LeveledListRef index1
+			
+			;вызов ранее созданного ненормированного массива
+			let LeveledListArray := OEInitQ.OELeveledListsMainArray[index1][3]
+			
+			;рефакторинг ненормированного массива в нормированный
+			let LeveledListArray := call OELeveledListRefactorFScr LeveledListArray index1
+			
+			;сохранение нормированного массива
+			let OEInitQ.OELeveledListsMainArray[index1][2] := LeveledListArray
+		endif
+
+		;очистка более ненужного ненормированного массива
+		debugprint "Ненормированный массив с индексом [%g] более не нужен и очищается" index1
+		if eval(ar_size OEInitQ.OELeveledListsMainArray[index1][3]) > 0
+			let OEInitQ.OELeveledListsMainArray[index1][3] := ar_construct Array
+		endif
+	endif
+	let index1 := index1 + 1
+loop
+
+;замена уровневых списков
+call OELeveledListExchangeFScr
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+;вызов функции перебалансировки вещей
+if OEWeaponExcessFix == 1 || OEWeaponPriceRecalculate == 1
+	call OERebalanceFScr -1
+endif
+
+;обнуление массива рассчитанных объектов
+debugprint "По завершению нормировки массив ItemsQualityArray обнулен"
+let OEInitQ.OEItemsQualityArray := ar_construct StringMap
+
+;отслеживание работы функции CloneForm во избежание переполнения сейва
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	debugprint "Всего было клонировано уровневых списков - [%g]" OEInitQ.OEDebugLeveledListClonedCount
+	let index1 := 0
+	let ArrSize1 := ar_size OEInitQ.OELeveledListsMainArray
+	let LevItemCount := 0
+	while index1 < ArrSize1
+		let ArrSize2 := ar_size OEInitQ.OELeveledListsMainArray[index1][10]
+		debugprint "Подмассив с индексом [%g], уровневых списков-клонформ на балансе - [%g]" index1 ArrSize2
+		let LevItemCount := LevItemCount + ArrSize2
+		let index1 := index1 + 1
+	loop
+	debugprint "Всего обнаружено [%g] уровневых списков-клонформ на балансе" LevItemCount
+endif
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

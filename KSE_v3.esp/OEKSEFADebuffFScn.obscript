@@ -1,0 +1,24 @@
+﻿scn OEKSEFADebuffFScn
+
+short counter
+short FatigueVal
+short FatigueBaseVal
+short EffectIndex
+
+ref SpellRef
+
+begin scripteffectupdate
+
+let counter := counter + 1
+if counter > 20
+	let FatigueVal := getav fatigue
+	let FatigueBaseVal := getbaseav fatigue
+	let FatigueVal := (FatigueVal + FatigueBaseVal*0.15) * -1
+	modav2 fatigue FatigueVal
+	
+	let EffectIndex := GetScriptActiveEffectIndex
+	let SpellRef := GetNthActiveEffectMagicItem EffectIndex
+	Dispel SpellRef
+endif
+
+end

@@ -1,0 +1,135 @@
+﻿scn OECalcArmorPriceFScr
+
+array_var TransitArray
+
+short ReplacingShort
+short CalculatedPrice
+short CalculatedPriceNew
+short ItemPrice
+short MinItemPrice
+short MaxItemPrice
+short ItemForRebalanceFlag
+short ArmorType
+float ArmorDefence
+float ArmorHealth
+float SlotMin
+float SlotMin2
+float SlotMax
+float SlotMax2
+float TanCalc
+float AdaptiveLevel
+float TanArg
+float AdaptiveLevelType1	;адаптивный уровень для защиты (AR)
+float AdaptiveLevelType2	;адаптивный уровень для прочности (Health)
+
+ref ItemRef
+
+begin function { TransitArray }
+
+debugprint "Вызов функции OECalcArmorPriceFScr - рассчет стоимости брони (незачарованной)"
+
+let ItemRef := TransitArray[0]
+let ArmorDefence := TransitArray[1]
+let ArmorHealth := TransitArray[2]
+let SlotMin := TransitArray[3]
+let SlotMax := TransitArray[4]
+let SlotMin2 := TransitArray[5]
+let SlotMax2 := TransitArray[6]
+let MinItemPrice := TransitArray[7]
+let MaxItemPrice := TransitArray[8]
+let ItemForRebalanceFlag := TransitArray[9]
+let ArmorType := TransitArray[10]
+
+debugprint "Защита - [%f], защита макс. - [%f], прочность - [%f], прочность макс. - [%f]" ArmorDefence SlotMax ArmorHealth SlotMax2
+if SlotMin != SlotMax
+	let AdaptiveLevelType1 := 99*((ArmorDefence-SlotMin)/(SlotMax-SlotMin)) + 1
+else
+	let AdaptiveLevelType1 := 1
+endif
+debugprint "Адаптивный уровень тип 1 - [%g]" AdaptiveLevelType1
+if AdaptiveLevelType1 < 1
+	let AdaptiveLevelType1 := 1
+	debugprint "Адаптивный уровень тип 1 меньше минимального и он заменяется на [%g]" AdaptiveLevelType1
+elseif AdaptiveLevelType1 > 100
+	let AdaptiveLevelType1 := 100
+	debugprint "Адаптивный уровень тип 1 больше максимального и он заменяется на [%g]" AdaptiveLevelType1
+endif
+
+if SlotMin2 != SlotMax2
+	let AdaptiveLevelType2 := 99*((ArmorHealth-SlotMin2)/(SlotMax2-SlotMin2)) + 1
+else
+	let AdaptiveLevelType2 := 1
+endif
+debugprint "Адаптивный уровень тип 2 - [%g]" AdaptiveLevelType2
+if AdaptiveLevelType2 < 1
+	let AdaptiveLevelType2 := 1
+	debugprint "Адаптивный уровень тип 2 меньше минимального и он заменяется на [%g]" AdaptiveLevelType2
+elseif AdaptiveLevelType2 > 100
+	let AdaptiveLevelType2 := 100
+	debugprint "Адаптивный уровень тип 2 больше максимального и он заменяется на [%g]" AdaptiveLevelType2
+endif
+
+let AdaptiveLevel := (AdaptiveLevelType1 + AdaptiveLevelType2)/2
+debugprint "Адаптивный уровень тип 1 - [%f], адаптивный уровень тип 2 - [%f], пересчитанный адаптивный уровень - [%f]" AdaptiveLevelType1 AdaptiveLevelType2 AdaptiveLevel
+
+if AdaptiveLevel >= OECheapArmorPriceRecalculateAdptLvl || AdaptiveLevel <= OEExpensiveArmorPriceRecalculateAdptLvl
+	if ArmorType == 0
+		let TanArg := AdaptiveLevel*0.82
+	else
+		let TanArg := AdaptiveLevel*0.77
+	endif
+	let TanCalc := Tan TanArg
+	if ArmorType == 0
+		let CalculatedPrice := (MaxItemPrice/7)*TanCalc + MinItemPrice
+	else
+		let CalculatedPrice := (MaxItemPrice/4.5)*TanCalc + MinItemPrice
+	endif
+endif
+if AdaptiveLevel >= OECheapArmorPriceRecalculateAdptLvl
+	debugprint "Проверяется, не стоит ли броня слишком мало"
+	let CalculatedPriceNew := CalculatedPrice*OECheapArmorPriceRecalculateMod
+	;устанавливается, что новая цена будет кратна 5
+	let ReplacingShort := CalculatedPriceNew/5
+	let CalculatedPriceNew := ReplacingShort*5
+	let ItemPrice := GetGoldValue ItemRef
+	debugprint "Изначальная стоимость - [%g], расчетная стоимость - [%g]" ItemPrice CalculatedPriceNew
+	if ItemPrice < CalculatedPriceNew
+		SetGoldValue_T CalculatedPriceNew ItemRef
+		if ArmorType == 0
+			debugprint "[%n][%i] установлена новая временная стоимость легк. брони (только в рамках этой игровой сессии) - [%g]" ItemRef ItemRef CalculatedPriceNew
+		else
+			debugprint "[%n][%i] установлена новая временная стоимость тяж. брони (только в рамках этой игровой сессии) - [%g]" ItemRef ItemRef CalculatedPriceNew
+		endif
+		let ItemForRebalanceFlag := 1
+	else
+		debugprint "Цена [%n][%i] выше расчетной, перерасчет не требуеся" ItemRef ItemRef
+	endif
+else
+	debugprint "Адаптивный уровень [%n][%i] слишком мал. Цена дешевой брони не пересчитана" ItemRef ItemRef
+endif
+if AdaptiveLevel <= OEExpensiveArmorPriceRecalculateAdptLvl
+	debugprint "Проверяется, не стоит ли броня слишком много"
+	let CalculatedPriceNew := CalculatedPrice*OEExpensiveArmorPriceRecalculateMod
+	;устанавливается, что новая цена будет кратна 5
+	let ReplacingShort := CalculatedPriceNew/5
+	let CalculatedPriceNew := ReplacingShort*5
+	let ItemPrice := GetGoldValue ItemRef
+	debugprint "Изначальная стоимость - [%g], расчетная стоимость - [%g]" ItemPrice CalculatedPriceNew
+	if ItemPrice > CalculatedPriceNew
+		SetGoldValue_T CalculatedPriceNew ItemRef
+		if ArmorType == 0
+			debugprint "[%n][%i] установлена новая временная стоимость легк. брони (только в рамках этой игровой сессии) - [%g]" ItemRef ItemRef CalculatedPriceNew
+		else
+			debugprint "[%n][%i] установлена новая временная стоимость тяж. брони (только в рамках этой игровой сессии) - [%g]" ItemRef ItemRef CalculatedPriceNew
+		endif
+		let ItemForRebalanceFlag := 1
+	else
+		debugprint "Цена [%n][%i] ниже расчетной, перерасчет не требуеся" ItemRef ItemRef
+	endif
+else
+	debugprint "Адаптивный уровень [%n][%i] слишком высок. Цена дорогой брони не пересчитана" ItemRef ItemRef
+endif
+
+SetFunctionValue ItemForRebalanceFlag
+
+end

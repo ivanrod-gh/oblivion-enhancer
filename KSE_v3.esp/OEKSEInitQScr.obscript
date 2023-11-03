@@ -1,0 +1,326 @@
+﻿scn OEKSEInitQScr
+
+float fQuestDelayTime
+
+short OEKSEIndex
+
+ref OEKSESpellClone
+
+;НЕ УДАЛЯТЬ введенные здесь переменные!
+
+array_var OEKSERestrictedMGEFArray
+array_var OEKSEAllowedScriptEffectsArray
+
+short OEKSEOn
+short OEKSEInitializationCount
+short OEKSELvlUpIconXDefault
+short OEKSEStaminaBarAdpSize
+
+float OEKSEfCreatureCalcDamageCalculated
+
+;GS
+float GSDamageWeaponMult
+float GSDamageSkillBase
+float GSDamageSkillMult
+float GSDamageStrengthBase
+float GSDamageStrengthMult
+
+;дебаггинг
+short KSEModIndex
+short OEKSEGetkMEEffKeyFScrDebugMode
+short OEKSECheckAllowedMGEFFScrDebugMode
+short OEKSECloneRetentionSystemQScrDebugMode
+short OEKSESortkMEFScrDebugMode
+short KeaFEditKMEArrayDebugMode
+short keaMEffectSCRGameModeDebugMode
+short keaMEffectSCRMenuMode1022DebugMode
+short OEKSEGetNewSpellCloneFScrDebugMode
+short OEKSECheckSpellCloneEventFScrDebugMode
+short OEKSEEmergencyEmpowerWipeQScrDebugMode
+short KeaEVENTMSpellCastDebugMode
+short KeaGlobalEventsDebugMode
+short OEKSERestrictFunctionsQScrDebugMode
+short KeaItemRandomGenQScrDebugMode
+short OEKSEFortificationAbilityQScrDebugMode
+short OEKSEArcaneArcherAbilityQScrDebugMode
+short OEKSEBattleMagicAbilityQScrDebugMode
+short OEKSERapidFireQScrDebugMode
+
+;НЕ УДАЛЯТЬ введенные здесь переменные!
+
+Begin GameMode
+
+set fQuestDelayTime to 0.5
+
+if KeaEffectExtender.KSEIsLoadedUpdateNeeded == 1
+	if GetGameLoaded || GetGameRestarted
+	
+		;блок управления отладочными сообщениями
+		let KSEModIndex := GetSourceModIndex KSEModIndexItem1
+		let OEKSEGetkMEEffKeyFScrDebugMode := 0
+		let OEKSECheckAllowedMGEFFScrDebugMode := 0
+		let OEKSECloneRetentionSystemQScrDebugMode := 0
+		let OEKSESortkMEFScrDebugMode := 0
+		let KeaFEditKMEArrayDebugMode := 0
+		let keaMEffectSCRGameModeDebugMode := 0
+		let keaMEffectSCRMenuMode1022DebugMode := 0
+		let OEKSEGetNewSpellCloneFScrDebugMode := 0
+		let OEKSECheckSpellCloneEventFScrDebugMode := 0
+		let OEKSEEmergencyEmpowerWipeQScrDebugMode := 0
+		let KeaEVENTMSpellCastDebugMode := 0
+		let KeaGlobalEventsDebugMode := 0
+		let OEKSERestrictFunctionsQScrDebugMode := 0
+		let KeaItemRandomGenQScrDebugMode := 0
+		let OEKSEFortificationAbilityQScrDebugMode := 0
+		let OEKSEArcaneArcherAbilityQScrDebugMode := 0
+		let OEKSEBattleMagicAbilityQScrDebugMode := 0
+		let OEKSERapidFireQScrDebugMode := 0
+
+		;конструкция
+;if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+;	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+;endif
+;if OEKSEInitQ.OEKSEFortificationAbilityQScrDebugMode == 1
+;	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+;endif
+		;блок управления отладочными сообщениями
+
+		;блок загрузки настроек из файла
+		RunBatchScript "Data\ini\Oblivion Enhancer (KSE module).ini"
+		;блок загрузки настроек из файла
+		
+		;блок проверки загруженных переменных
+		call OEKSEInitCkeckAllowedSettingsFScr
+		;блок проверки загруженных переменных
+		
+		;блок простой инициализации массивов
+		if eval(ar_size OEKSECloneRetentionSystemQ.BusySpellsArray) < 0
+			let OEKSECloneRetentionSystemQ.BusySpellsArray := ar_Construct Array
+		endif
+		if eval(ar_size OEKSECloneRetentionSystemQ.FreeSpellsArray) < 0
+			let OEKSECloneRetentionSystemQ.FreeSpellsArray := ar_Construct Array
+		endif
+		if eval(ar_size OEKSECloneRetentionSystemQ.WhippedActorsArray) < 0
+			let OEKSECloneRetentionSystemQ.WhippedActorsArray := ar_Construct Array
+		endif
+		if eval(ar_size KeaEVENTSQ.EmpoweredSpellsArray) < 0
+			let KeaEVENTSQ.EmpoweredSpellsArray := ar_Construct Array
+		endif
+		if eval(ar_size OEKSERestrictFunctionsQ.OEKSEAbsorbedsArray) < 0
+			let OEKSERestrictFunctionsQ.OEKSEAbsorbedsArray := ar_Construct StringMap
+		endif
+		if eval(ar_size OEKSEBattleMagicAbilityQ.OEKSEAffectedActorsArray) < 0
+			let OEKSEBattleMagicAbilityQ.OEKSEAffectedActorsArray := ar_Construct StringMap
+		endif
+		if eval(ar_size OEKSEArcaneArcherAbilityQ.OEKSEDebuffSpellsArray) < 0
+			let OEKSEArcaneArcherAbilityQ.OEKSEDebuffSpellsArray := ar_Construct Array
+		endif
+		if eval(ar_size OEKSEArcaneArcherAbilityQ.OEKSEDebuffReadyToUseSpellsArray) < 0
+			let OEKSEArcaneArcherAbilityQ.OEKSEDebuffReadyToUseSpellsArray := ar_Construct Array
+		endif
+		if eval(ar_size OEKSEArcaneArcherAbilityQ.OEKSEDebuffUsedSpellsArray) < 0
+			let OEKSEArcaneArcherAbilityQ.OEKSEDebuffUsedSpellsArray := ar_Construct StringMap
+		endif
+		if eval(ar_size OEKSERapidFireQ.OEKSERapidFireShootersArray) < 0
+			let OEKSERapidFireQ.OEKSERapidFireShootersArray := ar_Construct StringMap
+		endif
+		;блок простой инициализации массивов
+
+		;блок инициализации и наполнения массивов
+		
+		;запрещенные к усилению эффекты:
+		;BW01		Bound Armor Extra 01
+		;BW02		Bound Armor Extra 02
+		;BW03		Bound Armor Extra 03
+		;BW04		Bound Armor Extra 04
+		;BW05		Bound Armor Extra 05
+		;BW06		Bound Armor Extra 06
+		;BW07		Вызов Посоха Шеогората
+		;BW08		Призванный кинжал жреца
+		;CHRM		Чары
+		;CUDI		Исцеление болезней
+		;CUPA		Исцеление от паралича
+		;CUPO		Противоядие
+		;DARK		DO NOT USE - Darkness
+		;DUMY		Mehrunes Dagon Custom Effect
+		;FOMM		Fortify Magicka Multiplier
+		;LOCK		DO NOT USE - Lock
+		;MYHL		Вызов шлема Мифического Рассвета
+		;MYTH		Вызов доспехов мифического Рассвета
+		;OPEN		Открыть
+		;POSN		Информация о яде
+		;REAN		Реанимация
+		;RESP		Восст. магии
+		;RSNW		Сопр. обычн. оружию
+		;RSWD		Resist Water Damage
+		;SEFF		Script Effect, по-умолчанию запрещен, есть исклюения
+		;STMA		Замороженная магия
+		;SUDG		Солнечный ожог
+		;WKDI		Уязвим. к болезням
+		;WKFI		Уязвим. к огню
+		;WKFR		Уязвим. к холоду
+		;WKMA		Уязвим. к магии
+		;WKNW		Уязвим. к обычн. оружию
+		;WKPO		Уязвим. к яду
+		;WKSH		Уязвим. к эл-ву
+		;Z011		Вызов Вабба
+		;35 эффектов
+		
+		let OEKSERestrictedMGEFArray := ar_Construct Array
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars BW01
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars BW02
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars BW03
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars BW04
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars BW05
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars BW06
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars BW07
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars BW08
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars CHRM
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars CUDI
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars CUPA
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars CUPO
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars DARK
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars DUMY
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars FOMM
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars LOCK
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars MYHL
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars MYTH
+		;ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars OPEN
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars POSN
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars REAN
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars RESP
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars RSNW
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars RSWD
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars SEFF
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars STMA
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars SUDG
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars WKDI
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars WKFI
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars WKFR
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars WKMA
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars WKNW
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars WKPO
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars WKSH
+		ar_Append OEKSERestrictedMGEFArray MagicEffectFromChars Z011
+		
+		;разрешенные скриптовые эффекты - скриптовые саммоны OE
+		let OEKSEAllowedScriptEffectsArray := ar_Construct Array
+		ar_Append OEKSEAllowedScriptEffectsArray "081E91"
+		ar_Append OEKSEAllowedScriptEffectsArray "081E92"
+		ar_Append OEKSEAllowedScriptEffectsArray "081E93"
+		ar_Append OEKSEAllowedScriptEffectsArray "081E94"
+		ar_Append OEKSEAllowedScriptEffectsArray "080A09"
+		ar_Append OEKSEAllowedScriptEffectsArray "090026"
+		ar_Append OEKSEAllowedScriptEffectsArray "090027"
+		ar_Append OEKSEAllowedScriptEffectsArray "081E95"
+		ar_Append OEKSEAllowedScriptEffectsArray "081E96"
+		ar_Append OEKSEAllowedScriptEffectsArray "081E97"
+		ar_Append OEKSEAllowedScriptEffectsArray "081E98"
+		
+		if eval(ar_size KeaEVENTSQ.ClonedSpellsFreeArray) < 0
+			let KeaEVENTSQ.ClonedSpellsFreeArray := ar_Construct Array
+			let OEKSEIndex := 0
+			while OEKSEIndex < 30
+				let OEKSESpellClone := StandardRestoreHealth1Novice
+				let OEKSESpellClone := CloneForm OEKSESpellClone
+				let KeaEVENTSQ.ClonedSpellsFreeArray[OEKSEIndex] := CloneForm OEKSESpellClone
+				let OEKSEIndex := OEKSEIndex + 1
+			loop
+		endif
+		;блок инициализации и наполнения массивов
+		
+		;блок назначения переменных
+		let OEKSEInitializationCount := 6
+		;поддерживаемые квестовые скрипты:
+		;OEKSEArchersWatchQScr
+		;OEKSERestrictFunctionsQScr
+		;OEKSEFortificationAbilityQScr
+		;OEKSEArcaneArcherAbilityQScr
+		;OEKSEBattleMagicAbilityQ
+		;OEKSEGlobalVariablesUpdateQScr
+		;OEKSERapidFireQScr
+		let OEKSEArchersWatchQ.OEKSEQuestLocked := -1
+		let OEKSERestrictFunctionsQ.OEKSEQuestLocked := -1
+		let OEKSEFortificationAbilityQ.OEKSEQuestLocked := -1
+		let OEKSEArcaneArcherAbilityQ.OEKSEQuestLocked := -1
+		let OEKSEBattleMagicAbilityQ.OEKSEQuestLocked := -1
+		let OEKSEGlobalVariablesUpdateQ.OEKSEQuestLocked := -1
+		let OEKSERapidFireQ.OEKSEQuestLocked := -1
+		
+		let OEKSEEmergencyEmpowerWipeQ.fQuestDelayTime := 0.1
+		let OEKSEEmergencyEmpowerWipeQ.OEKSEEmergencyFlag := 0
+		if KeaSettingMagicSystem == 1
+			let OETokensQ.GLOBALKeaSettingMagicSystem := 1
+		elseif KeaSettingMagicSystem == 0
+			let OETokensQ.GLOBALKeaSettingMagicSystem := 0
+		endif
+		;блок назначения переменных
+		
+		;блок наначения параметров
+		if OEKSEfCreatureCalcDamageMod > 1.35
+			if player.getlevel < 20
+				let OEKSEfCreatureCalcDamageCalculated := ((OEKSEfCreatureCalcDamageMod - 1.35)/19)*(player.getlevel - 1) + 1.35
+			else
+				let OEKSEfCreatureCalcDamageCalculated := OEKSEfCreatureCalcDamageMod
+			endif
+			SetNumericGameSetting fcreaturecalcdamage OEKSEfCreatureCalcDamageCalculated
+		endif
+		
+		if KeaSettingWSpeed == 1 && (OEKSEShowStaminaBar == 1 || OEKSEShowStaminaBar == 2)
+			if GetNumLevItems OEKSELoadedLL == 0
+				let OEKSELvlUpIconXDefault := GetMenuFloatValue "hudmain_background\hudmain_Levelup_Icon\user1" 1004
+			endif
+			if OEKSEShowStaminaBar == 1
+				SetMenuFloatValue "hudmain_background\hudmain_OEKSE_statusbar\visible" 1004 0
+				SetMenuFloatValue "hudmain_background\hudmain_Levelup_Icon\x" 1004 OEKSELvlUpIconX
+			endif
+			SetMenuFloatValue "hudmain_background\hudmain_OEKSE_statusbar\x" 1004 OEKSEStaminaBarX
+			let OEKSEStaminaBarAdpSize := OEKSEStaminaBarY - (OEKSEStaminaBarThick/2)
+			SetMenuFloatValue "hudmain_background\hudmain_OEKSE_statusbar\y" 1004 OEKSEStaminaBarAdpSize
+			let OEKSEStaminaBarAdpSize := OEKSEStaminaBarThick + 4
+			SetMenuFloatValue "hudmain_background\hudmain_OEKSE_statusbar\hudmain_OEKSE_stamina\height" 1004 OEKSEStaminaBarAdpSize
+		endif
+		
+		if OEKSEFortificationAbility == 1
+			let OEKSEFortificationAbilityQ.OEKSEMustRecalcStats := 1
+		endif
+		;блок наначения параметров
+		
+		;блок настройки переключателей
+		set OEKSEAddSpellsQ.DoOncePerInstance to 1
+		if GetNumLevItems OEKSELoadedLL == 0
+			set OEKSERestrictFunctionsQ.OEKSEDoOncePerFullLoad to 1
+		endif
+		set OEKSERestrictFunctionsQ.OEKSEDoOncePerInstance to 1
+		set OEKSERestrictFunctionsQ.OEKSEDoOncePerInstance2 to 1
+		;блок настройки переключателей
+		
+		;блок отслеживания событий (EventHandler)
+		if OEKSECloneRetentionSystem == 1
+			SetEventHandler "OnMagicApply" OEKSECheckSpellCloneEventFScr
+		endif
+		;блок отслеживания событий (EventHandler)
+		
+		;маркер полной загрузки после нового входа в игру из операционной системы
+		if GetNumLevItems OEKSELoadedLL == 0
+			AddToLeveledList OEKSELoadedLL OEKSELoadedLI 1 1
+		endif
+		
+		message "Oblivion Enhancer (модуль KSE) - запущен"
+		print "Oblivion Enhancer (модуль KSE) - запущен"
+		
+		let KeaEffectExtender.KSEIsLoadedUpdateNeeded := 0
+	endif
+endif
+
+if KeaSettingWSpeed == 1 && OEKSEShowStaminaBar == 2 && GetNumLevItems OEKSELoadedLL == 1
+	if PlayerRef.isWeaponOut == 0
+		SetMenuFloatValue "hudmain_background\hudmain_OEKSE_statusbar\visible" 1004 1
+		SetMenuFloatValue "hudmain_background\hudmain_Levelup_Icon\x" 1004 OEKSELvlUpIconXDefault
+	elseif PlayerRef.isWeaponOut == 1 && (PlayerRef.GetWeaponAnimType == 1 || PlayerRef.GetWeaponAnimType == 2)
+		SetMenuFloatValue "hudmain_background\hudmain_OEKSE_statusbar\visible" 1004 0
+		SetMenuFloatValue "hudmain_background\hudmain_Levelup_Icon\x" 1004 OEKSELvlUpIconX
+	endif
+endif
+
+End

@@ -1,0 +1,1016 @@
+﻿scn OEGlobalWatchQScr
+
+float fQuestDelayTime
+
+array_var OEActorsInCellArray
+array_var OECapturedActorsArray
+array_var OESummonersArray	;массив саммонеров и их саммонов	[][0] - OESummonerRef [][1] - OESummonRef
+array_var OESummonersSubArray	;вспомогательный массив саммонеров, по которым сработали эффекты ZSKC, ZDAE, ZXIV, ZDRL
+array_var OESummonsDurationTimeArray	;вспомогательный массив саммонов и времени, на которое они призываются
+array_var OESummonersInGroupArray	;вспомогательный массив саммонеров группы для вычисления количества их саммонов
+;array_var OEBusySummonsArray	;массив саммонов, созданных при помощи PlaceAtMe [][0] - OESummonRef [][1] - таймер безопасности
+;array_var OEFreeSummonsArray	;массив сохраненных саммонов (PlaceAtMe), которых можно использовать [][0] - OESummonRef
+array_var OEArrayElement
+array_var OEItemsArray
+array_var OEDeadSummonsArray
+array_var OEActorsForWipeArray	;массив актеров, которые будут очищены (убийство/перемещение) после смерти игрока и загрузке игры. Попытка избежать вылета при такой загрузке.
+
+short OEActorsInCellCount
+short OEArraySize1
+short OEArraySize2
+short OEArraySize3
+short OEArraySize4
+short OEArraySize5
+short OEArraySize6
+short OEIndex1
+short OEIndex2
+short OEIndex3
+short OEIndex4
+short OEIndex5
+short OEIndex6
+short OEActorGroupIndex
+short OERefIsPresent
+short OEActorHealth
+short OECapturedActorsArrayCount
+short OECapturedActorsArrayNotReadyForNewRefs
+short OEDistance0_2000ActorsToProcessCount
+short OEDistance2001_5000ActorsToProcessCount
+short OEDistance5001_ActorsToProcessCount
+short OEProcessedActorsAtDistance0_2000Index
+short OEProcessedActorsAtDistance2001_5000Index
+short OEProcessedActorsAtDistance5001_Index
+short OEReadyToHandleActorsAtDistance0_2000
+short OEReadyToHandleActorsAtDistance2001_5000
+short OEReadyToHandleActorsAtDistance5001_
+short OESourceModIndex
+short OEProcessLevel
+short OEInjIndex1
+short OEInjIndex2
+short OEInjIndex3
+short OEAIToggled
+short OEDistanceToRef
+short OERegenTokenCount
+short OERegenNoneTokenCount
+short OEQuestLocked
+short OECurrentFatigue
+short OERandomDice
+short OENegativeFatigueFixFlag
+short OENegativeFatigueFixTimer
+short OENegativeFatigueFixPCFlag
+short OENegativeFatigueFixPCTimer
+short OEFatigueMod
+short OEFormValid
+short OEEffectsCount
+short OERefIsInitilized
+short OEEffectDuration
+short OESummonIsLoaded
+short OENameCount
+short OEMustResetInteriorOESC
+short OEMaxPlayerSummonedCreatures
+short OEMaxActorSummonedCreatures
+short OESummonCount
+short OEArrayKey
+short OEConjuration
+short OEKilledSummonsCount
+short OEDeadSummonsArrSize
+short OEActorFound
+short OESummonFound
+int OEEffectCode
+long OEDistance
+float OETimer
+float OETimer4sec
+float OETimer12sec
+
+ref OEScriptTarget
+ref OEActorRef
+ref OEActor2Ref
+ref OEExistedRef
+ref OENextRef
+ref OEEffectRef
+ref OESummonRef
+ref OESummonerRef
+ref OESummoner2Ref
+ref OEScriptRef
+ref OEItemRef
+
+string_var OEScriptRefId
+string_var OEModNameWithExtention
+
+begin gamemode
+
+if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+set fQuestDelayTime to 0.25
+
+if GetGameLoaded || GetGameRestarted
+	;инициализация массивов (с зачисткой информации/без зачистки)
+	let OEActorsInCellArray := ar_Construct Array
+	let OECapturedActorsArray := ar_Construct Array
+	let OEActorsForWipeArray := ar_Construct Array
+	
+	if eval(ar_size OESummonersArray) == -1
+		let OESummonersArray := ar_Construct Array
+	endif
+	if eval(ar_size OESummonersSubArray) == -1
+		let OESummonersSubArray := ar_Construct Array
+	endif
+	if eval(ar_size OESummonsDurationTimeArray) == -1
+		let OESummonsDurationTimeArray := ar_Construct Array
+	endif
+	if eval(ar_size OEDeadSummonsArray) == -1
+		let OEDeadSummonsArray := ar_Construct Array
+	endif
+
+	;if eval(ar_size OEBusySummonsArray) == -1
+	;	let OEBusySummonsArray := ar_Construct Array
+	;endif
+	;if eval(ar_size OEFreeSummonsArray) == -1
+	;	let OEFreeSummonsArray := ar_Construct Array
+	;endif
+
+	set OEDistance0_2000ActorsToProcessCount to 3							;максимальное количество актеров, обрабатываемых в массиве с дистанцией от 0 до 2000 за 1 цикл
+	set OEDistance2001_5000ActorsToProcessCount to 2
+	set OEDistance5001_ActorsToProcessCount to 1
+	
+	set OEProcessedActorsAtDistance0_2000Index to 0
+	set OEProcessedActorsAtDistance2001_5000Index to 0
+	set OEProcessedActorsAtDistance5001_Index to 0
+	
+	set OECapturedActorsArrayNotReadyForNewRefs to 0
+	
+	set OENegativeFatigueFixPCTimer to 0
+	set OENegativeFatigueFixPCFlag to 0
+
+	let OEQuestLocked := -1
+endif
+
+if OEQuestLocked != 0
+	if OEInitQ.OEInitializationCount > 0
+		set OEInitQ.OEInitializationCount to OEInitQ.OEInitializationCount - 1
+		set OEQuestLocked to 0
+	else
+		if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+			SetDebugMode 0 OEInitQ.OEModIndex
+		endif
+		return
+	endif
+endif
+
+;предварительная очистка массива захваченных актеров, т.к. он не чистился со времен предыдущего фрейма
+let OECapturedActorsArrayCount := ar_Size OECapturedActorsArray
+set OEIndex1 to OECapturedActorsArrayCount - 1
+while OEIndex1 >= 0
+	let OEScriptTarget := OECapturedActorsArray[OEIndex1][0]
+	if OEScriptTarget.GetDead == 1 || OEScriptTarget.GetDisabled == 1 || IsFormValid OEScriptTarget == 0
+		debugprint "Удаление1 актера %n из массива Distance0_2000" OEScriptTarget
+		ar_erase OECapturedActorsArray OEIndex1
+		set OEIndex1 to OEIndex1 - 1
+		continue
+	endif
+	if IsFormValid OEScriptTarget == 1
+		set OESourceModIndex to GetSourceModIndex OEScriptTarget
+		set OEActorHealth to OEScriptTarget.getbaseav health
+		if OESourceModIndex == 255 && OEActorHealth < (player.getlevel * 20 / 10)
+			debugprint "Удаление2 актера %n из массива Distance0_2000" OEScriptTarget
+			ar_erase OECapturedActorsArray OEIndex1
+			set OEIndex1 to OEIndex1 - 1
+			continue
+		endif
+		set OEProcessLevel to OEScriptTarget.GetProcessLevel
+		if OEProcessLevel != 0
+			debugprint "Удаление3 актера %n из массива Distance0_2000" OEScriptTarget
+			ar_erase OECapturedActorsArray OEIndex1
+			set OEIndex1 to OEIndex1 - 1
+			continue
+		endif
+	endif
+	set OEIndex1 to OEIndex1 - 1			;мотает в обратную сторону!
+loop
+
+
+let OEActorsInCellArray := ar_Construct Array ;инициализация массива уничтожает в нем всю информацию. Не надо обнулять массив, не надо стирать массив.
+
+set OEActorsInCellCount to GetNumRefs 69 2
+if OEActorsInCellCount > 0
+	debugprint "OEGlobalWatchQScr начат захват актеров в клетке"
+	let OEActorRef := GetFirstRef 69 2
+	while OEActorRef
+		debugprint "Обнаружен актер [%n][%i]" OEActorRef OEActorRef
+		
+		if OEActorRef.GetDead == 1 || OEActorRef.GetDisabled == 1
+			let OEActorRef := GetNextRef
+			continue
+		endif
+		
+		;в обливионе много всяких костылей в движке, скрипт на актере может загрузиться ПОСЛЕ того, как он будет обработан текущим скриптом
+		;в итоге вещи, добавляемые скриптом на актере и определяющие, какую рандомизацию он получит
+		;могут не успеть зареспиться и, соответственно, будут бесполезны
+		;здесь проверяется загруженность скриптов CSSummon и OEScriptSummonEffectOScr для первого и остальных рефов
+		if IsScripted OEActorRef == 1
+			let OEScriptRef := GetScript OEActorRef
+			if OEScriptRef == 0
+				break
+			endif
+			let OEScriptRefId := GetRawFormIdString OEScriptRef
+			if eval(sv_count "01AC53" OEScriptRefId) == 1
+				let OESourceModIndex := GetSourceModIndex OEScriptRef
+				let OEModNameWithExtention := GetNthModName OESourceModIndex
+				debugprint "OEModNameWithExtention=%z" OEModNameWithExtention
+				let OENameCount := sv_Count "Mart's Monster Mod" OEModNameWithExtention
+				if OENameCount == 1
+					let OESummonIsLoaded := OEActorRef.GetVariable "OESummonIsLoaded"
+					debugprint "OESummonIsLoaded=%g" OESummonIsLoaded
+					if OESummonIsLoaded == 0
+						break
+					endif
+				endif
+			endif
+			if eval(sv_count "01C442" OEScriptRefId) == 1
+				let OESourceModIndex := GetSourceModIndex OEScriptRef
+				let OEModNameWithExtention := GetNthModName OESourceModIndex
+				debugprint "OEModNameWithExtention=%z" OEModNameWithExtention
+				let OENameCount := sv_Count "Oblivion Enhancer Main" OEModNameWithExtention
+				if OENameCount == 1
+					let OESummonIsLoaded := OEActorRef.GetVariable "OESummonIsLoaded"
+					debugprint "OESummonIsLoaded=%g" OESummonIsLoaded
+					if OESummonIsLoaded == 0
+						break
+					endif
+				endif
+			endif
+		endif
+		
+		let OEActorsInCellArray[ar_size OEActorsInCellArray] := OEActorRef
+		let OEActorRef := GetNextRef
+	loop
+	;
+	set OEActorsInCellCount to ar_size OEActorsInCellArray
+	;
+	
+	
+	;легенда
+	;OECapturedActorsArray[OEIndex2][0]		реф цели
+	;OECapturedActorsArray[OEIndex2][1]		флаг, говорящий о том, что у актера уже было произведено выключение/включение интеллекта
+	;OECapturedActorsArray[OEIndex2][2]		старое значение сопротивления огню
+	;OECapturedActorsArray[OEIndex2][3]		старое значение сопротивления холоду
+	;OECapturedActorsArray[OEIndex2][4]		старое значение сопротивления электричеству
+	;OECapturedActorsArray[OEIndex2][5]		старое значение сопротивления магии
+	;OECapturedActorsArray[OEIndex2][6]		старое значение сопротивления параличу
+	;OECapturedActorsArray[OEIndex2][7]		старое значение щита
+	;OECapturedActorsArray[OEIndex2][8]		старое значение сопротивления обычному оружию
+	;OECapturedActorsArray[OEIndex2][9]		старое значение отражения урона
+	;OECapturedActorsArray[OEIndex2][10]	старое значение хамелеона
+	;OECapturedActorsArray[OEIndex2][11]	старое значение поглощения заклинаний
+	;OECapturedActorsArray[OEIndex2][12]	старое значение отражения заклинаний
+	;OECapturedActorsArray[OEIndex2][13]	таймер для OENegativeFatigueFix
+	;OECapturedActorsArray[OEIndex2][14]	флаг активности OENegativeFatigueFix
+		
+	
+	if OECapturedActorsArrayNotReadyForNewRefs == 0 && OEActorsInCellCount > 0
+		debugprint "========================="
+		debugprint "OECapturedActorsArrayNotReadyForNewRefs == 0, наполнение массива"
+		set OEIndex1 to 0
+		debugprint "OEActorsInCellCount=%g" OEActorsInCellCount
+		while OEIndex1 < OEActorsInCellCount
+			let OEScriptTarget := OEActorsInCellArray[OEIndex1]
+			debugprint "Рассматривается актер [%n][%i]" OEScriptTarget OEScriptTarget
+			set OESourceModIndex to GetSourceModIndex OEScriptTarget
+			set OEActorHealth to OEScriptTarget.getbaseav health
+			set OEProcessLevel to OEScriptTarget.GetProcessLevel
+			if ((OESourceModIndex == 255 && OEActorHealth >= (player.getlevel * 20 / 10)) || OESourceModIndex < 255) && OEProcessLevel == 0
+				set OEIndex2 to 0
+				set OERefIsPresent to 0
+				let OECapturedActorsArrayCount := ar_Size OECapturedActorsArray
+				while OEIndex2 < OECapturedActorsArrayCount
+					let OEExistedRef := OECapturedActorsArray[OEIndex2][0]
+						if OEScriptTarget == OEExistedRef
+							set OERefIsPresent to 1
+							break
+						endif
+					set OEIndex2 to OEIndex2 + 1
+				loop
+				
+				if OERefIsPresent == 0
+					let OECapturedActorsArray[OECapturedActorsArrayCount] := ar_Construct Array		;назначение в массив 0_2000
+					let OECapturedActorsArray[OECapturedActorsArrayCount][0] := OEScriptTarget
+					let OECapturedActorsArray[OECapturedActorsArrayCount][1] := 0
+					let OECapturedActorsArray[OECapturedActorsArrayCount][2] := -987.89
+					let OECapturedActorsArray[OECapturedActorsArrayCount][3] := -987.89
+					let OECapturedActorsArray[OECapturedActorsArrayCount][4] := -987.89
+					let OECapturedActorsArray[OECapturedActorsArrayCount][5] := -987.89
+					let OECapturedActorsArray[OECapturedActorsArrayCount][6] := -987.89
+					let OECapturedActorsArray[OECapturedActorsArrayCount][7] := -987.89
+					let OECapturedActorsArray[OECapturedActorsArrayCount][8] := -987.89
+					let OECapturedActorsArray[OECapturedActorsArrayCount][9] := -987.89
+					let OECapturedActorsArray[OECapturedActorsArrayCount][10] := -987.89
+					let OECapturedActorsArray[OECapturedActorsArrayCount][11] := -987.89
+					let OECapturedActorsArray[OECapturedActorsArrayCount][12] := -987.89
+					let OECapturedActorsArray[OECapturedActorsArrayCount][13] := 0
+					let OECapturedActorsArray[OECapturedActorsArrayCount][14] := 0
+				endif
+			endif
+			set OEIndex1 to OEIndex1 + 1
+		loop
+		debugprint "========================="
+		set OECapturedActorsArrayNotReadyForNewRefs to 1
+	endif
+endif
+
+
+let OECapturedActorsArrayCount := ar_Size OECapturedActorsArray
+set OEIndex1 to OEProcessedActorsAtDistance0_2000Index
+set OEIndex2 to OEProcessedActorsAtDistance2001_5000Index
+set OEIndex3 to OEProcessedActorsAtDistance5001_Index
+set OEIndex4 to 0
+set OEInjIndex1 to 0
+set OEInjIndex2 to 0
+set OEInjIndex3 to 0
+set OEReadyToHandleActorsAtDistance0_2000 to 0
+set OEReadyToHandleActorsAtDistance2001_5000 to 0
+set OEReadyToHandleActorsAtDistance5001_ to 0
+while OEIndex4 < OECapturedActorsArrayCount											;использование в массиве 0_2000
+	let OEScriptTarget := OECapturedActorsArray[OEIndex4][0]
+	set OEDistanceToRef to player.GetDistance OEScriptTarget
+	
+	if OEProcessedActorsAtDistance0_2000Index - OEIndex1 - OEInjIndex1 < OEDistance0_2000ActorsToProcessCount && OEIndex4 >= OEProcessedActorsAtDistance0_2000Index
+		set OEReadyToHandleActorsAtDistance0_2000 to 1
+	else
+		set OEReadyToHandleActorsAtDistance0_2000 to 0
+	endif
+	if OEProcessedActorsAtDistance2001_5000Index - OEIndex2 - OEInjIndex2 < OEDistance2001_5000ActorsToProcessCount && OEIndex4 >= OEProcessedActorsAtDistance2001_5000Index
+		set OEReadyToHandleActorsAtDistance2001_5000 to 1
+	else
+		set OEReadyToHandleActorsAtDistance2001_5000 to 0
+	endif
+	if OEProcessedActorsAtDistance5001_Index - OEIndex3 - OEInjIndex3 < OEDistance5001_ActorsToProcessCount && OEIndex4 >= OEProcessedActorsAtDistance5001_Index
+		set OEReadyToHandleActorsAtDistance5001_ to 1
+	else
+		set OEReadyToHandleActorsAtDistance5001_ to 0
+	endif
+	
+	debugprint "Актер [%n], OEDistanceToRef = %g, OEReadyToHandleActorsAtDistance0_2000 = %g, OEReadyToHandleActorsAtDistance2001_5000 = %g, OEReadyToHandleActorsAtDistance5001_ = %g" OEScriptTarget OEDistanceToRef OEReadyToHandleActorsAtDistance0_2000 OEReadyToHandleActorsAtDistance2001_5000 OEReadyToHandleActorsAtDistance5001_
+	if (OEDistanceToRef >= 0 && OEDistanceToRef <= 2000 && OEReadyToHandleActorsAtDistance0_2000 == 1) || (OEDistanceToRef >= 2001 && OEDistanceToRef <= 5000 && OEReadyToHandleActorsAtDistance2001_5000 == 1) || (OEDistanceToRef >= 5001 && OEReadyToHandleActorsAtDistance5001_ == 1)
+		
+		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+		;обработка функций, связанных с актерами
+
+		let OEAIToggled := OECapturedActorsArray[OEIndex4][1]
+		;обработка вещей для перебалансировки
+		if OEWeaponExcessFix == 1 && OEAdditionalWeaponOnActorsCheck == 1 && OEAIToggled == 0		;завязано на OEAIToggled для единоразовой обработки
+			let OEIndex5 := 0
+			let OEItemsArray := OEScriptTarget.GetItems 33
+			let OEArraySize5 := ar_size OEItemsArray
+			debugprint "Проверка [%n][%i] на владение оружием, которое отсутствует в массиве перебалансировки" OEScriptTarget OEScriptTarget
+			while OEIndex5 < OEArraySize5
+				let OEItemRef := OEItemsArray[OEIndex5]
+				debugprint "Рассматривается [%n][%i]" OEItemRef OEItemRef
+				if IsQuestItem OEItemRef == 0 && GetWeaponType OEItemRef < 4 && IsClonedForm OEItemRef == 0 && GetSourceModIndex OEItemRef != 255
+					if eval(ar_find OEItemRef OEInitQ.OEItemsForRebalanceArray) < 0
+						debugprint "[%n][%i] подходит под критерии и еще не было перебалансировано, оно отправляется в массив перебалансировки" OEItemRef OEItemRef
+						let OEArraySize6 := ar_size OEInitQ.OEItemsForRebalanceArray
+						let OEInitQ.OEItemsForRebalanceArray[OEArraySize6] := OEItemRef
+						call OERebalanceFScr OEArraySize6
+					else
+						debugprint "Это оружие уже присутствует в массиве перебалансировки"
+					endif
+				else
+					debugprint "Это оружие не подходит под критерии"
+				endif
+				let OEIndex5 := OEIndex5 + 1
+			loop
+		endif
+		
+		;отключено из-за отсутствия доказанной эффективности. с ограничениями движка на обработку актеров вообще мало что можно сделать
+		;выключение, включение интеллекта у актеров
+		if OEAIToggled == 0
+			if OEScriptTarget.IsActorsAIOff == 0
+				;if OEScriptTarget.IsAnimGroupPlaying Backward == 0 || OEScriptTarget.IsAnimGroupPlaying Left == 0 || OEScriptTarget.IsAnimGroupPlaying Right == 0 || OEScriptTarget.IsAnimGroupPlaying FastBackward == 0 || OEScriptTarget.IsAnimGroupPlaying FastLeft == 0 || OEScriptTarget.IsAnimGroupPlaying FastRight == 0 || OEScriptTarget.IsAnimGroupPlaying DodgeForward == 0 || OEScriptTarget.IsAnimGroupPlaying DodgeBack == 0 || OEScriptTarget.IsAnimGroupPlaying DodgeLeft == 0
+					;if OEScriptTarget.IsAnimGroupPlaying DodgeRight == 0 || OEScriptTarget.IsAnimGroupPlaying Equip == 0 || OEScriptTarget.IsAnimGroupPlaying Unequip == 0 || OEScriptTarget.IsAnimGroupPlaying AttackBow == 0 || OEScriptTarget.IsAnimGroupPlaying AttackLeft == 0 || OEScriptTarget.IsAnimGroupPlaying AttackRight == 0 || OEScriptTarget.IsAnimGroupPlaying AttackPower == 0 || OEScriptTarget.IsAnimGroupPlaying AttackForwardPower == 0 || OEScriptTarget.IsAnimGroupPlaying AttackBackPower == 0
+						;if OEScriptTarget.IsAnimGroupPlaying AttackLeftPower == 0 || OEScriptTarget.IsAnimGroupPlaying AttackRightPower == 0 || OEScriptTarget.IsAnimGroupPlaying BlockIdle == 0 || OEScriptTarget.IsAnimGroupPlaying BlockHit == 0 || OEScriptTarget.IsAnimGroupPlaying BlockAttack == 0 || OEScriptTarget.IsAnimGroupPlaying Recoil == 0 || OEScriptTarget.IsAnimGroupPlaying Stagger == 0 || OEScriptTarget.IsAnimGroupPlaying Death == 0 || OEScriptTarget.IsAnimGroupPlaying TorchIdle == 0
+							;if OEScriptTarget.IsAnimGroupPlaying CastSelf == 0 || OEScriptTarget.IsAnimGroupPlaying CastTouch == 0 || OEScriptTarget.IsAnimGroupPlaying CastTarget == 0 || OEScriptTarget.IsAnimGroupPlaying CastSelfAlt == 0 || OEScriptTarget.IsAnimGroupPlaying CastTouchAlt == 0 || OEScriptTarget.IsAnimGroupPlaying CastTargetAlt == 0 || OEScriptTarget.IsAnimGroupPlaying JumpStart == 0 || OEScriptTarget.IsAnimGroupPlaying JumpLoop == 0 || OEScriptTarget.IsAnimGroupPlaying JumpLand == 0
+							;	if OEScriptTarget.IsAnimGroupPlaying Idle == 1 || OEScriptTarget.IsAnimGroupPlaying DynamicIdle == 1 || OEScriptTarget.IsAnimGroupPlaying SpecialIdle == 1 || OEScriptTarget.IsAnimGroupPlaying Forward == 1 || OEScriptTarget.IsAnimGroupPlaying FastForward == 1 || OEScriptTarget.IsAnimGroupPlaying TurnLeft == 1 || OEScriptTarget.IsAnimGroupPlaying TurnRight == 1
+									;;;;;;;;;;;;	выключение и включение искуственного интеллекта. полезно для исключения тупняков АИ, когда они актер "бежит" в другого, хотя должен его бить
+									;debugprint "[%n][%i] - выключение интеллекта" OEScriptTarget OEScriptTarget
+									;OEScriptTarget.ToggleActorsAI
+									;debugprint "[%n][%i] - включение интеллекта" OEScriptTarget OEScriptTarget
+									;OEScriptTarget.ToggleActorsAI
+									let OECapturedActorsArray[OEIndex4][1] := 1
+									;debugprint "Актеру [%n] был выключен и включен искусственный интеллект" OEScriptTarget
+									;;;;;;;;;;;;
+								;endif
+							;endif
+						;endif
+					;endif
+				;endif
+			endif
+		endif
+		
+		;;;
+		;вызов системы усиления актеров
+		call OEAmplificationSystemFScr OEIndex4 OEScriptTarget
+		;
+		;;;
+		
+	endif
+
+	if OEDistanceToRef >= 0 && OEDistanceToRef <= 2000
+		if OEReadyToHandleActorsAtDistance0_2000 == 1 && OEIndex4 >= OEProcessedActorsAtDistance0_2000Index
+			set OEProcessedActorsAtDistance0_2000Index to OEProcessedActorsAtDistance0_2000Index + 1
+		debugprint "Актер [%n] обработан по индексу OEProcessedActorsAtDistance0_2000Index" OEScriptTarget	
+		endif
+		if OEReadyToHandleActorsAtDistance2001_5000 == 1
+			set OEProcessedActorsAtDistance2001_5000Index to OEProcessedActorsAtDistance2001_5000Index + 1
+			set OEInjIndex2 to OEInjIndex2 + 1
+		endif
+		if OEReadyToHandleActorsAtDistance5001_ == 1
+			set OEProcessedActorsAtDistance5001_Index to OEProcessedActorsAtDistance5001_Index + 1
+			set OEInjIndex3 to OEInjIndex3 + 1
+		endif
+	elseif OEDistanceToRef >= 2001 && OEDistanceToRef <= 5000
+		if OEReadyToHandleActorsAtDistance2001_5000 == 1 && OEIndex4 >= OEProcessedActorsAtDistance2001_5000Index
+			set OEProcessedActorsAtDistance2001_5000Index to OEProcessedActorsAtDistance2001_5000Index + 1
+		debugprint "Актер %n обработан по индексу OEProcessedActorsAtDistance2001_5000Index" OEScriptTarget	
+		endif
+		if OEReadyToHandleActorsAtDistance0_2000 == 1
+			set OEProcessedActorsAtDistance0_2000Index to OEProcessedActorsAtDistance0_2000Index + 1
+			set OEInjIndex1 to OEInjIndex1 + 1
+		endif
+		if OEProcessedActorsAtDistance5001_Index == 1
+			set OEProcessedActorsAtDistance5001_Index to OEProcessedActorsAtDistance5001_Index + 1
+			set OEInjIndex3 to OEInjIndex3 + 1
+		endif
+	elseif OEDistanceToRef >= 5001 || OEDistanceToRef < 0
+		if OEReadyToHandleActorsAtDistance5001_ == 1 && OEIndex4 >= OEProcessedActorsAtDistance5001_Index
+			set OEProcessedActorsAtDistance5001_Index to OEProcessedActorsAtDistance5001_Index + 1
+		debugprint "Актер %n обработан по индексу OEProcessedActorsAtDistance5001_Index" OEScriptTarget
+		endif
+		if OEReadyToHandleActorsAtDistance0_2000 == 1
+			set OEProcessedActorsAtDistance0_2000Index to OEProcessedActorsAtDistance0_2000Index + 1
+			set OEInjIndex1 to OEInjIndex1 + 1
+		endif
+		if OEReadyToHandleActorsAtDistance2001_5000 == 1
+			set OEProcessedActorsAtDistance2001_5000Index to OEProcessedActorsAtDistance2001_5000Index + 1
+			set OEInjIndex2 to OEInjIndex2 + 1
+		endif
+	endif
+
+	;начало блока постоянно действующих скриптов (на всех актеров в массиве)
+
+	if OEAdditionalRegen == 1 && player.getlevel >= OEAdditionalRegenLevel
+		set OERegenTokenCount to OEScriptTarget.getitemcount OERegenToken
+		set OERegenNoneTokenCount to OEScriptTarget.getitemcount OERegenNoneToken
+		if OERegenTokenCount > 0 && OERegenNoneTokenCount == 0
+			debugprint "Выполняется функция регенерации для актера [%n]" OEScriptTarget
+			Call OEAddRegenValueFScr OEScriptTarget
+		endif
+	endif
+	
+	if OENegativeFatigueFixActors == 1
+		set OECurrentFatigue to OEScriptTarget.getav fatigue
+		let OENegativeFatigueFixFlag := OECapturedActorsArray[OEIndex4][14]
+		let OENegativeFatigueFixTimer := OECapturedActorsArray[OEIndex4][13]
+		if OENegativeFatigueFixFlag == 1
+			if OENegativeFatigueFixTimer > 0
+				let OECapturedActorsArray[OEIndex4][13] := OECapturedActorsArray[OEIndex4][13] - 1
+			elseif OENegativeFatigueFixTimer <= 0 && OECurrentFatigue < 0
+				debugprint "Выполняется восстановление запаса сил актера [%n] до положительных величин" OEScriptTarget
+				set OEFatigueMod to OEScriptTarget.getav fatigue
+				set OEFatigueMod to -(OEFatigueMod) + 10
+				OEScriptTarget.modavmod fatigue damage OEFatigueMod
+			elseif OENegativeFatigueFixTimer <= 0 && OECurrentFatigue >= 0
+				let OECapturedActorsArray[OEIndex4][13] := 0
+				let OECapturedActorsArray[OEIndex4][14] := 0
+			endif
+		endif
+		if OECurrentFatigue < 0 && OENegativeFatigueFixFlag == 0
+			let OECapturedActorsArray[OEIndex4][14] := 1
+			set OERandomDice to rand 1, 3.99
+			if OERandomDice == 1
+				let OECapturedActorsArray[OEIndex4][13] := 8	;8*0.25=2 сек
+			elseif OERandomDice == 2
+				let OECapturedActorsArray[OEIndex4][13] := 10
+			else
+				let OECapturedActorsArray[OEIndex4][13] := 12
+			endif
+		endif
+	endif
+	
+	;конец блока постоянно действующих скриптов (на всех актеров в массиве)
+
+	set OEIndex4 to OEIndex4 + 1
+	if (OEProcessedActorsAtDistance0_2000Index - OEIndex1 - OEInjIndex1 >= OEDistance0_2000ActorsToProcessCount) && (OEProcessedActorsAtDistance2001_5000Index - OEIndex2 - OEInjIndex2 >= OEDistance2001_5000ActorsToProcessCount) && (OEProcessedActorsAtDistance5001_Index - OEIndex3 - OEInjIndex3 >= OEDistance5001_ActorsToProcessCount)
+		break
+	endif
+loop
+
+
+debugprint "Окончание обработки основного массива. OEProcessedActorsAtDistance0_2000Index = %g, OEProcessedActorsAtDistance2001_5000Index = %g, OEProcessedActorsAtDistance5001_Index = %g, OECapturedActorsArrayCount = %g" OEProcessedActorsAtDistance0_2000Index OEProcessedActorsAtDistance2001_5000Index OEProcessedActorsAtDistance5001_Index OECapturedActorsArrayCount
+
+set OETimer to OETimer + getsecondspassed
+if OETimer >= 600
+	debugprint "OETimer = %g, > 600 секунд, массив OECapturedActorsArray полностью очищен" OETimer
+	let OECapturedActorsArray := ar_Construct Array
+	set OETimer to 0
+endif
+
+if OEProcessedActorsAtDistance0_2000Index >= OECapturedActorsArrayCount || OEProcessedActorsAtDistance2001_5000Index >= OECapturedActorsArrayCount || OEProcessedActorsAtDistance5001_Index >= OECapturedActorsArrayCount						;для избежания пролетания индексов, должно быть >=
+	if OEProcessedActorsAtDistance0_2000Index >= OECapturedActorsArrayCount 
+		set OEProcessedActorsAtDistance0_2000Index to 0					;переменная, которая начинает новый цикл обхода массива с нулевого элемента
+	endif
+	if OEProcessedActorsAtDistance2001_5000Index >= OECapturedActorsArrayCount 
+		set OEProcessedActorsAtDistance2001_5000Index to 0					;переменная, которая начинает новый цикл обхода массива с нулевого элемента
+	endif
+	if OEProcessedActorsAtDistance5001_Index >= OECapturedActorsArrayCount 
+		set OEProcessedActorsAtDistance5001_Index to 0					;переменная, которая начинает новый цикл обхода массива с нулевого элемента
+	endif
+	set OECapturedActorsArrayNotReadyForNewRefs to 0		;переменная, при значении 0 говорящая о том, что массив полностью пройден и в него можно добавлять новые рефы
+endif
+
+
+
+
+;блок постоянно работающих скриптов
+debugprint "OEGlobalWatchQScr - блок постоянно работающих скриптов"
+call OEAutoRechargeFScr
+
+let OETimer4sec := OETimer4sec + getsecondspassed
+if OETimer4sec >= 4
+	if OEActorsPCInvisibilityScouting == 1
+		if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+			SetDebugMode 1 OEInitQ.OEModIndex
+		endif
+		call OEEnemyActorsCheckPCInvisibilitySpellFScr
+		if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+			SetDebugMode 0 OEInitQ.OEModIndex
+		endif
+	endif
+	if OEDeadPCLoadingAreaWipe == 1
+		if OEInitQ.OEDeadPCLoadingAreaWipeDebugMode == 1
+			SetDebugMode 1 OEInitQ.OEModIndex
+		endif
+		let OEArraySize1 := ar_size OEActorsInCellArray
+		let OEIndex1 := 0
+		while OEIndex1 < OEArraySize1
+			let OEActorRef := OEActorsInCellArray[OEIndex1]
+			if eval(ar_find OEActorRef OEActorsForWipeArray) < 0
+				if IsQuestItem OEActorRef == 0 && OEActorRef.IsRefEssential == 0 && GetSourceModIndex OEActorRef == 255
+					debugprint "В массив на зачистку записывается актер [%n][%i]" OEActorRef OEActorRef
+					let OEActorsForWipeArray[ar_size OEActorsForWipeArray] := OEActorRef
+				endif
+			endif
+			let OEIndex1 := OEIndex1 + 1
+		loop
+		let OEArraySize1 := ar_size OEActorsForWipeArray
+		let OEIndex1 := OEArraySize1 - 1
+		while OEIndex1 >= 0
+			let OEActorRef := OEActorsForWipeArray[OEIndex1]
+			if IsFormValid OEActorRef == 0
+				ar_erase OEActorsForWipeArray OEIndex1
+				debugprint "Из массива на зачистку удаляется актер [%n][%i] как невалидный" OEActorRef OEActorRef
+			endif
+			let OEIndex1 := OEIndex1 - 1
+		loop
+		if OEInitQ.OEDeadPCLoadingAreaWipeDebugMode == 1
+			SetDebugMode 0 OEInitQ.OEModIndex
+		endif
+	endif
+	let OETimer4sec := 0
+endif
+
+if OEWeaponSelfRecharge == 1
+	let OETimer12sec := OETimer12sec + getsecondspassed
+	if OETimer12sec >= 12
+		call OEWeaponSelfRechargeFScr
+		let OETimer12sec := 0
+	endif
+endif
+
+if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+if OENegativeFatigueFixPC == 1
+	set OECurrentFatigue to player.getav fatigue
+	if OENegativeFatigueFixPCFlag == 1
+		if OENegativeFatigueFixPCTimer > 0
+			set OENegativeFatigueFixPCTimer to OENegativeFatigueFixPCTimer - 1
+		elseif OENegativeFatigueFixPCTimer <= 0 && OECurrentFatigue < 0
+			set OEFatigueMod to player.getav fatigue
+			set OEFatigueMod to -(OEFatigueMod) + 10
+			player.modavmod fatigue damage OEFatigueMod
+		elseif OENegativeFatigueFixPCTimer <= 0 && OECurrentFatigue >= 0
+			set OENegativeFatigueFixPCTimer to 0
+			set OENegativeFatigueFixPCFlag to 0
+		endif
+	endif
+	if OECurrentFatigue < 0 && OENegativeFatigueFixPCFlag == 0
+		set OENegativeFatigueFixPCFlag to 1
+		set OERandomDice to rand 1, 3.99
+		if OERandomDice == 1
+			set OENegativeFatigueFixPCTimer to 8
+		elseif OERandomDice == 2
+			set OENegativeFatigueFixPCTimer to 10
+		else
+			set OENegativeFatigueFixPCTimer to 12
+		endif
+	endif
+endif
+
+;т.к. найден рабочий способ уничтожения рефов (placeatme), то функция более не нужна
+;let OEArraySize1 := ar_size OEBusySummonsArray
+;if OEArraySize1 > 0
+;	debugprint "OEGlobalWatchQScr OEArraySize1 > 0"
+;	foreach OEArrayElement <- OEBusySummonsArray
+;		let OEScriptTarget := OEBusySummonsArray[#OEArrayElement["key"]][0]
+;		debugprint "OEScriptTarget = %n" OEScriptTarget
+;		if OEScriptTarget.GetDisabled == 1
+;			debugprint "OEScriptTarget.GetDisabled == 1"
+;			let OEBusySummonsArray[#OEArrayElement["key"]][1] += -getsecondspassed
+;			if eval (OEBusySummonsArray[#OEArrayElement["key"]][1] < 0)
+;				debugprint "OETimer < 0, передача %n в массив OEFreeSummonsArray, удаление ячейки с саммоном в OEBusySummonsArray, break" OEScriptTarget
+;				let OEFreeSummonsArray[ar_size OEFreeSummonsArray] := OEScriptTarget
+;				ar_erase OEBusySummonsArray #OEArrayElement["key"]
+;				break
+;			endif
+;		endif
+;	loop
+;endif
+;debugprint "ar_dump OEBusySummonsArray"
+;ar_dump OEBusySummonsArray
+;foreach OEArrayElement <- OEBusySummonsArray
+;	let OEScriptTarget := 0
+;	let OEScriptTarget := OEBusySummonsArray[#OEArrayElement["key"]][0]
+;	let OEFormValid := IsFormValid OEScriptTarget
+;	debugprint "Массив OEBusySummonsArray, [%n] [%i], OEFormValid=%g" OEScriptTarget OEScriptTarget OEFormValid
+;loop
+;debugprint "ar_dump OEFreeSummonsArray"
+;ar_dump OEFreeSummonsArray
+;foreach OEArrayElement <- OEFreeSummonsArray
+;	let OEScriptTarget := 0
+;	let OEScriptTarget := OEFreeSummonsArray[#OEArrayElement["key"]]
+;	let OEFormValid := IsFormValid OEScriptTarget
+;	debugprint "Массив OEFreeSummonsArray, [%n] [%i], OEFormValid=%g" OEScriptTarget OEScriptTarget OEFormValid
+;loop
+
+
+
+if OERebalancedAndAdditionalSummons == 1
+	;отслеживание саммонов
+	;добавление новых саммонеров, активировавших эффекты ZSKC, ZDAE, ZXIV, ZDRL и подобные
+	let OEArraySize1 := ar_size OESummonersSubArray
+	if OEArraySize1 > 0
+		;проверка актеров на наличие саммонов
+		let OEIndex1 := OEArraySize1 - 1
+		while OEIndex1 >= 0
+			
+			let OESummonerRef := OESummonersSubArray[OEIndex1]
+			
+			;удаление актера из массива OESummonersSubArray в случае невалидности актера
+			if IsFormValid OESummonerRef == 0 || IsReference OESummonerRef == 0
+				ar_erase OESummonersSubArray OEIndex1
+				continue
+			endif
+			
+			let OEActorFound := 0
+			let OEIndex2 := 0
+			let OEArraySize2 := ar_size OESummonersArray
+			;проверка - есть ли такой актер в массиве OESummonersArray
+			while OEIndex2 < OEArraySize2
+				let OEIndex3 := 0
+				let OEArraySize3 := ar_size OESummonersArray[OEIndex2]
+				while OEIndex3 < OEArraySize3
+					let OEActor2Ref := OESummonersArray[OEIndex2][OEIndex3][0]
+					if IsFormValid OEActor2Ref == 1
+						if OEActor2Ref == OESummonerRef
+							let OEActorFound := 1
+							let OEActorGroupIndex := OEIndex2
+							break
+						endif
+					endif
+					let OEIndex3 := OEIndex3 + 1
+				loop
+				let OEIndex2 := OEIndex2 + 1
+			loop
+	
+			;актер проверяется на наличие активных саммон-эффектов
+			let OEEffectsCount := OESummonerRef.GetActiveEffectCount
+			let OEIndex3 := 0
+			while OEIndex3 < OEEffectsCount
+				let OEEffectCode := OESummonerRef.GetNthActiveEffectCode OEIndex3
+				let OEEffectRef := MagicEffectFromCode OEEffectCode
+				debugprint "У актера %n рассматривается эффект %n" OESummonerRef OEEffectRef
+				if MagicEffectUsesCreatureC OEEffectCode == 1
+				
+					let OESummonRef := 0
+					let OESummonRef := OESummonerRef.GetNthActiveEffectSummonRef OEIndex3
+					if OESummonRef == 0
+						let OERefIsInitilized := 0
+						break
+					else
+						let OERefIsInitilized := 1
+					endif
+					
+					;в случае успешной инициализации саммон-эффекта
+					if OERefIsInitilized == 1
+					
+						;если такого актера еще нет, то он добавляется в новый подмассив
+						if OEActorFound == 0
+							let OEActorGroupIndex := ar_size OESummonersArray
+							let OESummonersArray[OEActorGroupIndex] := ar_construct Array
+							let OESummonersArray[OEActorGroupIndex][0] := ar_construct Array
+							let OESummonersArray[OEActorGroupIndex][0][0] := OESummonerRef
+							let OEActorFound := -1	;единократное добавление нового актера, т.к. саммонов может быть несколько
+						endif
+					
+						let OEArraySize2 := ar_size OESummonersArray[OEActorGroupIndex]
+						let OEIndex4 := 1
+						let OESummonFound := 0
+						;проверка - есть ли такой саммон в подмассиве актера
+						while OEIndex4 < OEArraySize2
+							let OEActor2Ref := OESummonersArray[OEActorGroupIndex][OEIndex4][0]
+							if OESummonRef == OEActor2Ref
+								let OESummonFound := 1
+								break
+							endif
+							let OEIndex4 := OEIndex4 + 1
+						loop
+						
+						;новый саммон добавляется только в том случае, если такого саммона для актера еще не было заявлено
+						;в новую ячейку добавляется саммон, саммонер и время действия саммон эффекта
+						;убрана опция - "999 для "штатных"" - в результате которой у штатных не считалось время действия
+						;как показала практика, штатный саммон может потерять саммон эффект и остаться в мире после окончания времени призыва
+						if OESummonFound == 0
+							debugprint "У актера [%n][%i] найден новый саммон [%n][%i], добавление саммона в массив OESummonersArray" OESummonerRef OESummonerRef OESummonRef OESummonRef
+							let OEArraySize2 := ar_size OESummonersArray[OEActorGroupIndex]
+							let OEEffectDuration := (OESummonerRef.GetNthActiveEffectDuration OEIndex3) + 5	;запас в 5 секунд для движка Обливиона
+							let OESummonersArray[OEActorGroupIndex][OEArraySize2] := ar_construct Array
+							let OESummonersArray[OEActorGroupIndex][OEArraySize2][0] := OESummonRef
+							let OESummonersArray[OEActorGroupIndex][OEArraySize2][1] := OESummonerRef
+							let OESummonersArray[OEActorGroupIndex][OEArraySize2][2] := OEEffectDuration
+							
+							call OEUpdateSummonsInSummonerGroupFScr OESummonRef OEActorGroupIndex
+							if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+								SetDebugMode 1 OEInitQ.OEModIndex
+							endif
+						endif
+					endif
+				endif
+				let OEIndex3 := OEIndex3 + 1
+			loop
+			
+			;в случае успешной инициализации саммон-эффекта саммонер удаляется из OESummonersSubArray
+			if OERefIsInitilized == 1
+				debugprint "Удаление актера [%n][%i] из OESummonersSubArray" OESummonerRef OESummonerRef
+				ar_erase OESummonersSubArray OEIndex1
+			endif
+			let OEIndex1 := OEIndex1 - 1
+		loop
+	endif
+endif
+
+;обнуление локаций
+if OEMustResetInteriorOESC == 1
+	debugprint "Очистка интерьерной клетки: Камера спавна"
+	ResetInterior OESC
+	let OEMustResetInteriorOESC := 0
+endif
+
+if OERebalancedAndAdditionalSummons == 1
+	;очистка массива OESummonersArray от невалидных (неважно, по какой причине) рефов
+	call OECheckValidActorsInSummonersArrayFScr
+	if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+		SetDebugMode 1 OEInitQ.OEModIndex
+	endif
+	
+	;проверка времени призыва у саммонов. при нормальных условиях эта функция никого не удаляет
+	;валидность рефов обеспечена функцией OECheckValidActorsInSummonersArrayFScr
+	let OEArraySize1 := ar_size OESummonersArray
+	if OEArraySize1 > 0
+		let OEIndex1 := 0
+		while OEIndex1 < OEArraySize1
+			let OEArraySize2 := ar_size OESummonersArray[OEIndex1]
+			let OEIndex2 := 1
+			while OEIndex2 < OEArraySize2
+				if eval(OESummonersArray[OEIndex1][OEIndex2][2] < 999)
+					let OESummonersArray[OEIndex1][OEIndex2][2] += -0.25
+					if eval(OESummonersArray[OEIndex1][OEIndex2][2] <= 0)
+						let OESummonRef := OESummonersArray[OEIndex1][OEIndex2][0]
+						debugprint "У саммона [%n][%i] закончилось время призыва" OESummonRef OESummonRef
+						let OEDistance := OESummonRef.GetDistance PlayerRef
+						if OEDistance < 10000
+							if OESummonRef.GetDead == 0
+								if IsQuestItem OESummonRef == 0
+									debugprint "Саммон [%n][%i] находится недалеко от игрока, саммон убивается, его тело подхватит его скрипт" OESummonRef OESummonRef
+									;простое убийство здесь в других местах было изменено, т.к. игрок может абузить захват душ на скриптовых саммонов
+									;OESummonRef.kill
+									if OESummonRef.getitemcount OEDispelAllSpellsAndKillToken == 0
+										OESummonRef.additem OEDispelAllSpellsAndKillToken 1
+									endif
+								elseif IsQuestItem OESummonRef == 1
+									debugprint "Саммон является штатным и не был штатно удален вовремя. Он убивается и передается в массив мертвых саммонов"
+									OESummonRef.kill
+									let OEDeadSummonsArrSize := ar_size OEDeadSummonsArray
+									let OEDeadSummonsArray[OEDeadSummonsArrSize] := ar_construct Array
+									let OEDeadSummonsArray[OEDeadSummonsArrSize][0] := OESummonRef
+									let OEDeadSummonsArray[OEDeadSummonsArrSize][1] := 2
+								endif
+							endif
+						else
+							if OESummonRef.GetDead == 0
+								debugprint "Саммон [%n][%i] находится в другой клетке и скрипт саммона не действует. Саммон убивается и его данные передаются в массив мертвых саммонов" OESummonRef OESummonRef
+								OESummonRef.kill
+							else
+								debugprint "Саммон [%n][%i] находится в другой клетке и скрипт саммона не действует. Саммон уже мертв, его данные передаются в массив мертвых саммонов" OESummonRef OESummonRef
+							endif
+							let OEDeadSummonsArrSize := ar_size OEDeadSummonsArray
+							let OEDeadSummonsArray[OEDeadSummonsArrSize] := ar_construct Array
+							let OEDeadSummonsArray[OEDeadSummonsArrSize][0] := OESummonRef
+							let OEDeadSummonsArray[OEDeadSummonsArrSize][1] := 2
+						endif
+					endif
+				endif
+				let OEIndex2 := OEIndex2 + 1
+			loop
+			let OEIndex1 := OEIndex1 + 1
+		loop
+	endif
+	
+	;удаление лишних саммонов в соответствии с максимально допустимым количеством саммонов
+	;валидность рефов обеспечена функцией OECheckValidActorsInSummonersArrayFScr
+	let OEArraySize1 := ar_size OESummonersArray
+	if OEArraySize1 > 0
+		debugprint "Обработка массива OESummonersArray, поиск и удаление лишних (согласно настройкам) саммонов"
+		let OEIndex1 := 0
+		while OEIndex1 < OEArraySize1
+			let OEArraySize2 := ar_size OESummonersArray[OEIndex1]
+			if OEArraySize2 > 2
+				let OEIndex2 := 1
+				let OESummonersInGroupArray := ar_construct Array
+				if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+					let OESummonerRef := OESummonersArray[OEIndex1][0][0]
+					debugprint "Наполнение вспомогательного массива OESummonersInGroupArray для группы саммонера [%n][%i]" OESummonerRef OESummonerRef
+				endif
+				while OEIndex2 < OEArraySize2
+					let OESummonRef := OESummonersArray[OEIndex1][OEIndex2][0]
+					let OESummonerRef := OESummonersArray[OEIndex1][OEIndex2][1]
+					let OEArrayKey := -1
+					foreach OEArrayElement <- OESummonersInGroupArray
+						let OESummoner2Ref := OESummonersInGroupArray[#OEArrayElement["key"]][0]
+						if OESummonerRef == OESummoner2Ref
+							let OEArrayKey := #OEArrayElement["key"]
+							break
+						endif
+					loop
+					if OEArrayKey < 0
+						let OEArraySize3 := ar_size OESummonersInGroupArray
+						debugprint "В массиве OESummonersInGroupArray создается новая ячейка с саммонером [%n][%i]. Саммон - [%n][%i]" OESummonerRef OESummonerRef OESummonRef OESummonRef
+						let OESummonersInGroupArray[OEArraySize3] := ar_construct Array
+						let OESummonersInGroupArray[OEArraySize3][0] := OESummonerRef
+						let OESummonersInGroupArray[OEArraySize3][1] := 1
+					else
+						let OESummonersInGroupArray[OEArrayKey][1] += 1
+						if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+							let OESummonCount := OESummonersInGroupArray[OEArrayKey][1]
+							debugprint "В массиве OESummonersInGroupArray у саммонера [%n][%i] найден еще один саммон - [%n][%i], всего их: %g." OESummonerRef OESummonerRef OESummonRef OESummonRef OESummonCount
+						endif
+					endif
+					let OEIndex2 := OEIndex2 + 1
+				loop
+				if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+					let OESummonerRef := OESummonersArray[OEIndex1][0][0]
+					let OEKilledSummonsCount := 0
+					debugprint "Обработка группы саммонера [%n][%i] и удаление лишних саммонов при превышении их допустимого количества" OESummonerRef OESummonerRef
+				endif
+				let OEIndex2 := 1
+				while OEIndex2 < OEArraySize2
+					
+					let OESummonerRef := OESummonersArray[OEIndex1][OEIndex2][1]
+					foreach OEArrayElement <- OESummonersInGroupArray
+						let OESummoner2Ref := OESummonersInGroupArray[#OEArrayElement["key"]][0]
+						if OESummonerRef == OESummoner2Ref
+							let OEArrayKey := #OEArrayElement["key"]
+							break
+						endif
+					loop
+					let OESummonCount := OESummonersInGroupArray[OEArrayKey][1]
+					if OESummonerRef == PlayerRef
+						let OEConjuration := PlayerRef.getav Conjuration
+						if OEConjuration < 25
+							let OEMaxPlayerSummonedCreatures := OEMaxPlayerSummonedCreaturesNovice
+						elseif OEConjuration < 50
+							let OEMaxPlayerSummonedCreatures := OEMaxPlayerSummonedCreaturesApprentice
+						elseif OEConjuration < 75
+							let OEMaxPlayerSummonedCreatures := OEMaxPlayerSummonedCreaturesJourneyman
+						elseif OEConjuration < 100
+							let OEMaxPlayerSummonedCreatures := OEMaxPlayerSummonedCreaturesExpert
+						else
+							let OEMaxPlayerSummonedCreatures := OEMaxPlayerSummonedCreaturesMaster
+						endif
+						if OESummonCount > OEMaxPlayerSummonedCreatures
+							let OESummonRef := OESummonersArray[OEIndex1][OEIndex2][0]
+							if OESummonRef.GetDead == 0
+								;OESummonRef.kill
+								if IsQuestItem OESummonRef == 0
+									if OESummonRef.GetDistance PlayerRef < 10000
+										if OESummonRef.getitemcount OEDispelAllSpellsAndKillToken == 0
+											OESummonRef.additem OEDispelAllSpellsAndKillToken 1
+										endif
+									else
+										OESummonRef.kill
+									endif
+								else
+									OESummonRef.kill
+								endif
+								if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+									let OEKilledSummonsCount := OEKilledSummonsCount + 1
+								endif
+								debugprint "У игрока найден лишний саммон [%n][%i](саммонов имеется - %g, допустимое количество - %g). Саммон убивается." OESummonRef OESummonRef OESummonCount OEMaxPlayerSummonedCreatures
+							else
+								debugprint "У игрока найден лишний саммон [%n][%i](саммонов имеется - %g, допустимое количество - %g). Саммон уже мертв." OESummonRef OESummonRef OESummonCount OEMaxPlayerSummonedCreatures
+							endif
+							let OESummonersInGroupArray[OEArrayKey][1] -= 1
+						endif
+					else
+						let OEConjuration := OESummonerRef.getav Conjuration
+						if OEConjuration < 25
+							let OEMaxActorSummonedCreatures := OEMaxActorSummonedCreaturesNovice
+						elseif OEConjuration < 50
+							let OEMaxActorSummonedCreatures := OEMaxActorSummonedCreaturesApprentice
+						elseif OEConjuration < 75
+							let OEMaxActorSummonedCreatures := OEMaxActorSummonedCreaturesJourneyman
+						elseif OEConjuration < 100
+							let OEMaxActorSummonedCreatures := OEMaxActorSummonedCreaturesExpert
+						else
+							let OEMaxActorSummonedCreatures := OEMaxActorSummonedCreaturesMaster
+						endif
+						if OESummonCount > OEMaxActorSummonedCreatures
+							let OESummonRef := OESummonersArray[OEIndex1][OEIndex2][0]
+							if OESummonRef.GetDead == 0
+								OESummonRef.kill
+								if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+									let OEKilledSummonsCount := OEKilledSummonsCount + 1
+								endif
+								debugprint "У актера [%n][%i] найден лишний саммон [%n][%i](саммонов имеется - %g, допустимое количество - %g). Саммон убивается." OESummonerRef OESummonerRef OESummonRef OESummonRef OESummonCount OEMaxActorSummonedCreatures
+							else
+								debugprint "У актера [%n][%i] найден лишний саммон [%n][%i](саммонов имеется - %g, допустимое количество - %g). Саммон уже мертв." OESummonerRef OESummonerRef OESummonRef OESummonRef OESummonCount OEMaxActorSummonedCreatures
+							endif
+							let OESummonersInGroupArray[OEArrayKey][1] -= 1
+						endif
+					endif
+					let OEIndex2 := OEIndex2 + 1
+				loop
+				if OEInitQ.OEGlobalWatchQScrDebugMode == 1 && OEKilledSummonsCount == 0
+					debugprint "В группе саммонера [%n][%i] количество саммонов не превышает допустимое" OESummonerRef OESummonerRef
+				endif
+			endif
+			let OEIndex1 := OEIndex1 + 1
+		loop
+	else
+		debugprint "Массив OESummonersArray пуст"
+	endif
+	
+	
+	;обработка трупов саммонов в связи с проблемами движка (вылет при перемещении трупа саммона в спец. локацию на уничтожение после перехода игроком между локациями с боем; вероятно, некоторые мобы цепляются за саммона и потеря его рефа приводит к вылету при обработке в следующем фрейме)
+	let OEArraySize1 := ar_size OEDeadSummonsArray
+	if OEArraySize1 > 0
+		let OEIndex1 := OEArraySize1 - 1
+		while OEIndex1 >= 0
+			let OEActorRef := OEDeadSummonsArray[OEIndex1][0]
+			debugprint "В массиве мертвых саммонов рассматривается [%n][%i]" OEActorRef OEActorRef
+			if IsFormValid OEActorRef == 1
+				let OEDeadSummonsArray[OEIndex1][1] += -1
+				if eval(OEDeadSummonsArray[OEIndex1][1]) == 1
+					debugprint "Саммон выключен"
+					OEActorRef.disable
+					if IsQuestItem OESummonRef == 1
+						debugprint "Зарегистрирован сбой в движке Обливиона. Саммон является штатным и более не обрабатывается"
+						debugprint "Очистка ячейки %g массива мертвых саммонов" OEIndex1
+						ar_erase OEDeadSummonsArray OEIndex1
+					endif
+				elseif eval(OEDeadSummonsArray[OEIndex1][1]) == 0
+					debugprint "Саммон включен и перемещается в локацию для уничтожения рефа"
+					OEActorRef.enable
+					OEActorRef.moveto OESpawnChamberPoint 
+					debugprint "Очистка ячейки %g массива мертвых саммонов" OEIndex1
+					ar_erase OEDeadSummonsArray OEIndex1
+					let OEMustResetInteriorOESC := 1		;запрос на удаление рефа актера через очистку клетки: Камера спавна
+				endif
+			else
+				debugprint "Обнаружен невалидный реф, очистка ячейки %g с невалидным рефом" OEIndex1
+				ar_erase OEDeadSummonsArray OEIndex1
+			endif
+			
+			let OEIndex1 := OEIndex1 - 1
+		loop
+	endif
+endif
+;блок постоянно работающих скриптов
+
+
+if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

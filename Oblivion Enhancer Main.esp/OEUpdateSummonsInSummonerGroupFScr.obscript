@@ -1,0 +1,99 @@
+﻿scn OEUpdateSummonsInSummonerGroupFScr
+
+short index
+short index2
+short index3
+short ArrSize
+short ArrSize2
+short Disposition
+
+ref ActorRef
+ref Actor2Ref
+ref SummonRef
+ref SummonerRef
+
+begin function { SummonRef index }
+
+if OEInitQ.OEUpdateSummonsInSummonerGroupFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Вызов функции OEUpdateSummonsInSummonerGroupFScr - переопределение отношений в группе саммонов"
+
+;очистка массива OESummonersArray от невалидных (неважно, по какой причине) рефов
+call OECheckValidActorsInSummonersArrayFScr
+
+;получаем информацию о вызывающем. выхывающим считается хозяин ВСЕЙ группы саммонов
+;index = -1 в случае, если index не известен (случай скриптовых саммонов)
+;при обработке "штатных" саммонов index на этот момент уже известен
+
+if index == -1
+	debugprint "Номер ячейки с группой саммона не определен, поиск группы"
+	
+	let ArrSize := ar_size OEGlobalWatchQ.OESummonersArray
+	let index := 0
+	while index < ArrSize
+		
+		
+		let ArrSize2 := ar_size OEGlobalWatchQ.OESummonersArray[index]
+		let index2 := 1
+		while index2 < ArrSize2
+			let ActorRef := OEGlobalWatchQ.OESummonersArray[index][index2][0]
+			if ActorRef == SummonRef
+				debugprint "В OESummonersArray обнаружен саммон %n, номер ячейки группы - %g, хозяин группы - %n" SummonRef index SummonerRef
+				let SummonerRef := OEGlobalWatchQ.OESummonersArray[index][0][0]
+				break
+			endif
+			let index2 := index2 + 1
+		loop
+		if SummonerRef != 0
+			break
+		endif
+	
+		let index := index + 1
+	loop
+endif
+
+;задаем отношения между всеми актерами в группе: 99
+debugprint "Стадия назначения отношений, номер ячейки группы - %g" index
+let ArrSize := ar_size OEGlobalWatchQ.OESummonersArray[index]
+let index2 := 0
+while index2 < ArrSize
+	let ActorRef := OEGlobalWatchQ.OESummonersArray[index][index2][0]
+	let index3 := index2 + 1
+	while index3 < ArrSize
+		
+		let Actor2Ref := OEGlobalWatchQ.OESummonersArray[index][index3][0]
+		debugprint "Актер %n устанавливает отношения с актером %n" ActorRef Actor2Ref
+		
+		;!НЕВОЗМОЖНО! установить отношение "штатного" саммона (вызываемого эффектами типа ZSKC, ZFIA и т.д.)
+		;с кем либо. Не факт, что такое отношение вообще используется движком - возможно, за отношение
+		;штатного саммона к остальным актерам принимается отношение саммонера к этим актерам
+		let Disposition := ActorRef.GetDisposition Actor2Ref
+		debugprint "По-умолчанию [%n] относится к [%n] = %g" ActorRef Actor2Ref Disposition
+		let Disposition := 99 - Disposition
+		if Disposition != 0
+			ActorRef.ModDisposition Actor2Ref Disposition
+		endif
+		
+		let Disposition := Actor2Ref.GetDisposition ActorRef
+		debugprint "По-умолчанию [%n] относится к [%n] = %g" Actor2Ref ActorRef Disposition
+		let Disposition := 99 - Disposition
+		if Disposition != 0
+			Actor2Ref.ModDisposition ActorRef Disposition
+		endif
+		
+		let index3 := index3 + 1
+	loop
+	
+	let index2 := index2 + 1
+loop
+
+;функция возвращает реф саммонера, если надо
+setfunctionvalue SummonerRef
+
+if OEInitQ.OEUpdateSummonsInSummonerGroupFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

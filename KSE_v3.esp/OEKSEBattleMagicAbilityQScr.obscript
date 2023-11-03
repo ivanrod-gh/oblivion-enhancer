@@ -1,0 +1,577 @@
+﻿scn OEKSEBattleMagicAbilityQScr
+
+float fQuestDelayTime
+
+array_var OEKSEAffectedActorsArray
+array_var OEKSEEffectVictim
+
+short OEKSEAbilityActive
+short OEKSEAbilityLevel
+short OEKSEAbilityLevelOld
+short OEKSEShowInitMessage
+short OEKSEShowAbilityMessage
+short OEKSEMustRecalcStats
+short OEKSEBaseVal
+short OEKSEDestructionVal
+short OEKSEMysticismVal
+short OEKSEQuestLocked
+short OEKSESpentMagicka
+short OEKSESpentMagickaRechargeValue
+short OEKSESpentMagickaRechargeAmount
+short OEKSEBurnArea
+short OEKSEBurnStaggerPrimaryTargetOnHitChance
+short OEKSEBurnStaggerSecondaryTargetOnHitChance
+short OEKSEPCMaxHealth
+short OEKSEPCMaxMagicka
+short OEKSEPCMaxFatigue
+short OEKSEActorIsStronglyResisted
+short OEKSEBurnTargetsCounter
+short OEKSEPCAttackedByArrow
+float OEKSETimer500msec
+float OEKSETimer250msec
+float OEKSETimer5sec
+float OEKSEAttackBonusNew
+float OEKSEAttackBonusOld
+float OEKSEDamageMagnitude
+float OEKSEMagickaFatigueDamageMod
+float OEKSEAbsorbMod
+float OEKSEMagicBurnCooldownTimer
+float OEKSEMagicBurnShieldDecrementCooldownTime
+float OEKSEMagicBurnMinCooldownTime
+float OEKSEMagicBurnMaxCooldownTime
+float OEKSESpentMagickaRechargeCoeff
+float OEKSEBurnStaggerInBattleChance
+float OEKSEStaggerChance
+float OEKSEBurnHealthDamageValue
+float OEKSEBurnWeaponMod
+float OEKSEBurnSkillMod
+float OEKSEWeaponHealthMod
+float OEKSEBurnEffectDuration
+float OEKSEAbsorbValue
+float OEKSEStronglyResistedDamageMod
+float OEKSEMagnitudeRepeatMod
+
+ref OEKSEBattleMagicEffectRef
+ref OEKSEBattleMagicBlockBoostRef
+ref OEKSEActorRef
+ref OEKSEPCAttackerActorRef
+ref OEKSETargetRef
+ref OEKSEWeaponBase
+ref OEKSEHitWeaponRef
+
+short AnimGroupIsPlayed
+
+begin gamemode
+
+if OEKSEBattleMagicAbility == 0 || PlayerRef.GetDead == 1
+	return
+endif
+
+if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+endif
+
+debugprint "Выполняется обработка способности Боевая магия"
+
+let fQuestDelayTime := 0.1
+
+if GetGameLoaded || GetGameRestarted
+	set OEKSEQuestLocked to OEKSEQuestLocked - 1
+endif
+if OEKSEQuestLocked != 0
+	if OEKSEInitQ.OEKSEInitializationCount > 0
+		set OEKSEInitQ.OEKSEInitializationCount to OEKSEInitQ.OEKSEInitializationCount - 1
+		set OEKSEQuestLocked to 0
+	else
+		if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+endif
+
+;проверка актуального уровня Боевой магии
+let OEKSETimer5sec := OEKSETimer5sec + getsecondspassed
+if OEKSETimer5sec > 5
+	let OEKSEMustRecalcStats := 1
+	let OEKSETimer5sec := 0
+endif
+
+if OEKSEMustRecalcStats == 1
+	debugprint "Выполняется перерасчет эффекта от способности Боевая магия"
+	let OEKSEBaseVal := -999
+	let OEKSEDestructionVal := PlayerRef.GetBaseAV destruction
+	let OEKSEMysticismVal := PlayerRef.GetBaseAV mysticism
+	if OEKSEDestructionVal > OEKSEBaseVal
+		let OEKSEBaseVal := OEKSEDestructionVal
+	endif
+	if OEKSEMysticismVal > OEKSEBaseVal
+		let OEKSEBaseVal := OEKSEMysticismVal
+	endif
+	if OEKSEBaseVal < 25
+		let OEKSEAbilityLevel := 0
+	elseif OEKSEBaseVal < 50
+		let OEKSEAbilityLevel := 1
+		let OEKSEBattleMagicBlockBoostRef := OEKSEAbBattleMagicBlockBoost1
+		let OEKSEBurnArea := OEKSEBattleMagicLev1Area
+		let OEKSEBurnStaggerPrimaryTargetOnHitChance := OEKSEBattleMagicLev1PrimaryTargetStaggerChance
+		let OEKSEBurnStaggerSecondaryTargetOnHitChance := OEKSEBattleMagicLev1SecondaryTargetStaggerChance
+		let OEKSEBurnStaggerInBattleChance := OEKSEBattleMagicLev1BurnMinStaggerChance
+		let OEKSEBurnEffectDuration := OEKSEBattleMagicBurnBaseDuration + OEKSEBattleMagicBurnLev1AdditionalDuration
+		let OEKSEStronglyResistedDamageMod := OEKSEBattleMagicLev1DamageToImmuneMod
+		let OEKSEMagnitudeRepeatMod := OEKSEBattleMagicLev1RepeatDamageMod
+		let OEKSEBattleMagicEffectRef := OEKSESpBattleMagicLevel1
+	elseif OEKSEBaseVal < 75
+		let OEKSEAbilityLevel := 2
+		let OEKSEBattleMagicBlockBoostRef := OEKSEAbBattleMagicBlockBoost2
+		let OEKSEBurnArea := OEKSEBattleMagicLev2Area
+		let OEKSEBurnStaggerPrimaryTargetOnHitChance := OEKSEBattleMagicLev2PrimaryTargetStaggerChance
+		let OEKSEBurnStaggerSecondaryTargetOnHitChance := OEKSEBattleMagicLev2SecondaryTargetStaggerChance
+		let OEKSEBurnStaggerInBattleChance := OEKSEBattleMagicLev2BurnMinStaggerChance
+		let OEKSEBurnEffectDuration := OEKSEBattleMagicBurnBaseDuration + OEKSEBattleMagicBurnLev2AdditionalDuration
+		let OEKSEStronglyResistedDamageMod := OEKSEBattleMagicLev2DamageToImmuneMod
+		let OEKSEMagnitudeRepeatMod := OEKSEBattleMagicLev2RepeatDamageMod
+		let OEKSEBattleMagicEffectRef := OEKSESpBattleMagicLevel2
+	elseif OEKSEBaseVal < 100
+		let OEKSEAbilityLevel := 3
+		let OEKSEBattleMagicBlockBoostRef := OEKSEAbBattleMagicBlockBoost3
+		let OEKSEBurnArea := OEKSEBattleMagicLev3Area
+		let OEKSEBurnStaggerPrimaryTargetOnHitChance := OEKSEBattleMagicLev3PrimaryTargetStaggerChance
+		let OEKSEBurnStaggerSecondaryTargetOnHitChance := OEKSEBattleMagicLev3SecondaryTargetStaggerChance
+		let OEKSEBurnStaggerInBattleChance := OEKSEBattleMagicLev3BurnMinStaggerChance
+		let OEKSEBurnEffectDuration := OEKSEBattleMagicBurnBaseDuration + OEKSEBattleMagicBurnLev3AdditionalDuration
+		let OEKSEStronglyResistedDamageMod := OEKSEBattleMagicLev3DamageToImmuneMod
+		let OEKSEMagnitudeRepeatMod := OEKSEBattleMagicLev3RepeatDamageMod
+		let OEKSEBattleMagicEffectRef := OEKSESpBattleMagicLevel3
+	elseif OEKSEBaseVal >= 100
+		let OEKSEAbilityLevel := 4
+		let OEKSEBattleMagicBlockBoostRef := OEKSEAbBattleMagicBlockBoost4
+		let OEKSEBurnArea := OEKSEBattleMagicLev4Area
+		let OEKSEBurnStaggerPrimaryTargetOnHitChance := OEKSEBattleMagicLev4PrimaryTargetStaggerChance
+		let OEKSEBurnStaggerSecondaryTargetOnHitChance := OEKSEBattleMagicLev4SecondaryTargetStaggerChance
+		let OEKSEBurnStaggerInBattleChance := OEKSEBattleMagicLev4BurnMinStaggerChance
+		let OEKSEBurnEffectDuration := OEKSEBattleMagicBurnBaseDuration + OEKSEBattleMagicBurnLev4AdditionalDuration
+		let OEKSEStronglyResistedDamageMod := OEKSEBattleMagicLev4DamageToImmuneMod
+		let OEKSEMagnitudeRepeatMod := OEKSEBattleMagicLev4RepeatDamageMod
+		let OEKSEBattleMagicEffectRef := OEKSESpBattleMagicLevel4
+	endif
+
+	let OEKSEMagicBurnMaxCooldownTime := OEKSEBattleMagicBurnMaxCooldownTime
+	let OEKSEMagicBurnMinCooldownTime := OEKSEBattleMagicBurnMinCooldownTime
+	let OEKSESpentMagickaRechargeValue := OEKSEBattleMagicSpentMagickaRechargeValue
+	let OEKSESpentMagickaRechargeCoeff := OEKSESpentMagickaRechargeValue / OEKSEMagicBurnMinCooldownTime
+	if OEKSEDestructionVal >= 25
+		let OEKSEMagickaFatigueDamageMod := ( 25 + ( OEKSEDestructionVal - 25 ) / 3 ) / 100
+		if OEKSEMagickaFatigueDamageMod > 0.5
+			let OEKSEMagickaFatigueDamageMod := 0.5
+		endif
+	else
+		let OEKSEMagickaFatigueDamageMod := 0
+	endif
+	let OEKSEAbsorbMod := 0
+	if OEKSEMysticismVal >= 25
+		let OEKSEAbsorbMod := ( 10 + ( OEKSEMysticismVal - 25 ) / 5 ) / 100
+		if OEKSEAbsorbMod > 0.5
+			let OEKSEAbsorbMod := 0.5
+		endif
+	endif
+	let OEKSEPCMaxHealth := player.GetBaseAV Health + ( player.GetTotalAENonAbilityMagnitude FOHE Health ) + ( player.GetTotalAENonAbilityMagnitude DRHE Health ) - 1
+	let OEKSEPCMaxMagicka := player.GetBaseAV magicka + ( player.GetTotalAENonAbilityMagnitude FOSP Magicka ) + ( player.GetTotalAENonAbilityMagnitude DRSP Magicka ) - 1
+	let OEKSEPCMaxFatigue := player.GetBaseAV fatigue + ( player.GetTotalAENonAbilityMagnitude FOFA Fatigue ) + ( player.GetTotalAENonAbilityMagnitude DRFA Fatigue ) - 1
+	if KeaSettingHMF == 1
+		let OEKSEPCMaxHealth := OEKSEPCMaxHealth - KeaHealthPenalty
+		let OEKSEPCMaxMagicka := OEKSEPCMaxMagicka - KeaMagicPenalty
+		let OEKSEPCMaxFatigue := OEKSEPCMaxFatigue - KeaFatiguepenalty
+	endif
+
+	let OEKSEBurnHealthDamageValue := 0
+	let OEKSEWeaponBase := PlayerRef.GetEquippedObject 16
+	if OEKSEWeaponBase != 0
+		if GetWeaponType OEKSEWeaponBase < 4
+			let OEKSEBurnWeaponMod := ( GetAttackDamage OEKSEWeaponBase ) / 10
+			if PlayerRef.GetAV destruction > PlayerRef.GetAV mysticism
+				let OEKSEBurnSkillMod := ( PlayerRef.GetAV destruction + 15) / 40
+			else
+				let OEKSEBurnSkillMod := ( PlayerRef.GetAV mysticism + 15 ) / 40
+			endif
+			let OEKSEWeaponHealthMod := ( PlayerRef.GetEquippedCurrentHealth 16 / GetObjectHealth OEKSEWeaponBase + 1 ) / 2
+			let OEKSEBurnHealthDamageValue := OEKSEBattleMagicBurnBaseDamage * OEKSEBurnWeaponMod * OEKSEBurnSkillMod * OEKSEWeaponHealthMod
+		endif
+	endif
+
+	if OEKSEAbilityLevelOld != 0 && OEKSEAbilityLevel == 0
+		let OEKSEAbilityActive := 0
+	elseif OEKSEAbilityActive == 2 && OEKSEAbilityLevel != OEKSEAbilityLevelOld
+		PlayerRef.Dispel OEKSESpBattleMagicLevel1
+		PlayerRef.Dispel OEKSESpBattleMagicLevel2
+		PlayerRef.Dispel OEKSESpBattleMagicLevel3
+		PlayerRef.Dispel OEKSESpBattleMagicLevel4
+		PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost1
+		PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost2
+		PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost3
+		PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost4
+		OEKSECaster.moveto PlayerRef 0 0 150
+		OEKSECaster.Cast OEKSEBattleMagicEffectRef PlayerRef
+		PlayerRef.AddSpellNS OEKSEBattleMagicBlockBoostRef
+		let OEKSEAttackBonusNew := ( PlayerRef.call OEKSECalcActorWeaponDamage 3 ) * -1.1 - 1
+		PlayerRef.setav attackbonus OEKSEAttackBonusNew
+	endif
+	
+	let OEKSEAbilityLevelOld := OEKSEAbilityLevel
+	let OEKSEMustRecalcStats := 0
+endif
+
+if OEKSEShowInitMessage == 1 && OEKSEAbilityActive == 2
+	if OEKSEAbilityLevel == 4 && OEKSEShowAbilityMessage < 4
+		messageboxex "Боевая магия - Мастер.%rБоевые маги на таком уровня развития способны в мгновение ока спалить целое войско, одновременно напитываясь его жизненной эманацией. Значительно увеличивается область действия способности, как и урон от повторного поджога. Существа с иммунитетом к магии будут получать лишь половину урона. Но все имеет свою цену - магический щит практически полностью принесен в жертву умению сжигать"
+		debugprint "Показано сообщение про улучшение способности до уровня 4"
+		let OEKSEShowAbilityMessage := 4
+		if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+	if OEKSEAbilityLevel == 3 && OEKSEShowAbilityMessage < 3
+		messageboxex "Владение Боевой магией усилилось до уровня Эксперт!%rМагический поджог теперь будет действовать дольше и повторно поджигать врагов станет проще. Также возрастает дальность действия способности, а враги будут чаще попадать в беспомощное состояние. Щит теперь защищает только от трети урона"
+		debugprint "Показано сообщение про улучшение способности до уровня 3"
+		let OEKSEShowAbilityMessage := 3
+		if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+	if OEKSEAbilityLevel == 2 && OEKSEShowAbilityMessage < 2
+		messageboxex "Способность Боевая магия развилась до уровня Специалист!%rЕсли поджечь уже горящую цель, то урон от магического поджога будет возрастать с каждым возгоранием! Теперь можно поджечь даже существо с полным иммунитетом к магии, но наноситься будет только четверть урона. Блокирование щитом атак подожженных противников продлит действие поджога и заставит их отшатнуться. Для усиления способностей была использована часть силы магического щита"
+		debugprint "Показано сообщение про улучшение способности до уровня 2"
+		let OEKSEShowAbilityMessage := 2
+		if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+	if OEKSEAbilityLevel == 1 && OEKSEShowAbilityMessage < 1
+		messageboxex "Способность: Боевая магия. Уровень - Ученик.%rПуть боевого мага обычно начинается с легким оружием и щитом в руках - тренировки помогают им легче блокировать удары. Периодически он может концентрировать магическую энергию в своем оружии, чтобы вместо нанесения нанесения обычного физического урона поджечь врага или группу врагов. Способности поджигать врагов нужно время на восстановление, но это время можно сократить за счет произнесения заклинаний и блокирования ударов"
+		debugprint "Показано сообщение про получение способности уровня 1 (базового)"
+		let OEKSEShowAbilityMessage := 1
+		if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+endif
+if OEKSEShowInitMessage == 0 && OEKSEAbilityLevel >= 1
+	messageboxex "Вы получили доступ к способности мага - Боевая магия!%rБоевые маги сражаются в первых рядах, огнем и мечом прокладывая себе путь сквозь врагов. Для своей защиты они поддерживают постоянный магический щит вокруг себя, а на поздних уровнях развития надевают легкую или тяжелую броню. Боевые маги, вместо нанесения обычного удара, могут поджигать врагов оружием ближнего боя за счет урона самого оружия и навыков разрушения или мистицизма. Показатель силы и навык владения оружием на урон не влияют"
+	debugprint "Показано начальное сообщение"
+	let OEKSEShowInitMessage := 1
+	if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+
+;0 - отрабатывает и переключается в -1 (выкл)
+;1 - отрабатывает и переключается в 2 (вкл)
+if OEKSEAbilityActive == -1
+	debugprint "Активность способности Боевая магия: [-1], прерывание"
+	if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+if OEKSEAbilityActive == 0
+	debugprint "Переключение режима работы [0 -> -1]"
+
+	PlayerRef.Dispel OEKSESpBattleMagicLevel1
+	PlayerRef.Dispel OEKSESpBattleMagicLevel2
+	PlayerRef.Dispel OEKSESpBattleMagicLevel3
+	PlayerRef.Dispel OEKSESpBattleMagicLevel4
+	PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost1
+	PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost2
+	PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost3
+	PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost4
+	PlayerRef.setav attackbonus 0
+
+	let OEKSEAbilityActive := -1
+	if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+if OEKSEAbilityActive == 1
+	debugprint "Переключение режима работы [1 -> 2]"
+
+	PlayerRef.Dispel OEKSESpBattleMagicLevel1
+	PlayerRef.Dispel OEKSESpBattleMagicLevel2
+	PlayerRef.Dispel OEKSESpBattleMagicLevel3
+	PlayerRef.Dispel OEKSESpBattleMagicLevel4
+	PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost1
+	PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost2
+	PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost3
+	PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost4
+	OEKSECaster.moveto PlayerRef 0 0 150
+	OEKSECaster.Cast OEKSEBattleMagicEffectRef PlayerRef
+	PlayerRef.AddSpellNS OEKSEBattleMagicBlockBoostRef
+	let OEKSEAttackBonusNew := ( PlayerRef.call OEKSECalcActorWeaponDamage 3 ) * -1.1 - 1
+	PlayerRef.setav attackbonus OEKSEAttackBonusNew
+
+	let OEKSETimer500msec := 0
+
+	let OEKSEAbilityActive := 2
+	if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+
+if OEKSEAbilityActive == 2
+	; откат поджога
+	if OEKSEMagicBurnCooldownTimer > 0
+		let OEKSEMagicBurnCooldownTimer := OEKSEMagicBurnCooldownTimer - 0.1
+		if OEKSEMagicBurnCooldownTimer < OEKSEMagicBurnMinCooldownTime
+			if OEKSEMagicBurnShieldDecrementCooldownTime > 0
+				let OEKSEMagicBurnCooldownTimer := OEKSEMagicBurnCooldownTimer - OEKSEMagicBurnShieldDecrementCooldownTime
+				let OEKSEMagicBurnShieldDecrementCooldownTime := 0
+			endif
+			if OEKSESpentMagicka > 0
+				let OEKSESpentMagickaRechargeAmount := OEKSEMagicBurnCooldownTimer * OEKSESpentMagickaRechargeCoeff
+				if OEKSESpentMagicka >= OEKSESpentMagickaRechargeAmount
+					let OEKSESpentMagicka := OEKSESpentMagicka - OEKSESpentMagickaRechargeAmount
+					let OEKSEMagicBurnCooldownTimer := 0
+				else
+					let OEKSEMagicBurnCooldownTimer := OEKSEMagicBurnCooldownTimer - OEKSESpentMagicka / OEKSESpentMagickaRechargeCoeff
+					let OEKSESpentMagicka := 0
+				endif
+			endif
+		endif
+		if OEKSEMagicBurnCooldownTimer <= 0 && OEKSEBattleMagicPlayRechargeEffect == 1
+			PlayerRef.playMagicShaderVisuals OEKSEBattleMagicRechargeEffect 1
+		endif
+	endif
+	
+	; обработка жертв поджога
+	ForEach OEKSEEffectVictim <- OEKSEAffectedActorsArray
+		let OEKSEActorRef := OEKSEEffectVictim["value"]["reference"]
+		if OEKSEActorRef.GetDead == 1
+			OEKSEActorRef.StopMagicShaderVisuals OEKSEBattleMagicBurnEffect
+			ar_erase OEKSEAffectedActorsArray $OEKSEEffectVictim["key"]
+			continue
+		elseif OEKSEActorRef.GetDisabled == 1
+			ar_erase OEKSEAffectedActorsArray $OEKSEEffectVictim["key"]
+			continue
+		endif
+		
+		let OEKSEDamageMagnitude := -1 * ( OEKSEBattleMagicBurnBaseDuration - OEKSEEffectVictim["value"]["elapsed"] ) * OEKSEEffectVictim["value"]["magnitude"] / ( OEKSEBattleMagicBurnBaseDuration * 10 )
+		if OEKSEDamageMagnitude > -0.1
+			let OEKSEDamageMagnitude := -0.1
+		endif
+		OEKSEActorRef.ModAVMod Health "damage" OEKSEDamageMagnitude
+		; criminal scum
+		if OEKSEActorRef.getdead == 1
+			PlayerRef.call keaFModKillStatus OEKSEActorRef
+			continue
+		endif
+		if OEKSEAbsorbMod > 0 && player.GetAV Health < OEKSEPCMaxHealth
+			let OEKSEAbsorbValue := -1 * OEKSEDamageMagnitude * OEKSEAbsorbMod
+			PlayerRef.ModAVMod Health "damage" OEKSEAbsorbValue
+		endif
+		;
+		if OEKSEMagickaFatigueDamageMod > 0
+			let OEKSEDamageMagnitude := OEKSEDamageMagnitude * OEKSEMagickaFatigueDamageMod
+			if eval(OEKSEActorRef.GetAV magicka > OEKSEEffectVictim["value"]["magicka"])
+				OEKSEActorRef.ModAVMod magicka "damage" OEKSEDamageMagnitude
+				if OEKSEAbsorbMod > 0 && player.GetAV magicka < OEKSEPCMaxMagicka
+					let OEKSEAbsorbValue := -1 * OEKSEDamageMagnitude * OEKSEAbsorbMod
+					PlayerRef.ModAVMod magicka "damage" OEKSEAbsorbValue
+				endif
+			endif
+			if eval(OEKSEActorRef.GetAV fatigue > OEKSEEffectVictim["value"]["fatigue"])
+				OEKSEActorRef.ModAVMod fatigue "damage" OEKSEDamageMagnitude
+				if OEKSEAbsorbMod > 0 && player.GetAV fatigue < OEKSEPCMaxFatigue
+					let OEKSEAbsorbValue := -1 * OEKSEDamageMagnitude * OEKSEAbsorbMod
+					PlayerRef.ModAVMod fatigue "damage" OEKSEAbsorbValue
+				endif
+			endif
+		endif
+
+		if OEKSEActorRef.GetItemCount OEKSEAmbientSoundBurnToken < 1
+			OEKSEActorRef.AddItemNS OEKSEAmbientSoundBurnToken 1
+		endif
+		
+		let OEKSEEffectVictim["value"]["elapsed"] += 0.1
+		ar_dump OEKSEEffectVictim["value"]
+		if eval(OEKSEEffectVictim["value"]["elapsed"]) >= OEKSEBurnEffectDuration
+			ar_erase OEKSEAffectedActorsArray $OEKSEEffectVictim["key"]
+		endif
+	loop
+	
+	; обработка блокировки атак подожженных целей
+	if OEKSEPCAttackerActorRef && OEKSEPCAttackedByArrow == 0 && OEKSEBattleMagicBurnBlockStagger
+		if eval(ar_HasKey OEKSEAffectedActorsArray GetRawFormIdString OEKSEPCAttackerActorRef) == 1 && OEKSEPCAttackerActorRef.call OEKSECheckFreeToPlayAnimState(0)
+			if PlayerRef.IsAnimGroupPlaying BlockAttack
+				ForEach OEKSEEffectVictim <- OEKSEAffectedActorsArray
+					let OEKSEActorRef := OEKSEEffectVictim["value"]["reference"]
+					if OEKSEActorRef.GetDistance PlayerRef < 150 || OEKSEActorRef == OEKSEPCAttackerActorRef
+						if OEKSEActorRef.call OEKSECheckFreeToPlayAnimState(0)
+							OEKSEActorRef.PlayGroup stagger, 1
+							OEKSEActorRef.StopMagicShaderVisuals OEKSEBattleMagicBurnEffect
+							OEKSEActorRef.PlayMagicShaderVisuals OEKSEBattleMagicBurnEffect OEKSEBurnEffectDuration
+							let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["elapsed"] -= 3
+							if eval(OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["elapsed"] < 0)
+								let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["elapsed"] := 0
+							endif
+						endif
+					endif
+				loop
+			else
+				OEKSEPCAttackerActorRef.PlayGroup stagger, 1
+				OEKSEPCAttackerActorRef.StopMagicShaderVisuals OEKSEBattleMagicBurnEffect
+				OEKSEPCAttackerActorRef.PlayMagicShaderVisuals OEKSEBattleMagicBurnEffect OEKSEBurnEffectDuration
+				let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEPCAttackerActorRef]["elapsed"] -= 3
+				if eval(OEKSEAffectedActorsArray[GetRawFormIDString OEKSEPCAttackerActorRef]["elapsed"] < 0)
+					let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEPCAttackerActorRef]["elapsed"] := 0
+				endif
+			endif
+			playsound OEKSEBattleMagicBurnHit2
+		endif
+	endif
+	let OEKSEPCAttackerActorRef := 0
+	let OEKSEPCAttackedByArrow := 0
+	
+	; срабатывание шанса для врагов на кратковременное выбывание из боя и снижение "потраченной маны" вне боя
+	if OEKSEBattleMagicBurnStagger
+		let OEKSETimer250msec := OEKSETimer250msec + getsecondspassed
+		if OEKSETimer250msec > 0.25
+			ForEach OEKSEEffectVictim <- OEKSEAffectedActorsArray
+				if eval(OEKSEEffectVictim["value"]["stagger"]) >= 0
+					let OEKSEStaggerChance := ( OEKSEBurnStaggerInBattleChance + OEKSEEffectVictim["value"]["stagger"] * 3 / 4 ) / 4
+					if GetRandomPercent < OEKSEStaggerChance && OEKSEActorRef.call OEKSECheckFreeToPlayAnimState(0)
+						let OEKSEActorRef := OEKSEEffectVictim["value"]["reference"]
+						if OEKSEActorRef.GetObjectType == 35
+							if OEKSEActorRef.IsAttacking || OEKSEActorRef.IsCasting
+								OEKSEActorRef.PlayGroup Stagger, 1
+							else
+								OEKSEActorRef.additemNS keaAnimObjItsFlame 1
+							endif
+						else
+							OEKSEActorRef.PlayGroup Stagger, 1
+						endif
+						let OEKSEEffectVictim["value"]["stagger"] := -16
+					endif
+				endif
+				let OEKSEEffectVictim["value"]["stagger"] += 1
+			loop
+			
+			if PlayerRef.IsInCombat != 1 && OEKSESpentMagicka > 0
+				let OEKSESpentMagicka := OEKSESpentMagicka - 2
+			endif
+			
+			let OEKSETimer250msec := 0
+		endif
+	endif
+	
+	; назначение и обработка целей поджога
+	if OEKSETargetRef && OEKSEHitWeaponRef && OEKSETargetRef.GetDead == 0 && OEKSETargetRef.GetDisabled == 0
+		if OEKSEBurnHealthDamageValue > 0
+			if OEKSEMagicBurnCooldownTimer <= 0
+				; каст по одной или нескольким целям
+				let OEKSEBurnTargetsCounter := 0
+				let OEKSEActorRef := GetFirstRef 69 1
+				while OEKSEActorRef
+					if OEKSEActorRef.GetDead == 0 && OEKSEActorRef.GetDisabled == 0
+						let OEKSEActorIsStronglyResisted := 0
+						if OEKSEActorRef.GetAV ResistMagic > 99 || OEKSEActorRef.GetAV SpellAbsorbChance > 99 || OEKSEActorRef.GetAV spellreflectchance > 99
+							let OEKSEActorIsStronglyResisted := 1
+						endif
+						if OEKSEActorIsStronglyResisted == 0 || ( OEKSEActorIsStronglyResisted == 1 && OEKSEStronglyResistedDamageMod > 0 && OEKSEBattleMagicDamageToImmune )
+							if ( OEKSETargetRef.GetDistance OEKSEActorRef <= OEKSEBurnArea && OEKSEActorRef.GetItemCount OEIsSummonToken == 0 ) || ( OEKSETargetRef.GetDistance OEKSEActorRef <= OEKSEBurnArea * 2 && OEKSEActorRef.GetItemCount OEIsSummonToken > 0 )
+								OEKSEActorRef.PlayMagicShaderVisuals OEKSEBattleMagicBurnEffect OEKSEBurnEffectDuration
+								if eval(ar_HasKey OEKSEAffectedActorsArray GetRawFormIdString OEKSEActorRef) == 0
+									let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef] := ar_Construct StringMap
+									let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["reference"] := OEKSEActorRef
+									if OEKSEActorIsStronglyResisted == 0
+										let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["magnitude"] := OEKSEBurnHealthDamageValue
+									else
+										let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["magnitude"] := OEKSEBurnHealthDamageValue * OEKSEStronglyResistedDamageMod
+									endif
+									let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["elapsed"] := 0
+									let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["stagger"] := 0
+									let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["magicka"] := OEKSEActorRef.GetBaseAV magicka / 2
+									let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["fatigue"] := OEKSEActorRef.GetBaseAV fatigue / 2
+								else
+									if OEKSEActorIsStronglyResisted == 0
+										let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["magnitude"] += OEKSEBurnHealthDamageValue
+									else
+										let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["magnitude"] += OEKSEBurnHealthDamageValue * OEKSEStronglyResistedDamageMod
+									endif
+									let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["magnitude"] *= OEKSEMagnitudeRepeatMod
+									let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["elapsed"] := 0
+								endif
+								
+								if OEKSEBattleMagicBurnStagger && OEKSEActorRef.call OEKSECheckFreeToPlayAnimState(0)
+									if OEKSEActorRef == OEKSETargetRef
+										if GetRandomPercent < OEKSEBurnStaggerPrimaryTargetOnHitChance
+											OEKSEActorRef.PlayGroup stagger, 1
+											let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["stagger"] := -16
+										endif
+									elseif GetRandomPercent < OEKSEBurnStaggerSecondaryTargetOnHitChance
+										if OEKSEActorRef.GetObjectType == 35
+											OEKSEActorRef.additemNS keaAnimObjItsFlame 1
+										else
+											OEKSEActorRef.PlayGroup stagger, 1
+										endif
+										let OEKSEAffectedActorsArray[GetRawFormIDString OEKSEActorRef]["stagger"] := -16
+									endif
+								endif
+								let OEKSEBurnTargetsCounter := OEKSEBurnTargetsCounter + 1
+							endif
+						elseif OEKSEActorIsStronglyResisted == 1 && ( OEKSEStronglyResistedDamageMod == 0 || OEKSEBattleMagicDamageToImmune == 0)
+							messageex "%n обладает иммунитетом к магии!" OEKSEActorRef
+						endif
+					endif
+					let OEKSEActorRef := GetNextRef
+				loop
+				if OEKSEBurnTargetsCounter > 0
+					playsound OEKSEBattleMagicBurnHit
+					let OEKSEMagicBurnCooldownTimer := OEKSEMagicBurnMaxCooldownTime
+				else
+					playsound SPLFireballFail
+				endif
+			else
+				playsound SPLFireballFail
+			endif
+		else
+			playsound SPLFireballFail
+			Message "Боевая магия: неверный тип оружия"
+		endif
+	endif
+	let OEKSETargetRef := 0
+	let OEKSEHitWeaponRef := 0
+	
+	;проверка наличия усиления на игроке и установка отрицательного значения бонуса атаки
+	let OEKSETimer500msec := OEKSETimer500msec + getsecondspassed
+	if OEKSETimer500msec > 0.5
+		let OEKSEAttackBonusNew := ( PlayerRef.call OEKSECalcActorWeaponDamage 3 ) * -1.1 - 1
+		PlayerRef.setav attackbonus OEKSEAttackBonusNew
+		if OEKSEAttackBonusOld != OEKSEAttackBonusNew
+			let OEKSEMustRecalcStats := 1
+		endif
+		let OEKSEAttackBonusOld := OEKSEAttackBonusNew
+		if PlayerRef.IsSpellTarget OEKSEBattleMagicEffectRef == 0
+			PlayerRef.Dispel OEKSESpBattleMagicLevel1
+			PlayerRef.Dispel OEKSESpBattleMagicLevel2
+			PlayerRef.Dispel OEKSESpBattleMagicLevel3
+			PlayerRef.Dispel OEKSESpBattleMagicLevel4
+			OEKSECaster.moveto PlayerRef 0 0 150
+			OEKSECaster.Cast OEKSEBattleMagicEffectRef PlayerRef
+		endif
+		
+		let OEKSETimer500msec := 0
+	endif
+
+endif
+
+if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+endif
+
+end

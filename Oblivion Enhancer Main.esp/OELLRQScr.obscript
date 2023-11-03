@@ -1,0 +1,29 @@
+﻿scn OELLRQScr
+
+short OEArrSize1
+short OEIndex1
+float OEOffsetTimer
+
+begin gamemode
+
+let OEOffsetTimer := OEOffsetTimer + GetSecondsPassed
+
+if OEOffsetTimer > (5 + 5.5 + OELeveledListRefactorDelayTime)
+	printc "Oblivion Enhancer: выполняется принудительный перерасчет уровневых списков оружия и брони"
+	call OERestoreLeveledListsFScr
+	let OEIndex1 := 0
+	let OEArrSize1 := ar_size OEInitQ.OELeveledListsMainArray
+	while OEIndex1 < OEArrSize1
+		if eval(ar_size OEInitQ.OELeveledListsMainArray[OEIndex1][1]) > 0
+			let OEInitQ.OELeveledListsMainArray[OEIndex1][1] := ar_construct Array
+		endif
+		let OEIndex1 := OEIndex1 + 1
+	loop
+	call OELevelListsNormalizeFScr
+	messagebox "Oblivion Enhancer: перерасчет уровневых списков оружия и брони завершен"
+	printc "Oblivion Enhancer: перерасчет уровневых списков оружия и брони завершен"
+	stopquest OELLRQ
+	let OEOffsetTimer := 0
+endif
+
+end

@@ -1,0 +1,104 @@
+﻿scn OEAddChameleonValueFScr
+
+ref ScriptTarget
+
+short Chameleon100TokenCount
+short MaximumChameleonTokenCount
+
+short ChameleonLowTokenCount
+short ChameleonMidTokenCount
+short ChameleonHighTokenCount
+
+short ActorHasChameleon100
+short ActorHasMaximumChameleon
+
+float Chameleonmagsum
+
+float ChameleonMod
+float ChameleonNormal
+float ChameleonExisted
+
+float Chameleonnew
+float Alpha
+
+begin function { ScriptTarget }
+
+set Chameleonmagsum to ScriptTarget.GetTotalAEAbilityMagnitude CHML  + ScriptTarget.GetTotalAELesserPowerMagnitude CHML + ScriptTarget.GetTotalAEPowerMagnitude CHML
+
+set Chameleon100TokenCount to ScriptTarget.getitemcount OEChameleon100Token
+set MaximumChameleonTokenCount to ScriptTarget.getitemcount OEChameleonMaximumToken
+if Chameleonmagsum >= 100
+	;debugprint "У актера [%n] есть 100-процентный хамелеон" ScriptTarget
+	set ActorHasChameleon100 to 1
+elseif Chameleon100TokenCount > 0
+	;debugprint "У актера [%n] есть токен на 100-процентный хамелеон" ScriptTarget
+	set ActorHasChameleon100 to 1
+elseif MaximumChameleonTokenCount > 0
+	;debugprint "У актера [%n] есть токен на максимальный хамелеон" ScriptTarget
+	set ActorHasMaximumChameleon to 1
+endif
+
+if ActorHasMaximumChameleon == 1
+	set ChameleonMod to OEActorChameleonMax
+	;debugprint "Актер [%n], ChameleonMod = %g" ScriptTarget ChameleonMod
+elseif ActorHasChameleon100 == 1
+	set ChameleonMod to 200
+	;debugprint "Актер [%n], ChameleonMod = %g" ScriptTarget ChameleonMod
+elseif ActorHasChameleon100 == 0 && ActorHasMaximumChameleon == 0
+	set ChameleonNormal to ScriptTarget.GetTotalActiveEffectMagnitude CHML
+	;debugprint "Актер [%n], ChameleonNormal до диминишинга = %g" ScriptTarget ChameleonNormal
+	
+	if ChameleonNormal <= 50
+		set ChameleonMod to ChameleonNormal
+	elseif ChameleonNormal > 50 && ChameleonNormal <= 100
+		set ChameleonMod to ( ChameleonNormal - 50  ) / 2 + 50
+	elseif ChameleonNormal > 100 && ChameleonNormal <= 200
+		set ChameleonMod to ( ChameleonNormal - 100 ) / 8 + 75
+	elseif ChameleonNormal > 200 && ChameleonNormal <= 600
+		set ChameleonMod to ( ChameleonNormal - 200 ) / 32 + 87.5
+	elseif ChameleonNormal > 600
+		set ChameleonMod to 100
+	endif
+	if ChameleonMod > OEActorChameleonMax
+		set ChameleonMod to OEActorChameleonMax
+	endif
+	
+	set ChameleonNormal to ChameleonMod					;теперь нормальным значением сопротивления является такое, которое прошло через диминишинг
+	
+	set ChameleonLowTokenCount to ScriptTarget.getitemcount OEChameleonLowToken
+	set ChameleonMidTokenCount to ScriptTarget.getitemcount OEChameleonMidToken
+	set ChameleonHighTokenCount to ScriptTarget.getitemcount OEChameleonHighToken
+	
+	if ChameleonLowTokenCount > 0
+		set ChameleonMod to ChameleonMod + (OEActorChameleonMax - ChameleonMod) / 3
+	elseif ChameleonMidTokenCount > 0
+		set ChameleonMod to ChameleonMod + (OEActorChameleonMax - ChameleonMod) / 4
+	elseif 	ChameleonHighTokenCount > 0
+		set ChameleonMod to ChameleonMod + (OEActorChameleonMax - ChameleonMod) / 2
+	endif
+
+	;debugprint "Актер [%n], ChameleonMod = %g, ChameleonNormal = %g" ScriptTarget ChameleonMod ChameleonNormal
+
+	;if ChameleonMod < ChameleonNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
+	;	set ChameleonMod to ChameleonNormal
+	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, ChameleonMod = %g" ScriptTarget ChameleonMod
+	;endif
+endif
+
+set ChameleonMod to ChameleonMod - ScriptTarget.getbaseav Chameleon; - ScriptTarget.GetAVModC 61 script
+ScriptTarget.SetAVModC 46 max ChameleonMod
+set Alpha to ScriptTarget.GetActorAlpha
+ScriptTarget.SetActorAlpha Alpha ;SetActorAlpha = saa
+set ChameleonExisted to ScriptTarget.getav Chameleon
+
+;debugprint "Актер [%n], назначенное значение  ChameleonMod = %g, ChameleonExisted = %g" ScriptTarget ChameleonMod ChameleonExisted
+
+
+set Chameleonnew to ChameleonExisted
+;debugprint "Вывод переменной Chameleonnew = %g из функции обратно в скрипт" Chameleonnew
+SetFunctionValue Chameleonnew
+
+;debugprint "конец функции"
+
+
+end

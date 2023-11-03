@@ -1,0 +1,16 @@
+﻿scn OEKSETESTShowDataQScr
+
+float PCMovementSpeedModifier
+float fGlobalTimeMultiplierGeneral
+
+begin gamemode
+
+let PCMovementSpeedModifier := GetPCMovementSpeedModifier
+let fGlobalTimeMultiplierGeneral := GetNumericINISetting "fGlobalTimeMultiplier:General"
+
+printc "PCMovementSpeedModifier=%f" PCMovementSpeedModifier
+printc "fGlobalTimeMultiplierGeneral=%f" fGlobalTimeMultiplierGeneral
+
+stopquest OEKSETESTShowDataQ
+
+end

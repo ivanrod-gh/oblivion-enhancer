@@ -1,0 +1,84 @@
+﻿scn OEKSERapidFireQScr
+
+float fQuestDelayTime
+
+array_var OEKSERapidFireShootersArray
+array_var OEKSEArrayElement
+
+short OEKSEQuestLocked
+float counter
+
+ref ActorRef
+
+begin gamemode
+
+if KeaArcherySystem == 1 && OEKSERapidFire == 1
+	let fQuestDelayTime := 0.25
+else
+	let fQuestDelayTime := 1
+	return
+endif
+
+if GetGameLoaded || GetGameRestarted
+	set OEKSEQuestLocked to OEKSEQuestLocked - 1
+endif
+if OEKSEQuestLocked != 0
+	if OEKSEInitQ.OEKSEInitializationCount > 0
+		set OEKSEInitQ.OEKSEInitializationCount to OEKSEInitQ.OEKSEInitializationCount - 1
+		set OEKSEQuestLocked to 0
+	else
+		if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+endif
+
+foreach OEKSEArrayElement <- OEKSERapidFireShootersArray
+	let ActorRef := OEKSEArrayElement["value"]["ref"]
+	if IsFormValid ActorRef == 0 || ActorRef.GetDead || ActorRef.GetDisabled
+		ar_erase OEKSERapidFireShootersArray OEKSEArrayElement["key"]
+		continue
+	endif
+
+	if eval(OEKSEArrayElement["value"]["counter"] <= 0)
+		ar_erase OEKSERapidFireShootersArray OEKSEArrayElement["key"]
+		continue
+	elseif eval(OEKSEArrayElement["value"]["timer"] < 0)
+		if ActorRef.IsInCombat
+			if ActorRef == PlayerRef
+				if eval(OEKSEArrayElement["value"]["ab_level"] == 1)
+					let OEKSEArrayElement["value"]["counter"] -= OEKSERapidFireLev1PCCounterDecrease
+				elseif eval(OEKSEArrayElement["value"]["ab_level"] == 2)
+					let OEKSEArrayElement["value"]["counter"] -= OEKSERapidFireLev2PCCounterDecrease
+				elseif eval(OEKSEArrayElement["value"]["ab_level"] == 3)
+					let OEKSEArrayElement["value"]["counter"] -= OEKSERapidFireLev3PCCounterDecrease
+				else
+					let OEKSEArrayElement["value"]["counter"] -= OEKSERapidFireLev4PCCounterDecrease
+				endif
+			else
+				if eval(OEKSEArrayElement["value"]["ab_level"] == 1)
+					let OEKSEArrayElement["value"]["counter"] -= OEKSERapidFireLev1NPCCounterDecrease
+				elseif eval(OEKSEArrayElement["value"]["ab_level"] == 2)
+					let OEKSEArrayElement["value"]["counter"] -= OEKSERapidFireLev2NPCCounterDecrease
+				elseif eval(OEKSEArrayElement["value"]["ab_level"] == 3)
+					let OEKSEArrayElement["value"]["counter"] -= OEKSERapidFireLev3NPCCounterDecrease
+				else
+					let OEKSEArrayElement["value"]["counter"] -= OEKSERapidFireLev4NPCCounterDecrease
+				endif
+			endif
+		else
+			let counter := OEKSEArrayElement["value"]["counter"] / 2
+			let OEKSEArrayElement["value"]["counter"] -= Ceil counter
+		endif
+		if ActorRef == PlayerRef
+			let OEKSEArrayElement["value"]["timer"] := OEKSERapidFirePCDuration
+		else
+			let OEKSEArrayElement["value"]["timer"] := OEKSERapidFireNPCDuration
+		endif
+	else
+		let OEKSEArrayElement["value"]["timer"] -= 0.25
+	endif
+loop
+
+end

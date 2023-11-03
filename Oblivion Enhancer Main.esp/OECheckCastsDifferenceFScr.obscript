@@ -1,0 +1,59 @@
+﻿scn OECheckCastsDifferenceFScr
+
+array_var LeveledListSimpleCastNewArray
+array_var LeveledListSimpleCastOldArray
+
+short ArrSize1
+short ArrSize2
+short index
+short CastsIsEqual
+short LevItemLevel
+short LevItemLevel2
+short LevItemCount
+short LevItemCount2
+
+ref LeveleListRef
+ref LeveleListRef2
+
+begin function { LeveledListSimpleCastNewArray, LeveledListSimpleCastOldArray }
+
+debugprint "Вызов функции OECheckCastsDifferenceFScr - проверка двух обычных слепков на равенство друг с другом (идентичность)"
+
+let ArrSize1 := ar_size LeveledListSimpleCastNewArray
+let ArrSize2 := ar_size LeveledListSimpleCastOldArray
+debugprint "Для сравнения поступили 2 обычных слепка размерами [%g] и [%g]" ArrSize1 ArrSize2
+
+if ArrSize1 != ArrSize2
+	debugprint "Размеры двух слепков не равны, а, значит, уровневые списки не равны, прерывание сравнения, возврат значения -1 по месту вызова"
+	let CastsIsEqual := -1
+endif
+
+if CastsIsEqual != -1
+	let index := 0
+	while index < ArrSize1
+		let LeveleListRef := LeveledListSimpleCastNewArray[index][0]
+		let LevItemLevel := LeveledListSimpleCastNewArray[index][1]
+		let LevItemCount := LeveledListSimpleCastNewArray[index][2]
+		let LeveleListRef2 := LeveledListSimpleCastOldArray[index][0]
+		let LevItemLevel2 := LeveledListSimpleCastOldArray[index][1]
+		let LevItemCount2 := LeveledListSimpleCastOldArray[index][2]
+		debugprint "Сравниваются два объекта: [%i] и [%i], уровни [%g] и [%g], количество [%g] и [%g]" LeveleListRef LeveleListRef2 LevItemLevel LevItemLevel2 LevItemCount LevItemCount2
+		if LeveleListRef != LeveleListRef2 || LevItemLevel != LevItemLevel2 || LevItemCount != LevItemCount2
+			debugprint "Объекты не равны, а, значит, уровневые списки не равны, прерывание сравнения, возврат значения -1 по месту вызова"
+			let CastsIsEqual := -1
+			break
+		else
+			debugprint "Эти объекты равны"
+		endif
+		let index := index + 1
+	loop
+endif
+
+if CastsIsEqual != -1
+	debugprint "Признаков неравенства двух слепкой не обнаружено, по-этому они признаны одинаковыми. Возврат значения 1 по месту вызова"
+	let CastsIsEqual := 1
+endif
+
+SetFunctionValue CastsIsEqual
+
+end

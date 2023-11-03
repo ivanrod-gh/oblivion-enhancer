@@ -1,0 +1,212 @@
+﻿scn OECheckValidActorsInSummonersArrayFScr
+
+array_var InvalidRefsArray
+
+ref ActorRef
+ref SummonRef
+ref SummonerRef
+ref InvalidRef
+
+short index
+short index2
+short index3
+short ArrSize
+short ArrSize2
+short ArrSize3
+short InvalidFound
+short DeadSummonsArrSize
+long Distance
+float Duration
+
+begin function {}
+
+if OEInitQ.OECheckValidActorsInSummonersArrayFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+;реф признается невалидным в двух случах:
+; - он действительно невалидный и подлежит удалению из массивов
+; - как минимум один из его родителей невалидный и он должен быть удален и из мира, и из массивов
+
+debugprint "Вызов функции OECheckValidActorsInSummonersArrayFScr - проверка саммонов из OESummonersArray на валидность"
+
+let ArrSize := ar_size OEGlobalWatchQ.OESummonersArray
+if ArrSize == 0
+	debugprint "Массив OESummonersArray пуст, return"
+	return
+endif
+
+if OEInitQ.OECheckValidActorsInSummonersArrayFScrDebugMode == 1
+	debugprint "Вывод массива OESummonersArray со всеми подмассивами (всего %g шт.)" ArrSize
+	let index := 0
+	while index < ArrSize
+		let ArrSize2 := ar_size OEGlobalWatchQ.OESummonersArray[index]
+		let index2 := 0
+		debugprint "========================="
+		while index2 < ArrSize2
+			let ArrSize3 := ar_size OEGlobalWatchQ.OESummonersArray[index][index2]
+			if ArrSize3 == 1
+				let ActorRef := OEGlobalWatchQ.OESummonersArray[index][index2][0]
+				debugprint "Группа актера [%n][%i]:" ActorRef ActorRef
+			else
+				let SummonRef := OEGlobalWatchQ.OESummonersArray[index][index2][0]
+				let SummonerRef := OEGlobalWatchQ.OESummonersArray[index][index2][1]
+				let Duration := OEGlobalWatchQ.OESummonersArray[index][index2][2]
+				debugprint "Саммон [%n][%i], саммонер [%n][%i], время действия [%f]" SummonRef SummonRef SummonerRef SummonerRef Duration
+			endif
+			let index2 := index2 + 1
+		loop
+		let index := index + 1
+	loop
+	debugprint "========================="
+endif
+
+
+let ArrSize := ar_size OEGlobalWatchQ.OESummonersArray
+if ArrSize > 0
+	let index := ArrSize - 1
+	while index >= 0
+		let InvalidRefsArray := ar_construct Array
+		let ArrSize2 := ar_size OEGlobalWatchQ.OESummonersArray[index]
+		let index2 := 1	;предполагается, что хозяин всей группы саммонов валидный
+		while index2 < ArrSize2
+			
+			let SummonRef := OEGlobalWatchQ.OESummonersArray[index][index2][0]	;саммон
+			debugprint "Рассматривается саммон [%n][%i]" SummonRef SummonRef
+			
+			if IsFormValid SummonRef == 0 || SummonRef.GetDisabled == 1
+				debugprint "Саммон [%n][%i] - невалидный" SummonRef SummonRef
+				if eval(ar_find SummonRef InvalidRefsArray) < 0
+					let InvalidRefsArray[ar_size InvalidRefsArray] := SummonRef
+				endif
+				let index2 := index2 + 1
+				continue
+			endif
+			
+			let SummonerRef := OEGlobalWatchQ.OESummonersArray[index][index2][1]	;саммонер
+			debugprint "Рассматривается саммонер [%n][%i]" SummonerRef SummonerRef
+			
+			if (IsFormValid SummonerRef == 0 || SummonerRef.GetDisabled == 1) && IsFormValid SummonRef == 1
+				debugprint "Саммонер [%n][%i] - невалидный, поэтому валидный саммон [%n][%i] тоже признан невалидным" SummonerRef SummonerRef SummonRef SummonRef
+				if eval(ar_find SummonRef InvalidRefsArray) < 0
+					let InvalidRefsArray[ar_size InvalidRefsArray] := SummonRef
+				endif
+				if eval(ar_find SummonerRef InvalidRefsArray) < 0
+					let InvalidRefsArray[ar_size InvalidRefsArray] := SummonerRef
+				endif
+				let index2 := index2 + 1
+				continue
+			elseif (IsFormValid SummonerRef == 0 || SummonerRef.GetDisabled == 1) && (IsFormValid SummonRef == 0 || SummonRef.GetDisabled == 1)
+				debugprint "Саммонер [%n][%i] - невалидный" SummonerRef SummonerRef
+				if eval(ar_find SummonerRef InvalidRefsArray) < 0
+					let InvalidRefsArray[ar_size InvalidRefsArray] := SummonerRef
+				endif
+				let index2 := index2 + 1
+				continue
+			endif
+			
+			;проверка на валидность по цепочке
+			let ArrSize3 := ar_size InvalidRefsArray
+			let index3 := 0
+			let InvalidFound := 0
+			while index3 < ArrSize3
+				let InvalidRef := InvalidRefsArray[index3]
+				if SummonerRef == InvalidRef
+					debugprint "Валидный саммонер [%n][%i] находится в списке невалидных рефов" SummonerRef SummonerRef
+					let InvalidFound := 1
+					break
+				endif
+				let index3 := index3 + 1
+			loop
+			
+			if InvalidFound == 1
+				debugprint "Валидный саммон [%n][%i] тоже признан невалидным" SummonRef SummonRef
+				if eval(ar_find SummonRef InvalidRefsArray) < 0
+					let InvalidRefsArray[ar_size InvalidRefsArray] := SummonRef
+				endif
+			endif
+			let index2 := index2 + 1
+		loop
+		
+		;удаление невалидных (неважно, по какой причине) актеров
+		let index2 := ArrSize2 - 1
+		let ArrSize3 := ar_size InvalidRefsArray
+		while index2 >= 1
+			
+			;проверка на валидность
+			let SummonRef := OEGlobalWatchQ.OESummonersArray[index][index2][0]
+			if IsFormValid SummonRef == 0 || SummonRef.GetDisabled == 1
+				debugprint "Удаление истинно невалидного саммона [%n][%i]" SummonRef SummonRef
+				ar_erase OEGlobalWatchQ.OESummonersArray[index] index2
+				let index2 := index2 - 1
+				continue
+			endif
+			
+			;проверка на валидность по цепочке
+			let index3 := 0
+			let InvalidFound := 0
+			while index3 < ArrSize3
+				let InvalidRef := InvalidRefsArray[index3]
+				if SummonRef == InvalidRef
+					let InvalidFound := 1
+					break				
+				endif
+				let index3 := index3 + 1
+			loop
+			if InvalidFound == 1
+				debugprint "Удаление невалидного саммона [%n][%i] по цепочке" SummonRef SummonRef
+				
+				if eval(OEGlobalWatchQ.OESummonersArray[index][index2][2] < 999)
+					debugprint "Невалидный саммон [%n][%i] - скриптовый (ОЕ)" SummonRef SummonRef
+					let Distance := SummonRef.GetDistance PlayerRef
+					if Distance < 10000
+						if IsQuestItem SummonRef == 0
+							debugprint "Саммон [%n][%i] находится недалеко от игрока, саммон убивается, его тело подхватит его скрипт" SummonRef SummonRef
+							;SummonRef.kill
+							if SummonRef.getitemcount OEDispelAllSpellsAndKillToken == 0
+								SummonRef.additem OEDispelAllSpellsAndKillToken 1
+							endif
+						elseif IsQuestItem SummonRef == 1
+							debugprint "Саммон является штатным и не был штатно удален вовремя. Он убивается и передается в массив мертвых саммонов"
+							SummonRef.kill
+							let DeadSummonsArrSize := ar_size OEGlobalWatchQ.OEDeadSummonsArray
+							let OEGlobalWatchQ.OEDeadSummonsArray[DeadSummonsArrSize] := ar_construct Array
+							let OEGlobalWatchQ.OEDeadSummonsArray[DeadSummonsArrSize][0] := SummonRef
+							let OEGlobalWatchQ.OEDeadSummonsArray[DeadSummonsArrSize][1] := 2
+						endif
+					else
+						if SummonRef.GetDead == 0
+							debugprint "Саммон [%n][%i] находится в другой клетке и скрипт саммона не действует. Саммон убивается и его данные передаются в массив мертвых саммонов" SummonRef SummonRef
+							SummonRef.kill
+						else
+							debugprint "Саммон [%n][%i] находится в другой клетке и скрипт саммона не действует. Саммон уже мертв, его данные передаются в массив мертвых саммонов" SummonRef SummonRef
+						endif
+						let DeadSummonsArrSize := ar_size OEGlobalWatchQ.OEDeadSummonsArray
+						let OEGlobalWatchQ.OEDeadSummonsArray[DeadSummonsArrSize] := ar_construct Array
+						let OEGlobalWatchQ.OEDeadSummonsArray[DeadSummonsArrSize][0] := SummonRef
+						let OEGlobalWatchQ.OEDeadSummonsArray[DeadSummonsArrSize][1] := 2
+					endif
+				endif
+				
+				ar_erase OEGlobalWatchQ.OESummonersArray[index] index2
+			endif
+			
+			let index2 := index2 - 1
+		loop
+		
+		let ArrSize2 := ar_size OEGlobalWatchQ.OESummonersArray[index]
+		if ArrSize2 == 1
+			let SummonRef := OEGlobalWatchQ.OESummonersArray[index][0][0]
+			debugprint "Удаление из массива OESummonersArray ячейки саммонера [%n][%i], т.к. он без саммонов" SummonRef SummonRef
+			ar_erase OEGlobalWatchQ.OESummonersArray index
+		endif
+		
+		let index := index - 1
+	loop
+endif
+
+if OEInitQ.OECheckValidActorsInSummonersArrayFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

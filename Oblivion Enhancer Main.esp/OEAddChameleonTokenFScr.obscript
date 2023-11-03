@@ -1,0 +1,92 @@
+﻿scn OEAddChameleonTokenFScr
+
+ref ScriptTarget
+
+short RandomDice
+short ChameleonStrength
+float Chameleonmagsum
+short Chameleon100TokenCount
+short MaximumChameleonTokenCount
+short ActorHasChameleonToken
+float ChameleontChance
+float MaximumChameleontChance
+short IsChameleonMaximum
+short ChameleonLowTokenCount
+short ChameleonMidTokenCount
+short ChameleonHighTokenCount
+short ChameleonNoneTokenCount
+
+begin function { ScriptTarget }
+
+set RandomDice to rand 1, 3.99
+
+if RandomDice == 1
+	set ChameleonStrength to -1
+elseif RandomDice == 2
+	set ChameleonStrength to 0
+elseif RandomDice == 3
+	set ChameleonStrength to 1
+endif
+
+set ChameleontChance to OEAdditionalChameleonChance + 0.99
+set MaximumChameleontChance to OEAdditionalMaximumChameleonChance + 0.99
+
+set Chameleonmagsum to ScriptTarget.GetTotalAEAbilityMagnitude CHML + ScriptTarget.GetTotalAELesserPowerMagnitude CHML + ScriptTarget.GetTotalAEPowerMagnitude CHML
+
+;;debugprint "Актер [%n], Chameleonmagsum = %g" ScriptTarget Chameleonmagsum
+
+if Chameleonmagsum >= 100
+	set Chameleon100TokenCount to ScriptTarget.getitemcount OEChameleon100Token
+	ScriptTarget.removeitem OEChameleon100Token Chameleon100TokenCount
+	ScriptTarget.additem OEChameleon100Token 1
+	set ActorHasChameleonToken to 1
+	;debugprint "Актеру [%n] выдан токен 100-процентного хамелеона, т.к. у него есть врожденный 100-процентный хамелеон" ScriptTarget
+endif
+if ActorHasChameleonToken == 0
+	set RandomDice to rand 1, ChameleontChance
+	if RandomDice == 1
+		if (OEAdditionalMaximumChameleon == 1) && (OEAdditionalMaximumChameleonLevel <= player.getlevel)
+			set RandomDice to rand 1, MaximumChameleontChance
+			if RandomDice == 1
+				set IsChameleonMaximum to 1
+				set MaximumChameleonTokenCount to ScriptTarget.getitemcount OEChameleonMaximumToken 
+				ScriptTarget.removeitem OEChameleonMaximumToken MaximumChameleonTokenCount
+				ScriptTarget.additem OEChameleonMaximumToken 1
+				;debugprint "Актеру [%n] выдан токен максимального хамелеона" ScriptTarget
+			endif
+		endif
+		if IsChameleonMaximum != 1
+			if ChameleonStrength == -1
+				set ChameleonLowTokenCount to ScriptTarget.getitemcount OEChameleonLowToken
+				ScriptTarget.removeitem OEChameleonLowToken ChameleonLowTokenCount
+				ScriptTarget.additem OEChameleonLowToken 1
+				;debugprint "Актеру [%n] выдан токен хамелеона пониженного уровня" ScriptTarget
+			elseif ChameleonStrength == 0
+				set ChameleonMidTokenCount to ScriptTarget.getitemcount OEChameleonMidToken
+				ScriptTarget.removeitem OEChameleonMidToken ChameleonMidTokenCount
+				ScriptTarget.additem OEChameleonMidToken 1
+				;debugprint "Актеру [%n] выдан токен хамелеона среднего уровня" ScriptTarget
+			elseif ChameleonStrength == 1
+				set ChameleonHighTokenCount to ScriptTarget.getitemcount OEChameleonHighToken
+				ScriptTarget.removeitem OEChameleonHighToken ChameleonHighTokenCount
+				ScriptTarget.additem OEChameleonHighToken 1
+				;debugprint "Актеру [%n] выдан токен хамелеона повышенного уровня" ScriptTarget
+			endif
+		endif
+	else
+		set ChameleonNoneTokenCount to ScriptTarget.getitemcount OEChameleonNoneToken
+		ScriptTarget.removeitem OEChameleonNoneToken ChameleonNoneTokenCount
+		ScriptTarget.additem OEChameleonNoneToken 1
+		;debugprint "Актеру [%n] выдан токен отсутствия хамелеона" ScriptTarget
+	endif
+endif
+
+;debugprint "Актеру [%n] выдан токен хамелеона" ScriptTarget
+ScriptTarget.additem OEChameleonToken 1
+
+
+
+;debugprint "конец функции"
+
+
+end

@@ -1,0 +1,72 @@
+﻿scn OEAddHealthBoostFScr
+
+ref ScriptTarget
+short RandomDice
+short HealthExisted
+float HealthMod
+short HealthDiff
+short HealthBoostStrength
+short IsHealthBoostCritical
+short HealthBoostTokenCount
+float HealthBoostChance
+float HealthBoostVeryHighChance
+
+begin function { ScriptTarget }
+
+set HealthBoostChance to OEAdditionalHealthBoostChance + 0.99
+set HealthBoostVeryHighChance to OEAdditionalHealthBoostVeryHighChance + 0.99
+
+set HealthExisted to ScriptTarget.getbaseav health + ScriptTarget.GetAVMod health script
+;debugprint "Актер [%n], значение жизни base + script = %g" ScriptTarget HealthExisted
+set RandomDice to rand 1, HealthBoostChance
+if RandomDice == 1
+
+	set RandomDice to rand 1, 3.99
+
+	if RandomDice == 1
+		set HealthBoostStrength to 0
+	elseif RandomDice == 2
+		set HealthBoostStrength to 1
+	elseif RandomDice == 3
+		set HealthBoostStrength to -1
+	endif
+
+	set RandomDice to rand 1, HealthBoostVeryHighChance
+	if RandomDice == 1
+		set IsHealthBoostCritical to 1
+	endif
+	
+	if IsHealthBoostCritical != 1
+		if HealthBoostStrength == 0
+			set HealthMod to (OEAdditionalHealthBoostValue - 1) * 0.66
+		elseif HealthBoostStrength == 1
+			set HealthMod to OEAdditionalHealthBoostValue - 1
+		elseif HealthBoostStrength == -1
+			set HealthMod to (OEAdditionalHealthBoostValue - 1) * 0.33
+		endif
+		set HealthDiff to HealthExisted * HealthMod
+	elseif IsHealthBoostCritical == 1
+		set HealthDiff to HealthExisted * (OEAdditionalHealthBoostVeryHighValue - 1)
+	endif
+	ScriptTarget.ModAVMod health script HealthDiff
+	;;;;;;;;;;;;
+	set HealthMod to HealthMod + 1
+	if IsHealthBoostCritical != 1
+		;debugprint "Актеру [%n] увеличена жизнь в %.2f раза" ScriptTarget HealthMod
+	else
+		;debugprint "Актеру [%n] увеличена жизнь в 3 раза. Критическое увеличение!" ScriptTarget
+	endif
+	;;;;;;;;;;;;
+;;;;;;;;;;;;
+else
+	;debugprint "Актеру [%n] увеличение жизни не производилось" ScriptTarget
+;;;;;;;;;;;;
+endif
+
+set HealthBoostTokenCount to ScriptTarget.getitemcount OEHealthBoostToken
+ScriptTarget.removeitem OEHealthBoostToken HealthBoostTokenCount
+ScriptTarget.additem OEHealthBoostToken 1
+
+;debugprint "Актер [%n], выдан токен функции усиления жизни" ScriptTarget
+
+end

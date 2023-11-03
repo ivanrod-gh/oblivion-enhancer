@@ -1,0 +1,77 @@
+﻿ScriptName OEWeaponSelfRechargeFScr
+
+ref itemref
+ref itembase
+short chargecurrent
+short chargemax
+short chargemaxallowed
+short chargeamount
+float ChargePercent
+short mysticismskill
+
+Begin Function {}
+
+if OEInitQ.OEWeaponSelfRechargeFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Вызов функции OEWeaponSelfRechargeFScr - постепенное восстановление заряда у вещей игрока в инвентаре"
+
+;set mysticismskill to ( player.getbaseav mysticism ) + ( player.GetTotalAENonAbilityMagnitude FOSK Mysticism ) + ( player.GetTotalAENonAbilityMagnitude ABSK Mysticism ) + ( player.GetTotalAENonAbilityMagnitude DRSK Mysticism )
+set mysticismskill to player.getbaseav mysticism
+
+if mysticismskill > 15 && mysticismskill <= 105
+	set ChargePercent to mysticismskill - 15
+elseif mysticismskill > 100
+	set ChargePercent to 85
+endif
+
+if mysticismskill < 40
+	set chargeamount to 1
+elseif mysticismskill >= 40 && mysticismskill < 50
+	set chargeamount to 2
+elseif mysticismskill >= 50 && mysticismskill < 60
+	set chargeamount to 3
+elseif mysticismskill >= 60 && mysticismskill < 70
+	set chargeamount to 4
+elseif mysticismskill >= 70 && mysticismskill < 80
+	set chargeamount to 6
+elseif mysticismskill >= 80 && mysticismskill < 95
+	set chargeamount to 8
+elseif mysticismskill >= 90 && mysticismskill < 95
+	set chargeamount to 12
+elseif mysticismskill >= 95
+	set chargeamount to 16
+endif
+
+debugprint "Текущий навык мистицизма - %g, зарядить вещи можно до %g процентов." mysticismskill ChargePercent
+set ChargePercent to ChargePercent / 100
+	
+foreach itemref <- playerref
+	if itemref.IsWeapon == 1
+		let itembase := itemref.GetBaseObject
+		let chargemax := GetObjectCharge itembase - 1
+		let chargemaxallowed := chargemax * ChargePercent
+		if chargemax > 0
+			let chargecurrent := itemref.GetCurrentCharge
+			debugprint "Текущий заряд - %g. Восстанавливаться будет до - %g." chargecurrent chargemaxallowed
+			if (chargecurrent / chargemax) <= ChargePercent
+				if chargemaxallowed - chargecurrent < chargeamount
+					itemref.SetCurrentCharge chargemaxallowed
+					let chargecurrent := itemref.GetCurrentCharge
+					debugprint "Оружие заряжено до %g из %g возможных. Максимальный заряд оружия - %g. Достигнут максимально возможный заряд." chargecurrent chargemaxallowed chargemax
+				else
+					itemref.ModCurrentCharge chargeamount
+					let chargecurrent := itemref.GetCurrentCharge
+					debugprint "Оружие заряжено до %g из %g возможных. Максимальный заряд оружия - %g." chargecurrent chargemaxallowed chargemax
+				endif
+			endif
+		endif
+	endif
+loop
+
+if OEInitQ.OEWeaponSelfRechargeFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+End

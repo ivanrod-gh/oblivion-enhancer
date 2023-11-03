@@ -1,0 +1,78 @@
+﻿scn OEShowNormalizedArrayByItemFScr
+
+array_var LeveledListSubArray
+
+short ArrSize1
+short ArrSize2
+;short ArrSize3
+;short ArrSize4
+;short ArrSize5
+short index1
+short index2
+short index3
+short index4
+;short index5
+;short NumLevItems1
+;short NumLevItems2
+short NumLevItems3
+short NumLevItems4
+;short NumLevItems5
+;short LevItemLevel
+short LevItemCounter
+
+ref LevItemRef
+ref LeveledListRef
+ref LeveledListRef2
+
+begin function { LeveledListSubArray }
+
+debugprint "Вызов функции OEShowNormalizedArrayFScr - тестовый вывод предметов и их уровня у нормированного массива"
+
+let ArrSize1 := ar_size LeveledListSubArray
+let index1 := 0
+let LevItemCounter := 0
+while index1 < ArrSize1
+	let ArrSize2 := ar_size LeveledListSubArray[index1]
+	if ArrSize2 > 0
+		let index2 := 0
+		while index2 < ArrSize2
+			let LeveledListRef := LeveledListSubArray[index1][index2]
+			let index3 := 0
+			let NumLevItems3 := GetNumLevItems LeveledListRef
+			while index3 < NumLevItems3
+				let LevItemRef := GetNthLevItem index3 LeveledListRef
+				if GetObjectType LevItemRef != 43
+					if GetEnchantment LevItemRef
+						debugprint "[%g] [%n][%i][магич.]" index1 LevItemRef LevItemRef
+					else
+						debugprint "[%g] [%n][%i]" index1 LevItemRef LevItemRef
+					endif
+					let LevItemCounter := LevItemCounter + 1
+				else
+					let LeveledListRef2 := LevItemRef
+					let NumLevItems4 := GetNumLevItems LeveledListRef2
+					let index4 := 0
+					while index4 < NumLevItems4
+						let LevItemRef := GetNthLevItem index4 LeveledListRef2
+						if GetEnchantment LevItemRef
+							debugprint "[%g] [%n][%i][магич.]" index1 LevItemRef LevItemRef
+						else
+							debugprint "[%g] [%n][%i]" index1 LevItemRef LevItemRef
+						endif
+						let LevItemCounter := LevItemCounter + 1
+						let index4 := index4 + 1
+					loop
+				endif
+				let index3 := index3 + 1
+			loop
+			let index2 := index2 + 1
+		loop
+	else
+		debugprint "[%g] -" index1
+	endif
+	let index1 := index1 + 1
+loop
+
+SetFunctionValue LevItemCounter
+
+end

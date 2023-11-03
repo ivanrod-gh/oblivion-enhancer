@@ -1,0 +1,130 @@
+﻿scn OEActorsDrainedHealthRestoreWithSpellsFScr
+
+short EffectsCount
+short index
+short SpellType
+int REHEEffectCode
+int EffectCode
+float RestoreMagnitude
+float RestoreMagnitudeCurrent
+float EffectDuration
+float HealthDamageMax
+float HealthDamageScript
+float HealthDamage
+float HealthDamageDRHE
+float HealthCurrent
+float BaseHealth
+
+ref SpellRef
+ref CasterRef
+ref Self
+
+begin function begin function { SpellRef, CasterRef }
+
+if OEInitQ.OEActorsDrainedHealthRestoreWithSpellsFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Вызов функции OEActorsDrainedHealthRestoreWithSpellsFScr - восстановление пониженного/поврежденного значения жизни актеров при помощи обычного заклинания восстановления жизни"
+
+let SpellType := GetSpellType SpellRef
+if SpellType != 0
+	debugprint "Поступившая в функцию магия [%n][%i] (тип=%g) не является заклинанием, прекращение выполнения функции" SpellRef SpellRef SpellType
+	if OEInitQ.OEActorsDrainedHealthRestoreWithSpellsFScrDebugMode == 1
+		SetDebugMode 0 OEInitQ.OEModIndex
+	endif
+	return
+endif
+
+let Self := GetSelf
+
+debugprint "Заклинание - [%n][%i], цель заклинания - [%n][%i], кастер - [%n][%i]" SpellRef SpellRef Self Self CasterRef CasterRef
+
+if CasterRef == PlayerRef || Self == PlayerRef
+	debugprint "Заклинание [%n][%i] скастовано игроком или по игроку, прекращение выполнения функции" SpellRef SpellRef
+	if OEInitQ.OEActorsDrainedHealthRestoreWithSpellsFScrDebugMode == 1
+		SetDebugMode 0 OEInitQ.OEModIndex
+	endif
+	return
+endif
+
+let EffectsCount := GetMagicItemEffectCount SpellRef
+let REHEEffectCode := MagicEffectCodeFromChars "REHE"
+let index := 0
+while index < EffectsCount
+	let EffectCode := GetNthEffectItemCode SpellRef index
+	if EffectCode == REHEEffectCode
+		let EffectDuration := GetNthEffectItemDuration SpellRef index
+		if EffectDuration > 1
+			let RestoreMagnitude := RestoreMagnitude + (GetNthEffectItemMagnitude SpellRef index) * EffectDuration
+			debugprint "Значение магнитуды восстановления скриптового здоровья изменено [1]: %f" RestoreMagnitude
+		else
+			let RestoreMagnitude := RestoreMagnitude + GetNthEffectItemMagnitude SpellRef index
+			debugprint "Значение магнитуды восстановления скриптового здоровья изменено [2]: %f" RestoreMagnitude
+		endif
+	endif
+	let index := index + 1
+loop
+if RestoreMagnitude > 0
+	debugprint "Итоговое значение магнитуды восстановления скриптового здоровья: %f" RestoreMagnitude
+else
+	debugprint "В функцию не поступило заклинание восстановления здоровья, прекращение выполнения функции"
+	if OEInitQ.OEActorsDrainedHealthRestoreWithSpellsFScrDebugMode == 1
+		SetDebugMode 0 OEInitQ.OEModIndex
+	endif
+	return
+endif
+
+let HealthDamageDRHE := GetTotalActiveEffectMagnitude DRHE
+if HealthDamageDRHE > 0
+	debugprint "На цели [%n][%i] имеется активный эффект [понижения здоровья], прекращение выполнения функции" Self Self
+	if OEInitQ.OEActorsDrainedHealthRestoreWithSpellsFScrDebugMode == 1
+		SetDebugMode 0 OEInitQ.OEModIndex
+	endif
+	return
+endif
+
+let HealthDamageMax := getavmod health "max"
+debugprint "Изменение значения жизни модификатором [max] - %f" HealthDamageMax
+let HealthDamageScript := getavmod health "script"
+debugprint "Изменение значения жизни модификатором [script] - %f" HealthDamageScript
+let HealthDamage := HealthDamageMax + HealthDamageScript
+if HealthDamage >= 0
+	debugprint "Модификаторы [max] и [script] в сумме не уменьшают значение жизни, прекращение выполнения функции"
+	if OEInitQ.OEActorsDrainedHealthRestoreWithSpellsFScrDebugMode == 1
+		SetDebugMode 0 OEInitQ.OEModIndex
+	endif
+	return
+endif
+
+if RestoreMagnitude <= 0
+	debugprint "Значение магнитуды восстановления скриптового здоровья меньше или равно 0 и не может восстановить пониженное значение жизни, прекращение выполнения функции"
+endif
+
+if HealthDamageMax + HealthDamageScript < 0
+	let RestoreMagnitudeCurrent := -1 * ( HealthDamageMax + HealthDamageScript )
+	if RestoreMagnitudeCurrent > RestoreMagnitude
+		debugprint "Жизнь по модификатора [max]+[script] понижена более значения магнитуды восстановления скриптового здоровья, ограничение значения до величины [%f]" RestoreMagnitude
+		let RestoreMagnitudeCurrent := RestoreMagnitude
+	endif
+	let RestoreMagnitude := RestoreMagnitude - RestoreMagnitudeCurrent
+	if RestoreMagnitudeCurrent > 0
+		let RestoreMagnitudeCurrent := RestoreMagnitudeCurrent + 0.01
+		modavmod health "max" RestoreMagnitudeCurrent
+		debugprint "У актера [%n][%i] произведено восстановление пониженного значения жизни на величину [%f]" Self Self RestoreMagnitudeCurrent
+	endif
+endif
+
+if OEInitQ.OEActorsDrainedHealthRestoreWithSpellsFScrDebugMode == 1
+	let HealthDamageMax := getavmod health "max"
+	let HealthDamageScript := getavmod health "script"
+	let HealthCurrent := getav health
+	let BaseHealth := getbaseav health
+	debugprint "Итоговые значения жизни актера [%n][%i]: текущая - [%f], базовая - [%f], измененная по [max] - [%f], измененная по [script] - [%f]" Self Self HealthCurrent BaseHealth HealthDamageMax HealthDamageScript
+endif
+
+if OEInitQ.OEActorsDrainedHealthRestoreWithSpellsFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

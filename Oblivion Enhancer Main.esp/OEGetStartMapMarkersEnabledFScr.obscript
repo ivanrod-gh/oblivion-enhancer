@@ -1,0 +1,29 @@
+﻿scn OEGetStartMapMarkersEnabledFScr
+
+ref MarkerRef
+
+begin function {}
+
+if BrumaMapMarkerNEW.IsMapMarkerVisible == 0 || SkingradEastGateMapMarker.IsMapMarkerVisible == 0 || LeyawiinMapMarker.IsMapMarkerVisible == 0
+	BrumaMapMarkerNEW.SetMapMarkerVisible 1
+	BrumaMapMarkerNEW.SetCanTravelToMapMarker 1
+	BravilMapMarker.SetMapMarkerVisible 1
+	BravilMapMarker.SetCanTravelToMapMarker 1
+	AnvilMapMarkerNEW.SetMapMarkerVisible 1
+	AnvilMapMarkerNEW.SetCanTravelToMapMarker 1
+	LeyawiinMapMarker.SetMapMarkerVisible 1
+	LeyawiinMapMarker.SetCanTravelToMapMarker 1
+	CheydinhalWestGateMapMarker.SetMapMarkerVisible 1
+	CheydinhalWestGateMapMarker.SetCanTravelToMapMarker 1
+	SkingradEastGateMapMarker.SetMapMarkerVisible 1
+	SkingradEastGateMapMarker.SetCanTravelToMapMarker 1
+	ChorrolCharGenMapMarker.SetMapMarkerVisible 1
+	ChorrolCharGenMapMarker.SetCanTravelToMapMarker 1
+	KvatchMapMarker.SetMapMarkerVisible 1
+	KvatchMapMarker.SetCanTravelToMapMarker 1
+	set MarkerRef to "00008B6D"
+	MarkerRef.SetMapMarkerVisible 1
+	MarkerRef.SetCanTravelToMapMarker 1
+endif
+
+end

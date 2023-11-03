@@ -1,0 +1,723 @@
+﻿scn OEKSEManageEffectsPowerMenuQScr
+
+float fQuestDelayTime 
+
+array_var ArrayElement
+array_var EffectsRefsArray
+array_var TempArr
+array_var MagicSchoolIdsArray
+
+short MPowerCurrent
+short MPowerAfterSleep
+short MPowerUnplanned
+short MPowerMax
+short SpellMPowerMax
+short EffectsPagesCount
+short EffectsCount
+short MenuWasOpened
+short MenuNumber
+short EffectsPage
+short EffectIndex
+short EffectIndexMax
+short index
+short index2
+short index3
+short SelectedEffectId
+short EffectStrengthDifference
+short EffectStrengthModOld
+short tempvar1
+short tempvar2
+short EffectsPerOnePage
+short PageRoll
+short kMEEffKey
+int MagicSchoolId
+float MenuTimer
+
+ref EffectRef
+ref ScriptRef
+
+string_var IconString
+string_var tempstr1
+string_var EffectNameStr
+
+;костыль, т.к. не нашел чего-то вроде stopplaysound + playsound
+short PlaySoundPowerEditOnPlay
+short PlaySoundPowerEditOnInstance
+short PlaySoundPowerEditOffPlay
+short PlaySoundPowerEditOffInstance
+short PlaySoundPageTurnPlay
+short PlaySoundPageTurnInstance
+short PlaySoundNavigateUpDownPlay
+short PlaySoundNavigateUpDownInstance
+short PlaySoundResetChangesPlay
+short PlaySoundResetChangesInstance
+short PlaySoundNullifyAllPowersPlay
+short PlaySoundNullifyAllPowersInstance
+short PlaySoundPowerUpPlay
+short PlaySoundPowerUpInstance
+short PlaySoundPowerDownPlay
+short PlaySoundPowerDownInstance
+short PlaySoundMPowerChangedPlay
+
+Begin GameMode
+
+let fQuestDelayTime := 0.25
+
+let tempvar1 := ar_size KeaEffectExtender.kME
+if tempvar1 < 1
+	messagebox "У вас нет известных магических эффектов!"
+	stopquest OEKSEManageEffectsPowerMenuQ
+	return
+endif
+
+if IsTextInputInUse == 0
+	let MenuNumber := 0
+	let EffectsPage := 0
+	let SelectedEffectId := -1
+	let MenuTimer := 0
+	OpenTextInput " " 2
+endif
+
+if MenuWasOpened == 1
+	CloseTextInput
+	let MenuWasOpened := 0
+	if PlaySoundMPowerChangedPlay
+		playsound ITMWelkyndStoneUse
+		let PlaySoundMPowerChangedPlay := 0
+		message "Потоки внутренней магической энергии перераспределены! Для того, чтобы изменения вступили в сил, необходимо поспать." 6
+	endif
+	stopquest OEKSEManageEffectsPowerMenuQ
+endif
+
+End
+
+
+;Begin GameMode
+Begin Menumode 1026
+
+let fQuestDelayTime := 0.01
+
+let MenuTimer := MenuTimer - GetSecondsPassed
+
+if IsTextInputInUse == 1 && MenuTimer <= 0
+
+	let MenuWasOpened := 1
+
+	;значение kMe[id][0] - текущее
+	;значение kMe[id][1] - изменение после сна
+	;
+	;всего в игре примерно 162 эффекта
+	
+	if GetGameLoaded || GetGameRestarted
+		let IconString := "%e"
+		let IconString := sv_Construct "ABAT ABFA ABHE ABSK ABSP BABO BACU BAGA BAGR BAHE BASH BRDN BWAX BWBO BWDA BWMA BWSW CALM CHML CHRM COCR COHU CUDI CUPA CUPO DEMO DGAT DGFA DGHE DGSP DIAR DIWE DRAT DRFA DRHE DRSK DRSP DSPL DTCT DUMY FIDG FISH FOAT FOFA FOHE FOMM FOSK FOSP FRDG FRNZ FRSH FTHR INVI LGHT LISH NEYE OPEN PARA POSN RALY REAN REAT REDG REFA REHE RESP RFLC RSDI RSFI RSFR RSMA RSNW RSPA RSPO"
+		let IconString := sv_Construct $IconString + "RSSH RSWD SABS SEFF SHDG SHLD SLNC STMA STRP SUDG TELE TURN VAMP WABR WAWA WKDI WKFI WKFR WKMA WKNW WKPO WKSH ZCLA ZDAE ZDRE ZDRL ZFIA ZFRA ZGHO ZHDZ ZLIC ZSCA ZSKA ZSKC ZSKE ZSKH ZSPD ZSTA ZWRA ZWRL ZXIV ZZOM"
+	endif
+
+	let EffectsRefsArray := ar_Construct Array
+	let TempArr := ar_Construct Array
+	let MagicSchoolIdsArray := ar_Construct Array
+	let index := 0
+	let MPowerCurrent := 0
+	let MPowerAfterSleep := 0
+	let MPowerMax := KeaEffectExtender.KBonusLimit
+	let SpellMPowerMax := Player.GetLevel * 10 + 50
+	if SpellMPowerMax > 200
+		let SpellMPowerMax := 200
+	endif
+	let EffectsPerOnePage := 10
+
+	foreach ArrayElement <- KeaEffectExtender.kME
+		let MPowerCurrent += KeaEffectExtender.kME[#ArrayElement["key"]][0]
+		let MPowerAfterSleep += KeaEffectExtender.kME[#ArrayElement["key"]][0] + KeaEffectExtender.kME[#ArrayElement["key"]][1]
+		let index := index + 1
+	loop
+	
+	;реф эффекта
+	;ключ
+	;имя, для script effect
+	;магическая школа, для script effect
+
+
+	let EffectsCount := (ar_size KeaEffectExtender.kME) - 1
+	let EffectsPagesCount := EffectsCount / EffectsPerOnePage
+	let MPowerUnplanned := MPowerMax - MPowerAfterSleep
+	
+
+	if MenuNumber == 0
+		if OnKeyDown 59 ;F1
+			let MenuNumber := 10
+		endif
+		if OnKeyDown 30 ;A
+			if SelectedEffectId == -1
+				if EffectsPage > 0
+					let PlaySoundPageTurnPlay := 1
+				endif
+				let EffectsPage := EffectsPage - 1
+				if EffectsPage < 0
+					let EffectsPage := 0
+				endif
+
+			endif
+			
+			if SelectedEffectId != -1
+				let EffectStrengthDifference := -50
+				let PlaySoundPowerDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 32 ;D
+			if SelectedEffectId == -1
+				if EffectsPage < EffectsPagesCount
+					let PlaySoundPageTurnPlay := 1
+				endif
+				let EffectsPage := EffectsPage + 1
+				if EffectsPage > EffectsPagesCount
+					let EffectsPage := EffectsPagesCount
+				endif
+			endif
+			
+			if SelectedEffectId != -1
+				let EffectStrengthDifference := 50
+				let PlaySoundPowerUpPlay := 1
+			endif
+		endif
+		if OnKeyDown 16 ;Q
+			if SelectedEffectId != -1
+				let EffectStrengthDifference := -10000
+				let PlaySoundPowerDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 44 ;Z
+			if SelectedEffectId != -1
+				let EffectStrengthDifference := -10
+				let PlaySoundPowerDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 18 ;E
+			if SelectedEffectId != -1
+				let EffectStrengthDifference := 10000
+				let PlaySoundPowerUpPlay := 1
+			endif
+		endif
+		if OnKeyDown 46 ;C
+			if SelectedEffectId != -1
+				let EffectStrengthDifference := 10
+				let PlaySoundPowerUpPlay := 1
+			endif
+		endif
+		if OnKeyDown 19 ;R	;отменить все изменения
+			if SelectedEffectId == -1
+				let MPowerAfterSleep := 0
+				let MPowerUnplanned := 0
+				foreach ArrayElement <- KeaEffectExtender.kME
+					let EffectRef := KeaEffectExtender.kME[#ArrayElement["key"]][2]
+					if eval(KeaEffectExtender.kME[#ArrayElement["key"]][1] != 0)
+						let PlaySoundResetChangesPlay := 1
+					endif
+					let KeaEffectExtender.kME[#ArrayElement["key"]][1] := 0
+					let MPowerAfterSleep += KeaEffectExtender.kME[#ArrayElement["key"]][0] + KeaEffectExtender.kME[#ArrayElement["key"]][1]
+				loop
+				let MPowerUnplanned := MPowerMax - MPowerAfterSleep
+			endif
+		endif
+		if OnKeyDown 20 ;T	;обнуление силы всех эффектов
+			if SelectedEffectId == -1
+				let MPowerAfterSleep := 0
+				let MPowerUnplanned := 0
+				foreach ArrayElement <- KeaEffectExtender.kME
+					let EffectRef := KeaEffectExtender.kME[#ArrayElement["key"]][2]
+					if eval(KeaEffectExtender.kME[#ArrayElement["key"]][0] != -KeaEffectExtender.kME[#ArrayElement["key"]][1])
+						let PlaySoundNullifyAllPowersPlay := 1
+					endif
+					if eval (KeaEffectExtender.kME[#ArrayElement["key"]][0] == 0)
+						if eval (KeaEffectExtender.kME[#ArrayElement["key"]][1] != 0)
+							let KeaEffectExtender.kME[#ArrayElement["key"]][1] := 0
+						endif
+					endif
+					if eval (KeaEffectExtender.kME[#ArrayElement["key"]][0] > 0)
+						let KeaEffectExtender.kME[#ArrayElement["key"]][1] := -(KeaEffectExtender.kME[#ArrayElement["key"]][0])
+					endif
+					let MPowerAfterSleep += KeaEffectExtender.kME[#ArrayElement["key"]][0] + KeaEffectExtender.kME[#ArrayElement["key"]][1]
+				loop
+				let MPowerUnplanned := MPowerMax - MPowerAfterSleep
+			endif
+		endif
+
+		if OnKeyDown 2 ;1
+			if SelectedEffectId == -1
+				let SelectedEffectId := 0
+				let PlaySoundPowerEditOnPlay := 1
+			elseif SelectedEffectId != -1 && SelectedEffectId != 0
+				let SelectedEffectId := 0
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 3 ;2
+			if SelectedEffectId == -1
+				let SelectedEffectId := 1
+				let PlaySoundPowerEditOnPlay := 1
+			elseif SelectedEffectId != -1 && SelectedEffectId != 1
+				let SelectedEffectId := 1
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 4 ;3
+			if SelectedEffectId == -1
+				let SelectedEffectId := 2
+				let PlaySoundPowerEditOnPlay := 1
+			elseif SelectedEffectId != -1 && SelectedEffectId != 2
+				let SelectedEffectId := 2
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 5 ;4
+			if SelectedEffectId == -1
+				let SelectedEffectId := 3
+				let PlaySoundPowerEditOnPlay := 1
+			elseif SelectedEffectId != -1 && SelectedEffectId != 3
+				let SelectedEffectId := 3
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 6 ;5
+			if SelectedEffectId == -1
+				let SelectedEffectId := 4
+				let PlaySoundPowerEditOnPlay := 1
+			elseif SelectedEffectId != -1 && SelectedEffectId != 4
+				let SelectedEffectId := 4
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 7 ;6
+			if SelectedEffectId == -1
+				let SelectedEffectId := 5
+				let PlaySoundPowerEditOnPlay := 1
+			elseif SelectedEffectId != -1 && SelectedEffectId != 5
+				let SelectedEffectId := 5
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 8 ;7
+			if SelectedEffectId == -1
+				let SelectedEffectId := 6
+				let PlaySoundPowerEditOnPlay := 1
+			elseif SelectedEffectId != -1 && SelectedEffectId != 6
+				let SelectedEffectId := 6
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 9 ;8
+			if SelectedEffectId == -1
+				let SelectedEffectId := 7
+				let PlaySoundPowerEditOnPlay := 1
+			elseif SelectedEffectId != -1 && SelectedEffectId != 7
+				let SelectedEffectId := 7
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 10 ;9
+			if SelectedEffectId == -1
+				let SelectedEffectId := 8
+				let PlaySoundPowerEditOnPlay := 1
+			elseif SelectedEffectId != -1 && SelectedEffectId != 8
+				let SelectedEffectId := 8
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 11 ;0
+			if SelectedEffectId == -1
+				let SelectedEffectId := 9
+				let PlaySoundPowerEditOnPlay := 1
+			elseif SelectedEffectId != -1 && SelectedEffectId != 9
+				let SelectedEffectId := 9
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		
+		if OnKeyDown 17 ;W
+			if SelectedEffectId != -1
+				let SelectedEffectId := SelectedEffectId - 1
+				let PageRoll := 1
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		if OnKeyDown 31 ;S
+			if SelectedEffectId != -1
+				let SelectedEffectId := SelectedEffectId + 1
+				let PageRoll := 1
+				let PlaySoundNavigateUpDownPlay := 1
+			endif
+		endif
+		
+		if OnKeyDown 57 ;SPACEBAR
+			if SelectedEffectId != -1
+				let SelectedEffectId := -1
+				let PlaySoundPowerEditOffPlay := 1
+			elseif SelectedEffectId == -1
+				let SelectedEffectId := 0
+				let PlaySoundPowerEditOnPlay := 1
+			endif
+		endif
+		
+	elseif MenuNumber == 10
+		if OnKeyDown 57 ;SPACEBAR
+			let MenuNumber := 0
+		endif
+	endif
+
+	let EffectIndex := 0
+	let EffectIndexMax := EffectsCount - EffectsPage*EffectsPerOnePage
+	if (EffectIndexMax > EffectsPerOnePage - 1)
+		let EffectIndexMax := EffectsPerOnePage-1
+	endif
+
+	if PageRoll == 1
+		if SelectedEffectId < 0
+			let SelectedEffectId := EffectIndexMax
+		elseif SelectedEffectId > EffectIndexMax
+			let SelectedEffectId := 0
+		endif
+		let PageRoll := 0
+	endif
+	if SelectedEffectId > EffectIndexMax
+		let SelectedEffectId := EffectIndexMax
+	endif
+
+	if MenuNumber == 0
+		SetInputText " " 0
+		InsertInInputText "<br><FONT face=2 color=ff8a00>Меню силы магических эффектов</FONT>"
+		if MPowerUnplanned != 0
+			InsertInInputText "<br><FONT face=3>Обученность - %g/%g/%g, не распределено - <FONT color=ff0000>%g</FONT>" MPowerCurrent MPowerAfterSleep MPowerMax MPowerUnplanned
+		else
+			InsertInInputText "<br><FONT face=3>Обученность - %g/%g/%g, не распределено - <FONT color=32CD32>%g</FONT>" MPowerCurrent MPowerAfterSleep MPowerMax MPowerUnplanned
+		endif
+		let tempvar1 := EffectsPage+1
+		let tempvar2 := EffectsPagesCount+1
+		InsertInInputText "<br><FONT face=3>Эфф. можно усилить до +%g прц., известные эффекты (стр. %g/%g):</FONT>" SpellMPowerMax tempvar1 tempvar2
+		InsertInInputText "<br>"
+		while EffectIndex <= EffectIndexMax
+			let EffectRef := KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][2]
+			if eval(ar_size KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage]) == 3
+				let EffectNameStr := $KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][2]
+			else
+				let EffectNameStr := $KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][6]
+			endif
+			let tempstr1 := GetMagicEffectChars EffectRef
+			let tempstr1 := $tempstr1
+			if eval(sv_Count $tempstr1 IconString >= 1)
+				let tempstr1 := sv_Construct "<br><FONT face=3><IMG src=icons\oekse\menu50\%z.dds width=30 height=30> [" tempstr1
+			else
+				let tempstr1 := sv_Construct "<br><FONT face=3><IMG src=icons\oekse\menu50\SEFF.dds width=30 height=30> ["
+			endif
+			
+			let tempvar1 := EffectIndex+1
+			if tempvar1 == 10
+				let tempvar1 := 0
+			endif
+			let tempstr1 := sv_Construct $tempstr1 + $tempvar1 + "] "
+			if KeaGenSpellNameSystem == 1
+				if eval(ar_size KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage]) == 3
+					let MagicSchoolId := GetMagicEffectSchool EffectRef
+				else
+					let MagicSchoolId := KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][7]
+				endif
+				if MagicSchoolId == 0
+					let tempstr1 := $tempstr1 + "Изм: "
+				elseif MagicSchoolId == 1
+					let tempstr1 := $tempstr1 + "Кол: "
+				elseif MagicSchoolId == 2
+					let tempstr1 := $tempstr1 + "Раз: "
+				elseif MagicSchoolId == 3
+					let tempstr1 := $tempstr1 + "Илл: "
+				elseif MagicSchoolId == 4
+					let tempstr1 := $tempstr1 + "Мис: "
+				elseif MagicSchoolId == 5
+					let tempstr1 := $tempstr1 + "Вос: "
+				endif
+				let tempstr1 := sv_Construct $tempstr1 + "</FONT>"
+			endif
+			if SelectedEffectId == EffectIndex
+				let tempstr1 := sv_Construct $tempstr1 + "<FONT face=3 color=ff0000>" + $EffectNameStr + "</FONT>"
+				if EffectStrengthDifference != 0
+					let EffectStrengthModOld := KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][1]
+					if EffectStrengthDifference > MPowerUnplanned
+						let EffectStrengthDifference := MPowerUnplanned
+					endif
+					let KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][1] += EffectStrengthDifference
+					if eval(KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][0]+KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][1] < 0)
+						let KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][1] := -KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][0]
+					endif
+					if eval(KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][0]+KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][1] > SpellMPowerMax)
+						let KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][1] := SpellMPowerMax - KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][0]
+					endif
+					let EffectStrengthDifference := 0
+					if eval(EffectStrengthModOld == KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][1])
+						let PlaySoundPowerUpPlay := 0
+						let PlaySoundPowerDownPlay := 0
+					endif
+				endif
+			else
+				let tempstr1 := sv_Construct $tempstr1 + "<FONT face=3>" + $EffectNameStr + "</FONT>"
+			endif
+			
+			if eval KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][1] < 0
+				let tempstr1 := sv_Construct $tempstr1 + "<FONT face=3> [" +$KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][1] + "]</FONT>"
+			endif
+			if eval KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][1] > 0
+				let tempstr1 := sv_Construct $tempstr1 + "<FONT face=3> [+" +$KeaEffectExtender.kME[EffectIndex+EffectsPage*EffectsPerOnePage][1] + "]</FONT>"
+			endif
+			InsertInInputText "%z" tempstr1
+			let EffectIndex := EffectIndex + 1
+		loop
+		while (EffectIndex <= EffectsPerOnePage - 1)
+			let tempstr1 := sv_Construct "<br><FONT face=3>-</FONT>"
+			InsertInInputText "%z" tempstr1
+			let EffectIndex := EffectIndex + 1
+		loop
+		if SelectedEffectId != -1
+			InsertInInputText "<br>"
+			InsertInInputText "<br><FONT face=3>[W] вверх, [S] вниз, [Q] мин., [A] -50, [Z] -10, [E] макс., [D] +50, [C] +10, [Пробел] вернуться к списку</FONT>"
+		else
+			InsertInInputText "<br>"
+			InsertInInputText "<br><FONT face=3>[A] влево, [D] вправо, [Пробел] или [1,2...8,9,0] выбрать эффект, <br>[R] отменить все изменения, [T] обнулить все эффекты, </FONT><FONT face=3 color=A9A9A9>[F1] - справка</FONT>"
+		endif
+		InsertInInputText "<br>"
+	endif
+	if MenuNumber == 10
+		SetInputText " " 0
+		InsertInInputText "<FONT face=3>Это меню служит для управления силой магических эффектов ваших заклинаний.</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>В справке (эта страница) описана общая информация по меню, для чего оно нужно и как им управлять. На главной странице - информация о вашей обученности (текущая/после сна/максимальная) и список известных магических эффектов, которые можно усилить.</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=1>Управление в меню справки:</FONT>"
+		InsertInInputText "<br><FONT face=3>Используйте область прокрутки справа или скроллинг для проматывания 'свитка'</FONT>"
+		InsertInInputText "<br><FONT face=3>[Пробел] - вернуться из справки в главное меню</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=1>Управление в главном меню:</FONT>"
+		InsertInInputText "<br><FONT face=3>[F1] - справка (эта страница)</FONT>"
+		InsertInInputText "<br><FONT face=3>[A] - перематывать список известных эффектов влево</FONT>"
+		InsertInInputText "<br><FONT face=3>[D] - перематывать список известных эффектов вправо</FONT>"
+		InsertInInputText "<br><FONT face=3>[1,2,3...8,9,0] - выбрать эффект из списка</FONT>"
+		InsertInInputText "<br><FONT face=3>[R] - отменить сделанные изменения</FONT>"
+		InsertInInputText "<br><FONT face=3>[T] - обнулить силу всех эффектов</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=1>Управление в меню силы эффекта:</FONT>"
+		InsertInInputText "<br><FONT face=3>[Q] - уменьшить силу эффекта до 0</FONT>"
+		InsertInInputText "<br><FONT face=3>[A] - уменьшить силу эффекта на 50</FONT>"
+		InsertInInputText "<br><FONT face=3>[Z] - уменьшить силу эффекта на 10</FONT>"
+		InsertInInputText "<br><FONT face=3>[E] - увеличить силу эффекта до максимума</FONT>"
+		InsertInInputText "<br><FONT face=3>[D] - увеличить силу эффекта на 50</FONT>"
+		InsertInInputText "<br><FONT face=3>[C] - увеличить силу эффекта на 10</FONT>"
+		InsertInInputText "<br><FONT face=3>[Пробел] - вернуться в главное меню</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>С помощью меню можно усилить большинсто известных заклинаний (но нельзя - почти все 'скриптовые' и способности), при этом усиливается не само заклинание, а его эффект. Например, вместо усиления заклинания 'Огненный шторм' усиливается эффект 'Урон огнем', который влияет и на 'Огненный шторм', и на все остальные огненные заклинания.</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>Заклинание 'узнается' в тот момент, когда игрок выбрал его для произношения (и закрыл все меню), произнес (скастовал) или же находится в меню заклинаний. Удаленные заклинания 'забываются' и если удалить все заклинания, связанные с каким-либо эффектом, то эффект также будет 'забыт'.</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>В (KSE) особый параметр - </FONT><FONT face=3 color=ff0000>обученность</FONT><FONT face=3> - определяет 'запас' такого усиления (на сколько эффектов его хватит). На усиление любого эффекта эта обученность 'расходуется' - например, чтобы усилить 'урон огнем' на +50 процентов (в 1,5 раза), необходимо 'потратить' 50 обученности. Чем выше уровень персонажа, тем выше предел усиления эффекта - до +200 процентов на 20 уровне.</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>Максимальная обученность - это запас обученности, текущая - сколько игрок потратил в данный момент на усиление эффектов. Максимальная обученность растет от повышения уровня персонажа, его интеллекта, силы воли (со способностью Волшебный стрелок вместо интеллекта и силы воли используется ловкость) и количества закрытых врат Обливиона.</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>Эффекты усиливаются не мгновенно - для вступления изменений в силу необходимо поспать.</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>Если удалить все связанные с эффектом заклинания (в меню магии навести курсор на заклинание и нажать кнопку Delete), то эффект также будет удален и забыт.</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>[Обнулить все эффекты] обнулит усиление всех эффектов и после сна сила любого эффекта и текущая обученность станет равными 0.</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>Также можно сразу 'обнулить' эффекты и перераспледелить их силу, а уже потом идти спать.</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>[Отменить все изменения] отменит внесенные в силу эффектов изменения. Усиление эффектов станет таким же, каким оно было после сна.</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>Перечень усиленных эффектов так же есть в книге дополнительной статистики (KSE).</FONT>"
+		InsertInInputText "<br>"
+		InsertInInputText "<br><FONT face=3>В подземелье имперской тюрьмы нет кроватей!</FONT>"
+	endif
+
+	if PlaySoundResetChangesPlay == 1 || PlaySoundNullifyAllPowersPlay == 1 || PlaySoundPowerUpPlay == 1 || PlaySoundPowerDownPlay == 1
+		let PlaySoundMPowerChangedPlay := 1
+	endif
+	
+	if PlaySoundPowerEditOnPlay
+		if PlaySoundPowerEditOnInstance == 0
+			PlaySound OEKSEUIPowerEditOn0
+			let PlaySoundPowerEditOnInstance := 1
+		elseif PlaySoundPowerEditOnInstance == 1
+			PlaySound OEKSEUIPowerEditOn1
+			let PlaySoundPowerEditOnInstance := 2
+		elseif PlaySoundPowerEditOnInstance == 2
+			PlaySound OEKSEUIPowerEditOn2
+			let PlaySoundPowerEditOnInstance := 3
+		elseif PlaySoundPowerEditOnInstance == 3
+			PlaySound OEKSEUIPowerEditOn3
+			let PlaySoundPowerEditOnInstance := 4
+		elseif PlaySoundPowerEditOnInstance == 4
+			PlaySound OEKSEUIPowerEditOn4
+			let PlaySoundPowerEditOnInstance := 0
+		endif
+		let PlaySoundPowerEditOnPlay := 0
+		let MenuTimer := 0.2
+	endif
+	if PlaySoundPowerEditOffPlay
+		if PlaySoundPowerEditOffInstance == 0
+			PlaySound OEKSEUIPowerEditOff0
+			let PlaySoundPowerEditOffInstance := 1
+		elseif PlaySoundPowerEditOffInstance == 1
+			PlaySound OEKSEUIPowerEditOff1
+			let PlaySoundPowerEditOffInstance := 2
+		elseif PlaySoundPowerEditOffInstance == 2
+			PlaySound OEKSEUIPowerEditOff2
+			let PlaySoundPowerEditOffInstance := 0
+		endif
+		let PlaySoundPowerEditOffPlay := 0
+		let MenuTimer := 0.2
+	endif
+	if PlaySoundPageTurnPlay
+		if PlaySoundPageTurnInstance == 0
+			PlaySound OEKSEUIPageTurn0
+			let PlaySoundPageTurnInstance := 1
+		elseif PlaySoundPageTurnInstance == 1
+			PlaySound OEKSEUIPageTurn1
+			let PlaySoundPageTurnInstance := 2
+		elseif PlaySoundPageTurnInstance == 2
+			PlaySound OEKSEUIPageTurn2
+			let PlaySoundPageTurnInstance := 3
+		elseif PlaySoundPageTurnInstance == 3
+			PlaySound OEKSEUIPageTurn3
+			let PlaySoundPageTurnInstance := 4
+		elseif PlaySoundPageTurnInstance == 4
+			PlaySound OEKSEUIPageTurn4
+			let PlaySoundPageTurnInstance := 5
+		elseif PlaySoundPageTurnInstance == 5
+			PlaySound OEKSEUIPageTurn5
+			let PlaySoundPageTurnInstance := 6
+		elseif PlaySoundPageTurnInstance == 6
+			PlaySound OEKSEUIPageTurn6
+			let PlaySoundPageTurnInstance := 7
+		elseif PlaySoundPageTurnInstance == 7
+			PlaySound OEKSEUIPageTurn7
+			let PlaySoundPageTurnInstance := 8
+		elseif PlaySoundPageTurnInstance == 8
+			PlaySound OEKSEUIPageTurn8
+			let PlaySoundPageTurnInstance := 9
+		elseif PlaySoundPageTurnInstance == 9
+			PlaySound OEKSEUIPageTurn9
+			let PlaySoundPageTurnInstance := 0
+		endif
+		let PlaySoundPageTurnPlay := 0
+		let MenuTimer := 0.1
+	endif
+	if PlaySoundNavigateUpDownPlay
+		if PlaySoundNavigateUpDownInstance == 0
+			PlaySound OEKSEUINavigateUpDown0
+			let PlaySoundNavigateUpDownInstance := 1
+		elseif PlaySoundNavigateUpDownInstance == 1
+			PlaySound OEKSEUINavigateUpDown1
+			let PlaySoundNavigateUpDownInstance := 2
+		elseif PlaySoundNavigateUpDownInstance == 2
+			PlaySound OEKSEUINavigateUpDown2
+			let PlaySoundNavigateUpDownInstance := 3
+		elseif PlaySoundNavigateUpDownInstance == 3
+			PlaySound OEKSEUINavigateUpDown3
+			let PlaySoundNavigateUpDownInstance := 4
+		elseif PlaySoundNavigateUpDownInstance == 4
+			PlaySound OEKSEUINavigateUpDown4
+			let PlaySoundNavigateUpDownInstance := 5
+		elseif PlaySoundNavigateUpDownInstance == 5
+			PlaySound OEKSEUINavigateUpDown5
+			let PlaySoundNavigateUpDownInstance := 6
+		elseif PlaySoundNavigateUpDownInstance == 6
+			PlaySound OEKSEUINavigateUpDown6
+			let PlaySoundNavigateUpDownInstance := 7
+		elseif PlaySoundNavigateUpDownInstance == 7
+			PlaySound OEKSEUINavigateUpDown7
+			let PlaySoundNavigateUpDownInstance := 8
+		elseif PlaySoundNavigateUpDownInstance == 8
+			PlaySound OEKSEUINavigateUpDown8
+			let PlaySoundNavigateUpDownInstance := 9
+		elseif PlaySoundNavigateUpDownInstance == 9
+			PlaySound OEKSEUINavigateUpDown9
+			let PlaySoundNavigateUpDownInstance := 0
+		endif
+		let PlaySoundNavigateUpDownPlay := 0
+		let MenuTimer := 0.1
+	endif
+	if PlaySoundResetChangesPlay
+		if PlaySoundResetChangesInstance == 0
+			PlaySound OEKSEUIResetChanges0
+			let PlaySoundResetChangesInstance := 1
+		elseif PlaySoundResetChangesInstance == 1
+			PlaySound OEKSEUIResetChanges1
+			let PlaySoundResetChangesInstance := 2
+		elseif PlaySoundResetChangesInstance == 2
+			PlaySound OEKSEUIResetChanges2
+			let PlaySoundResetChangesInstance := 0
+		endif
+		let PlaySoundResetChangesPlay := 0
+		let MenuTimer := 0.5
+	endif
+	if PlaySoundNullifyAllPowersPlay
+		if PlaySoundNullifyAllPowersInstance == 0
+			PlaySound OEKSEUINullifyAllPowers0
+			let PlaySoundNullifyAllPowersInstance := 1
+		elseif PlaySoundNullifyAllPowersInstance == 1
+			PlaySound OEKSEUINullifyAllPowers1
+			let PlaySoundNullifyAllPowersInstance := 2
+		elseif PlaySoundNullifyAllPowersInstance == 2
+			PlaySound OEKSEUINullifyAllPowers2
+			let PlaySoundNullifyAllPowersInstance := 0
+		endif
+		let PlaySoundNullifyAllPowersPlay := 0
+		let MenuTimer := 0.5
+	endif
+	if PlaySoundPowerUpPlay
+		if PlaySoundPowerUpInstance == 0
+			PlaySound OEKSEUIPowerUp0
+			let PlaySoundPowerUpInstance := 1
+		elseif PlaySoundPowerUpInstance == 1
+			PlaySound OEKSEUIPowerUp1
+			let PlaySoundPowerUpInstance := 2
+		elseif PlaySoundPowerUpInstance == 2
+			PlaySound OEKSEUIPowerUp2
+			let PlaySoundPowerUpInstance := 3
+		elseif PlaySoundPowerUpInstance == 3
+			PlaySound OEKSEUIPowerUp3
+			let PlaySoundPowerUpInstance := 4
+		elseif PlaySoundPowerUpInstance == 4
+			PlaySound OEKSEUIPowerUp4
+			let PlaySoundPowerUpInstance := 5
+		elseif PlaySoundPowerUpInstance == 5
+			PlaySound OEKSEUIPowerUp5
+			let PlaySoundPowerUpInstance := 6
+		elseif PlaySoundPowerUpInstance == 6
+			PlaySound OEKSEUIPowerUp6
+			let PlaySoundPowerUpInstance := 7
+		elseif PlaySoundPowerUpInstance == 7
+			PlaySound OEKSEUIPowerUp7
+			let PlaySoundPowerUpInstance := 8
+		elseif PlaySoundPowerUpInstance == 8
+			PlaySound OEKSEUIPowerUp8
+			let PlaySoundPowerUpInstance := 9
+		elseif PlaySoundPowerUpInstance == 9
+			PlaySound OEKSEUIPowerUp9
+			let PlaySoundPowerUpInstance := 0
+		endif
+		let PlaySoundPowerUpPlay := 0
+		let MenuTimer := 0.1
+	endif
+	if PlaySoundPowerDownPlay
+		if PlaySoundPowerDownInstance == 0
+			PlaySound OEKSEUIPowerDown0
+			let PlaySoundPowerDownInstance := 1
+		elseif PlaySoundPowerDownInstance == 1
+			PlaySound OEKSEUIPowerDown1
+			let PlaySoundPowerDownInstance := 2
+		elseif PlaySoundPowerDownInstance == 2
+			PlaySound OEKSEUIPowerDown2
+			let PlaySoundPowerDownInstance := 0
+		endif
+		let PlaySoundPowerDownPlay := 0
+		let MenuTimer := 0.1
+	endif
+endif
+
+End

@@ -1,0 +1,155 @@
+﻿scn OEKSEEmergencyEmpowerWipeQScr
+
+float fQuestDelayTime
+
+short OEKSEArrSize
+short OEKSEIndex
+short OEKSEEmergencyFlag
+short OEKSEEffectsCount
+float OEKSEMagStats
+float OEKSEEffectMagnitude
+float OEKSEMagResult
+
+ref OEKSESpellRef
+ref OEKSESpellClone
+
+begin gamemode
+
+;при нормальных условиях игрок не в состоянии выйти из меню загрузки обратно в гейммод, минуя меню паузы
+;тем не менее
+if OEKSEEmergencyFlag == 1 || GetGameLoaded || GetGameRestarted 
+	if OEKSEInitQ.OEKSEEmergencyEmpowerWipeQScrDebugMode == 1
+		SetDebugMode 1 OEKSEInitQ.KSEModIndex
+	endif
+	debugprint "Возврат всех усиленных заклинаний обратно в усиленное состояние после выхода из меню загрузки или после загрузки игры/сохранения в гейммоде"
+	let OEKSEArrSize := ar_size KeaEVENTSQ.EmpoweredSpellsArray
+	if OEKSEArrSize > 0
+		set OEKSEMagResult to (1 + ((player.getlevel - keaActorsPowerSpellLvl)/10)*keaActorsPowerSpellMod)
+		if OEKSEMagResult > keaActorsPowerSpellMod*3
+			let OEKSEMagResult := keaActorsPowerSpellMod*3
+		endif
+		if OEKSEMagResult < 1
+			let OEKSEMagResult := 1
+		endif
+		let OEKSEIndex := 0
+		while OEKSEIndex < OEKSEArrSize
+			let OEKSESpellRef := KeaEVENTSQ.EmpoweredSpellsArray[OEKSEIndex][0]
+			let OEKSESpellClone := KeaEVENTSQ.EmpoweredSpellsArray[OEKSEIndex][1]
+			RemoveAllEffectItems OEKSESpellRef
+			CopyAllEffectItems OEKSESpellClone OEKSESpellRef
+			debugprint "Рассматривается заклинание [%n][%i]" OEKSESpellRef OEKSESpellRef
+			set OEKSEEffectsCount to  GetMagicItemEffectCount OEKSESpellRef
+			while OEKSEEffectsCount > 0
+				set OEKSEEffectsCount to OEKSEEffectsCount  - 1
+				set OEKSEEffectMagnitude to GetNthEffectItemMagnitude OEKSESpellRef OEKSEEffectsCount  
+				if OEKSEEffectMagnitude > 0
+					debugprint "Старое значение магнитуды - [%f]" OEKSEEffectMagnitude
+					set OEKSEEffectMagnitude to OEKSEEffectMagnitude * OEKSEMagResult
+					debugprint "Новое значение магнитуды - [%f]" OEKSEEffectMagnitude
+					setNthEffectItemMagnitude OEKSEEffectMagnitude OEKSESpellRef OEKSEEffectsCount  
+				endif
+				let OEKSEIndex := OEKSEIndex + 1
+			loop
+		loop
+	endif
+	let OEKSEEmergencyFlag := 0
+	if OEKSEInitQ.OEKSEEmergencyEmpowerWipeQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+endif
+
+end
+
+begin menumode 1013
+
+if OEKSEEmergencyFlag == 1
+	if OEKSEInitQ.OEKSEEmergencyEmpowerWipeQScrDebugMode == 1
+		SetDebugMode 1 OEKSEInitQ.KSEModIndex
+	endif
+	debugprint "Возврат всех усиленных заклинаний обратно в усиленное состояние после выхода из меню загрузки в главное меню (меню паузы)"
+	let OEKSEArrSize := ar_size KeaEVENTSQ.EmpoweredSpellsArray
+	if OEKSEArrSize > 0
+		set OEKSEMagResult to (1 + ((player.getlevel - keaActorsPowerSpellLvl)/10)*keaActorsPowerSpellMod)
+		if OEKSEMagResult > keaActorsPowerSpellMod*3
+			let OEKSEMagResult := keaActorsPowerSpellMod*3
+		endif
+		if OEKSEMagResult < 1
+			let OEKSEMagResult := 1
+		endif
+		let OEKSEIndex := 0
+		while OEKSEIndex < OEKSEArrSize
+			let OEKSESpellRef := KeaEVENTSQ.EmpoweredSpellsArray[OEKSEIndex][0]
+			let OEKSESpellClone := KeaEVENTSQ.EmpoweredSpellsArray[OEKSEIndex][1]
+			RemoveAllEffectItems OEKSESpellRef
+			CopyAllEffectItems OEKSESpellClone OEKSESpellRef
+			debugprint "Рассматривается заклинание [%n][%i]" OEKSESpellRef OEKSESpellRef
+			set OEKSEEffectsCount to  GetMagicItemEffectCount OEKSESpellRef
+			while OEKSEEffectsCount > 0
+				set OEKSEEffectsCount to OEKSEEffectsCount  - 1
+				set OEKSEEffectMagnitude to GetNthEffectItemMagnitude OEKSESpellRef OEKSEEffectsCount  
+				if OEKSEEffectMagnitude > 0
+					debugprint "Старое значение магнитуды - [%f]" OEKSEEffectMagnitude
+					set OEKSEEffectMagnitude to OEKSEEffectMagnitude * OEKSEMagResult
+					debugprint "Новое значение магнитуды - [%f]" OEKSEEffectMagnitude
+					setNthEffectItemMagnitude OEKSEEffectMagnitude OEKSESpellRef OEKSEEffectsCount  
+				endif
+			let OEKSEIndex := OEKSEIndex + 1
+			loop
+		loop
+	endif
+	let OEKSEEmergencyFlag := 0
+	if OEKSEInitQ.OEKSEEmergencyEmpowerWipeQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+endif
+
+end
+
+begin menumode 1038
+
+;Из-за особенности работы движка замечательной игры Обливион после изменения параметров заклинаний
+;и загрузки ПРЕДЫДУЩЕЙ игры параметры заклинаний остаются измененными! А, т.к. путешествия во времени
+;еще невозможны, то и нельзя сообщить старым сейвам о том, что в будущем что-то поменяется.
+;Однако, выход есть.
+
+if OEKSEInitQ.OEKSEEmergencyEmpowerWipeQScrDebugMode == 1
+	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+endif
+
+if PlayerRef.GetDead == 1
+	let OEKSEArrSize := ar_size KeaEVENTSQ.EmpoweredSpellsArray
+	if OEKSEArrSize > 0
+		debugprint "АВАРИЙНЫЙ возврат всех усиленных заклинаний в норму при смерти игрока! Всего имеется [%g] усиленных заклинаний." OEKSEArrSize
+		let OEKSEIndex := 0
+		while OEKSEIndex < OEKSEArrSize
+			let OEKSESpellRef := KeaEVENTSQ.EmpoweredSpellsArray[OEKSEIndex][0]
+			let OEKSESpellClone := KeaEVENTSQ.EmpoweredSpellsArray[OEKSEIndex][1]
+			RemoveAllEffectItems OEKSESpellRef
+			CopyAllEffectItems OEKSESpellClone OEKSESpellRef
+			debugprint "Заклинание [%n][%i] возвращено в норму" OEKSESpellRef OEKSESpellRef
+			let OEKSEIndex := OEKSEIndex + 1
+		loop
+		let KeaEVENTSQ.EmpoweredSpellsArray := ar_construct Array
+	endif
+elseif OEKSEEmergencyFlag == 0
+	let OEKSEArrSize := ar_size KeaEVENTSQ.EmpoweredSpellsArray
+	if OEKSEArrSize > 0
+		debugprint "Игрок вышел в меню загрузки, при этом имеется [%g] усиленных заклинаний! Обнуление усилений с сохранением массива." OEKSEArrSize
+		let OEKSEIndex := 0
+		while OEKSEIndex < OEKSEArrSize
+			let OEKSESpellRef := KeaEVENTSQ.EmpoweredSpellsArray[OEKSEIndex][0]
+			let OEKSESpellClone := KeaEVENTSQ.EmpoweredSpellsArray[OEKSEIndex][1]
+			RemoveAllEffectItems OEKSESpellRef
+			CopyAllEffectItems OEKSESpellClone OEKSESpellRef
+			debugprint "Заклинание [%n][%i] возвращено в норму" OEKSESpellRef OEKSESpellRef
+			let OEKSEIndex := OEKSEIndex + 1
+		loop
+		let OEKSEEmergencyFlag := 1
+	endif
+endif
+
+if OEKSEInitQ.OEKSEEmergencyEmpowerWipeQScrDebugMode == 1
+	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+endif
+
+end

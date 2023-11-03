@@ -1,0 +1,146 @@
+﻿scn OETESTGetAllAnimGroupsPlayingMEScr
+
+short AnimGroupIsPlayed
+
+ref Self
+
+begin ScriptEffectStart
+
+let Self := GetSelf
+
+printc "Актер [%n][%i], в данный момент проигрывает следующие анимации:" Self Self
+printc "=============="
+if IsAnimGroupPlaying Idle
+	printc "Idle"
+endif
+if IsAnimGroupPlaying DynamicIdle
+	printc "DynamicIdle"
+endif
+if IsAnimGroupPlaying SpecialIdle
+	printc "SpecialIdle"
+endif
+if IsAnimGroupPlaying Forward
+	printc "Forward"
+endif
+if IsAnimGroupPlaying Backward
+	printc "Backward"
+endif
+if IsAnimGroupPlaying Left
+	printc "Left"
+endif
+if IsAnimGroupPlaying Right
+	printc "Right"
+endif
+if IsAnimGroupPlaying FastForward
+	printc "FastForward"
+endif
+if IsAnimGroupPlaying FastBackward
+	printc "FastBackward"
+endif
+if IsAnimGroupPlaying FastLeft
+	printc "FastLeft"
+endif
+if IsAnimGroupPlaying FastRight
+	printc "FastRight"
+endif
+if IsAnimGroupPlaying DodgeForward
+	printc "DodgeForward"
+endif
+if IsAnimGroupPlaying DodgeBack
+	printc "DodgeBack"
+endif
+if IsAnimGroupPlaying DodgeLeft
+	printc "DodgeLeft"
+endif
+if IsAnimGroupPlaying DodgeRight
+	printc "DodgeRight"
+endif
+if IsAnimGroupPlaying TurnLeft
+	printc "TurnLeft"
+endif
+if IsAnimGroupPlaying TurnRight
+	printc "TurnRight"
+endif
+if IsAnimGroupPlaying Equip
+	printc "Equip"
+endif
+if IsAnimGroupPlaying Unequip
+	printc "Unequip"
+endif
+if IsAnimGroupPlaying AttackBow
+	printc "AttackBow"
+endif
+if IsAnimGroupPlaying AttackLeft
+	printc "AttackLeft"
+endif
+if IsAnimGroupPlaying AttackRight
+	printc "AttackRight"
+endif
+if IsAnimGroupPlaying AttackPower
+	printc "AttackPower"
+endif
+if IsAnimGroupPlaying AttackForwardPower
+	printc "AttackForwardPower"
+endif
+if IsAnimGroupPlaying AttackBackPower
+	printc "AttackBackPower"
+endif
+if IsAnimGroupPlaying AttackLeftPower
+	printc "AttackLeftPower"
+endif
+if IsAnimGroupPlaying AttackRightPower
+	printc "AttackRightPower"
+endif
+if IsAnimGroupPlaying BlockIdle
+	printc "BlockIdle"
+endif
+if IsAnimGroupPlaying BlockHit
+	printc "BlockHit"
+endif
+if IsAnimGroupPlaying BlockAttack
+	printc "BlockAttack"
+endif
+if IsAnimGroupPlaying Recoil
+	printc "Recoil"
+endif
+if IsAnimGroupPlaying Stagger
+	printc "Stagger"
+endif
+if IsAnimGroupPlaying Death
+	printc "Death"
+endif
+if IsAnimGroupPlaying TorchIdle
+	printc "TorchIdle"
+endif
+if IsAnimGroupPlaying CastSelf
+	printc "CastSelf"
+endif
+if IsAnimGroupPlaying CastTouch
+	printc "CastTouch"
+endif
+if IsAnimGroupPlaying CastTarget
+	printc "CastTarget"
+endif
+if IsAnimGroupPlaying CastSelfAlt
+	printc "CastSelfAlt"
+endif
+if IsAnimGroupPlaying CastTouchAlt
+	printc "CastTouchAlt"
+endif
+if IsAnimGroupPlaying CastTargetAlt
+	printc "CastTargetAlt"
+endif
+if IsAnimGroupPlaying JumpStart
+	printc "JumpStart"
+endif
+if IsAnimGroupPlaying JumpLoop
+	printc "JumpLoop"
+endif
+if IsAnimGroupPlaying JumpLand
+	printc "JumpLand"
+endif
+printc "=============="
+
+messagebox "AnimGroups"
+
+end

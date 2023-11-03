@@ -1,0 +1,223 @@
+﻿scn OEAddElementalResistTokenFScr
+
+ref ScriptTarget
+short RandomDice
+short FireResistStrength
+short FrostResistStrength
+short ShockResistStrength
+short IsFireResistCritical
+short IsFrostResistCritical
+short IsShockResistCritical
+short ActorHasResistFireToken
+short ActorHasResistFrostToken
+short ActorHasResistShockToken
+
+short FireResistLowTokenCount
+short FireResistMidTokenCount
+short FireResistHighTokenCount
+short FireImmuneTokenCount
+short FrostResistLowTokenCount
+short FrostResistMidTokenCount
+short FrostResistHighTokenCount
+short FrostImmuneTokenCount
+short ShockResistLowTokenCount
+short ShockResistMidTokenCount
+short ShockResistHighTokenCount
+short ShockImmuneTokenCount
+
+short DebugEnabled
+
+float ResistFireMagSum
+float ResistFrostMagSum
+float ResistShockMagSum
+float ImmuneChance
+
+begin function { ScriptTarget }
+
+set RandomDice to rand 1, 6.99
+if RandomDice == 1
+	set FireResistStrength to 0
+	set FrostResistStrength to 1
+	set ShockResistStrength to -1
+elseif RandomDice == 2
+	set FireResistStrength to 0
+	set ShockResistStrength to 1
+	set FrostResistStrength to -1
+elseif RandomDice == 3
+	set FrostResistStrength to 0
+	set FireResistStrength to 1
+	set ShockResistStrength to -1
+elseif RandomDice == 4
+	set FrostResistStrength to 0
+	set ShockResistStrength to 1
+	set FireResistStrength to -1
+elseif RandomDice == 5
+	set ShockResistStrength to 0
+	set FireResistStrength to 1
+	set FrostResistStrength to -1
+elseif RandomDice == 6
+	set ShockResistStrength to 0
+	set FrostResistStrength to 1
+	set FireResistStrength to -1
+endif
+
+set ImmuneChance to OEAdditionalElementalImmuneChance + 0.99
+
+set ResistFireMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSFI + ScriptTarget.GetTotalAEAbilityMagnitude WKFI + ScriptTarget.GetTotalAEAbilityMagnitude FISH + ScriptTarget.GetTotalAELesserPowerMagnitude RSFI + ScriptTarget.GetTotalAELesserPowerMagnitude WKFI + ScriptTarget.GetTotalAELesserPowerMagnitude FISH + ScriptTarget.GetTotalAEPowerMagnitude RSFI + ScriptTarget.GetTotalAEPowerMagnitude WKFI + ScriptTarget.GetTotalAEPowerMagnitude FISH
+set ResistFrostMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSFR + ScriptTarget.GetTotalAEAbilityMagnitude WKFR + ScriptTarget.GetTotalAEAbilityMagnitude FRSH + ScriptTarget.GetTotalAELesserPowerMagnitude RSFR + ScriptTarget.GetTotalAELesserPowerMagnitude WKFR + ScriptTarget.GetTotalAELesserPowerMagnitude FRSH + ScriptTarget.GetTotalAEPowerMagnitude RSFR + ScriptTarget.GetTotalAEPowerMagnitude WKFR + ScriptTarget.GetTotalAEPowerMagnitude FRSH
+set ResistShockMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSSH + ScriptTarget.GetTotalAEAbilityMagnitude WKSH + ScriptTarget.GetTotalAEAbilityMagnitude LISH + ScriptTarget.GetTotalAELesserPowerMagnitude RSSH + ScriptTarget.GetTotalAELesserPowerMagnitude WKSH + ScriptTarget.GetTotalAELesserPowerMagnitude LISH + ScriptTarget.GetTotalAEPowerMagnitude RSSH + ScriptTarget.GetTotalAEPowerMagnitude WKSH + ScriptTarget.GetTotalAEPowerMagnitude LISH
+
+;debugprint "Актер [%n], ResistFireMagSum = %g, ResistFrostMagSum = %g, ResistShockMagSum = %g" ScriptTarget ResistFireMagSum ResistFrostMagSum ResistShockMagSum
+
+if ResistFireMagSum >= 100
+	set FireImmuneTokenCount to ScriptTarget.getitemcount OEFireImmuneToken
+	ScriptTarget.removeitem OEFireImmuneToken FireImmuneTokenCount
+	set ActorHasResistFireToken to 1
+	ScriptTarget.additem OEFireImmuneToken 1
+	;debugprint "Актеру [%n] выдан токен иммунитета от огня, т.к. у него есть врожденный иммунитет от огня" ScriptTarget
+endif
+if ActorHasResistFireToken == 0
+	if (OEAdditionalElementalImmune == 1) && (OEAdditionalElementalImmuneLevel <= player.getlevel)
+		set RandomDice to rand 1, ImmuneChance
+		if RandomDice == 1
+			set IsFireResistCritical to 1
+		endif
+	endif
+	if IsFireResistCritical == 1
+		set FireImmuneTokenCount to ScriptTarget.getitemcount OEFireImmuneToken
+		ScriptTarget.removeitem OEFireImmuneToken FireImmuneTokenCount
+		ScriptTarget.additem OEFireImmuneToken 1
+		;debugprint "Актеру [%n] выдан токен иммунитета от огня" ScriptTarget
+	endif
+	if IsFireResistCritical != 1
+		if FireResistStrength == -1
+			set FireResistLowTokenCount to ScriptTarget.getitemcount OEFireResistLowToken
+			ScriptTarget.removeitem OEFireResistLowToken FireResistLowTokenCount
+			ScriptTarget.additem OEFireResistLowToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от огня пониженного уровня" ScriptTarget
+		elseif FireResistStrength == 0
+			set FireResistMidTokenCount to ScriptTarget.getitemcount OEFireResistMidToken
+			ScriptTarget.removeitem OEFireResistMidToken FireResistMidTokenCount
+			ScriptTarget.additem OEFireResistMidToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от огня среднего уровня" ScriptTarget
+		elseif FireResistStrength == 1
+			set FireResistHighTokenCount to ScriptTarget.getitemcount OEFireResistHighToken
+			ScriptTarget.removeitem OEFireResistHighToken FireResistHighTokenCount
+			ScriptTarget.additem OEFireResistHighToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от огня повышенного уровня" ScriptTarget
+		endif
+	endif
+endif
+
+if ResistFrostMagSum >= 100
+	set FrostImmuneTokenCount to ScriptTarget.getitemcount OEFrostImmuneToken
+	ScriptTarget.removeitem OEFrostImmuneToken FrostImmuneTokenCount
+	set ActorHasResistFrostToken to 1
+	ScriptTarget.additem OEFrostImmuneToken 1
+	;debugprint "Актеру [%n] выдан токен иммунитета от холода, т.к. у него есть врожденный иммунитет от холода" ScriptTarget
+endif
+if ActorHasResistFrostToken == 0
+	if (OEAdditionalElementalImmune == 1) && (OEAdditionalElementalImmuneLevel <= player.getlevel)
+		set RandomDice to rand 1, ImmuneChance
+		if RandomDice == 1
+			set IsFrostResistCritical to 1
+		endif
+	endif
+	if IsFrostResistCritical == 1
+		ScriptTarget.removeitem OEFrostImmuneToken FrostImmuneTokenCount
+		ScriptTarget.additem OEFrostImmuneToken 1
+		;debugprint "Актеру [%n] выдан токен иммунитета от холода" ScriptTarget
+	endif
+	if IsFrostResistCritical != 1
+		if FrostResistStrength == -1
+			set FrostResistLowTokenCount to ScriptTarget.getitemcount OEFrostResistLowToken
+			ScriptTarget.removeitem OEFrostResistLowToken FrostResistLowTokenCount
+			ScriptTarget.additem OEFrostResistLowToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от холода пониженного уровня" ScriptTarget
+		elseif FrostResistStrength == 0
+			set FrostResistMidTokenCount to ScriptTarget.getitemcount OEFrostResistMidToken
+			ScriptTarget.removeitem OEFrostResistMidToken FrostResistMidTokenCount
+			ScriptTarget.additem OEFrostResistMidToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от холода среднего уровня" ScriptTarget
+		elseif FrostResistStrength == 1
+			set FrostResistHighTokenCount to ScriptTarget.getitemcount OEFrostResistHighToken
+			ScriptTarget.removeitem OEFrostResistHighToken FrostResistHighTokenCount
+			ScriptTarget.additem OEFrostResistHighToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от холода повышенного уровня" ScriptTarget
+		endif
+	endif
+endif
+
+if ResistShockMagSum >= 100
+	set ShockImmuneTokenCount to ScriptTarget.getitemcount OEShockImmuneToken
+	ScriptTarget.removeitem OEShockImmuneToken ShockImmuneTokenCount
+	set ActorHasResistShockToken to 1
+	ScriptTarget.additem OEShockImmuneToken 1
+	;debugprint "Актеру [%n] выдан токен иммунитета от электричества, т.к. у него есть врожденный иммунитет от электричества" ScriptTarget
+endif
+if ActorHasResistShockToken == 0
+	if (OEAdditionalElementalImmune == 1) && (OEAdditionalElementalImmuneLevel <= player.getlevel)
+		set RandomDice to rand 1, ImmuneChance
+		if RandomDice == 1
+			set IsShockResistCritical to 1
+		endif
+	endif
+	if IsShockResistCritical == 1
+		ScriptTarget.removeitem OEShockImmuneToken ShockImmuneTokenCount
+		ScriptTarget.additem OEShockImmuneToken 1
+		;debugprint "Актеру [%n] выдан токен иммунитета от электричества" ScriptTarget
+	endif
+	if IsShockResistCritical != 1
+		if ShockResistStrength == -1
+			set ShockResistLowTokenCount to ScriptTarget.getitemcount OEShockResistLowToken
+			ScriptTarget.removeitem OEShockResistLowToken ShockResistLowTokenCount
+			ScriptTarget.additem OEShockResistLowToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от электричества пониженного уровня" ScriptTarget
+		elseif ShockResistStrength == 0
+			set ShockResistMidTokenCount to ScriptTarget.getitemcount OEShockResistMidToken
+			ScriptTarget.removeitem OEShockResistMidToken ShockResistMidTokenCount
+			ScriptTarget.additem OEShockResistMidToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от электричества среднего уровня" ScriptTarget
+		elseif ShockResistStrength == 1
+			set ShockResistHighTokenCount to ScriptTarget.getitemcount OEShockResistHighToken
+			ScriptTarget.removeitem OEShockResistHighToken ShockResistHighTokenCount
+			ScriptTarget.additem OEShockResistHighToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от электричества повышенного уровня" ScriptTarget
+		endif
+	endif
+endif
+
+
+;debugprint "IsFireResistCritical = %g, IsFrostResistCritical = %g, IsShockResistCritical = %g" IsFireResistCritical IsFrostResistCritical IsShockResistCritical
+
+
+
+
+
+if DebugEnabled == 1
+	set FireResistLowTokenCount to ScriptTarget.getitemcount OEFireResistLowToken
+	set FireResistMidTokenCount to ScriptTarget.getitemcount OEFireResistMidToken
+	set FireResistHighTokenCount to ScriptTarget.getitemcount OEFireResistHighToken
+	set FireImmuneTokenCount to ScriptTarget.getitemcount OEFireImmuneToken
+	;debugprint "FireResistLowTokenCount = %g FireResistMidTokenCount = %g FireResistHighTokenCount = %g FireImmuneTokenCount = %g" FireResistLowTokenCount FireResistMidTokenCount FireResistHighTokenCount FireImmuneTokenCount
+	set FrostResistLowTokenCount to ScriptTarget.getitemcount OEFrostResistLowToken
+	set FrostResistMidTokenCount to ScriptTarget.getitemcount OEFrostResistMidToken
+	set FrostResistHighTokenCount to ScriptTarget.getitemcount OEFrostResistHighToken
+	set FrostImmuneTokenCount to ScriptTarget.getitemcount OEFrostImmuneToken
+	;debugprint "FrostResistLowTokenCount = %g FrostResistMidTokenCount = %g FrostResistHighTokenCount = %g FrostImmuneTokenCount = %g" FrostResistLowTokenCount FrostResistMidTokenCount FrostResistHighTokenCount FrostImmuneTokenCount
+	set ShockResistLowTokenCount to ScriptTarget.getitemcount OEShockResistLowToken
+	set ShockResistMidTokenCount to ScriptTarget.getitemcount OEShockResistMidToken
+	set ShockResistHighTokenCount to ScriptTarget.getitemcount OEShockResistHighToken
+	set ShockImmuneTokenCount to ScriptTarget.getitemcount OEShockImmuneToken
+	;debugprint "ShockResistLowTokenCount = %g ShockResistMidTokenCount = %g ShockResistHighTokenCount = %g ShockImmuneTokenCount = %g" ShockResistLowTokenCount ShockResistMidTokenCount ShockResistHighTokenCount ShockImmuneTokenCount
+endif
+
+;debugprint "Актеру [%n] выдан токен элементальной защиты" ScriptTarget
+ScriptTarget.additem OEElementalResistToken 1
+
+
+
+;debugprint "конец функции"
+
+
+end

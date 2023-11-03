@@ -1,0 +1,191 @@
+﻿scn OEKSECalcPlayerToughtnessCoefficientFScr
+
+short AttributesVal
+short SkillsVal
+short CurrentWeaponType
+short PlayerIsEquippedWithLightArmor
+short PlayerIsEquippedWithHeavyArmor
+short PlayerIsEquippedWithNoneArmor
+short EnemiesAroundPCCount
+float ActorsCoef
+float ToughtnessCoefficient
+
+ref ObjectRef
+ref ActorRef
+
+begin function {}
+
+if KeaPCToughtness == 1 && GetSelf == PlayerRef
+else
+	SetFunctionValue 1
+	return
+endif
+
+let AttributesVal := 0
+if PlayerRef.GetAV Agility > AttributesVal
+	let AttributesVal := PlayerRef.GetAV Agility
+endif
+if PlayerRef.GetAV Speed > AttributesVal
+	let AttributesVal := PlayerRef.GetAV Speed
+endif
+if PlayerRef.GetAV Endurance > AttributesVal
+	let AttributesVal := PlayerRef.GetAV Endurance
+endif
+
+let SkillsVal := 0
+let ObjectRef := PlayerRef.GetEquippedObject 16
+let CurrentWeaponType := GetWeaponType ObjectRef
+let PlayerIsEquippedWithLightArmor := 0
+let PlayerIsEquippedWithHeavyArmor := 0
+let PlayerIsEquippedWithNoneArmor := 0
+let ObjectRef := PlayerRef.GetEquippedObject 0
+if ObjectRef
+	if GetObjectType ObjectRef == 20
+		if GetArmorType ObjectRef == 0
+			let PlayerIsEquippedWithLightArmor := 1
+		elseif GetArmorType ObjectRef == 1
+			let PlayerIsEquippedWithHeavyArmor := 1
+		endif
+	else
+		let PlayerIsEquippedWithNoneArmor := 1
+	endif
+endif
+let ObjectRef := PlayerRef.GetEquippedObject 1
+if ObjectRef
+	if GetObjectType ObjectRef == 20
+		if GetArmorType ObjectRef == 0
+			let PlayerIsEquippedWithLightArmor := 1
+		elseif GetArmorType ObjectRef == 1
+			let PlayerIsEquippedWithHeavyArmor := 1
+		endif
+	else
+		let PlayerIsEquippedWithNoneArmor := 1
+	endif
+else
+	let PlayerIsEquippedWithNoneArmor := 1
+endif
+let ObjectRef := PlayerRef.GetEquippedObject 2
+if ObjectRef
+	if GetObjectType ObjectRef == 20
+		if GetArmorType ObjectRef == 0
+			let PlayerIsEquippedWithLightArmor := 1
+		elseif GetArmorType ObjectRef == 1
+			let PlayerIsEquippedWithHeavyArmor := 1
+		endif
+	else
+		let PlayerIsEquippedWithNoneArmor := 1
+	endif
+else
+	let PlayerIsEquippedWithNoneArmor := 1
+endif
+let ObjectRef := PlayerRef.GetEquippedObject 3
+if ObjectRef
+	if GetObjectType ObjectRef == 20
+		if GetArmorType ObjectRef == 0
+			let PlayerIsEquippedWithLightArmor := 1
+		elseif GetArmorType ObjectRef == 1
+			let PlayerIsEquippedWithHeavyArmor := 1
+		endif
+	else
+		let PlayerIsEquippedWithNoneArmor := 1
+	endif
+else
+	let PlayerIsEquippedWithNoneArmor := 1
+endif
+let ObjectRef := PlayerRef.GetEquippedObject 4
+if ObjectRef
+	if GetObjectType ObjectRef == 20
+		if GetArmorType ObjectRef == 0
+			let PlayerIsEquippedWithLightArmor := 1
+		elseif GetArmorType ObjectRef == 1
+			let PlayerIsEquippedWithHeavyArmor := 1
+		endif
+	else
+		let PlayerIsEquippedWithNoneArmor := 1
+	endif
+else
+	let PlayerIsEquippedWithNoneArmor := 1
+endif
+let ObjectRef := PlayerRef.GetEquippedObject 5
+if ObjectRef
+	if GetObjectType ObjectRef == 20
+		if GetArmorType ObjectRef == 0
+			let PlayerIsEquippedWithLightArmor := 1
+		elseif GetArmorType ObjectRef == 1
+			let PlayerIsEquippedWithHeavyArmor := 1
+		endif
+	else
+		let PlayerIsEquippedWithNoneArmor := 1
+	endif
+else
+	let PlayerIsEquippedWithNoneArmor := 1
+endif
+let ObjectRef := PlayerRef.GetEquippedObject 13
+if ObjectRef
+	if GetObjectType ObjectRef == 20 && PlayerRef.GetWeaponAnimType == 1
+		if GetArmorType ObjectRef == 0
+			let PlayerIsEquippedWithLightArmor := 1
+		elseif GetArmorType ObjectRef == 1
+			let PlayerIsEquippedWithHeavyArmor := 1
+		endif
+	else
+		let PlayerIsEquippedWithNoneArmor := 1
+	endif
+endif
+if PlayerRef.GetAV Athletics > SkillsVal
+	let SkillsVal := PlayerRef.GetAV Athletics
+endif
+if PlayerRef.GetAV Blade > SkillsVal && (CurrentWeaponType == 0 || CurrentWeaponType == 1) && IsWeaponOut == 1
+	let SkillsVal := PlayerRef.GetAV Blade
+endif
+if PlayerRef.GetAV Blunt > SkillsVal && (CurrentWeaponType == 2 || CurrentWeaponType == 3) && IsWeaponOut == 1
+	let SkillsVal := PlayerRef.GetAV Blunt
+endif
+if PlayerRef.GetAV HandToHand > SkillsVal && ( PlayerRef.GetWeaponAnimType == 0) && IsWeaponOut == 1
+	let SkillsVal := PlayerRef.GetAV HandToHand
+endif
+if PlayerRef.GetAV HeavyArmor > SkillsVal && ( PlayerIsEquippedWithHeavyArmor == 1)
+	let SkillsVal := PlayerRef.GetAV HeavyArmor
+endif
+if PlayerRef.GetAV Acrobatics > SkillsVal && ( PlayerIsEquippedWithNoneArmor == 1)
+	let SkillsVal := PlayerRef.GetAV Acrobatics
+endif
+if PlayerRef.GetAV LightArmor > SkillsVal && ( PlayerIsEquippedWithLightArmor == 1)
+	let SkillsVal := PlayerRef.GetAV LightArmor
+endif
+if PlayerRef.GetAV Marksman > SkillsVal && ( PlayerRef.GetWeaponAnimType == 3) && IsWeaponOut == 1
+	let SkillsVal := PlayerRef.GetAV Marksman
+endif
+
+let EnemiesAroundPCCount := 0
+let ActorRef := GetFirstRef 69 2
+while ActorRef
+	if ActorRef.GetDead == 1 || ActorRef.GetDisabled == 1
+		let ActorRef := GetNextRef
+		continue
+	endif
+	if ActorRef.GetDistance PlayerRef < 250 && ( ActorRef.GetShouldAttack PlayerRef == 1 || ActorRef.GetCombatTarget == PlayerRef)
+		let EnemiesAroundPCCount += 1
+	endif
+	let ActorRef := GetNextRef
+loop
+
+let ActorsCoef := 1
+if EnemiesAroundPCCount == 2
+	let ActorsCoef := 1.25
+elseif EnemiesAroundPCCount == 3
+	let ActorsCoef := 1.5
+elseif EnemiesAroundPCCount == 4
+	let ActorsCoef := 2
+elseif EnemiesAroundPCCount >= 5
+	let ActorsCoef := 3
+endif
+
+let ToughtnessCoefficient := ( AttributesVal / 100 + SkillsVal / 100 ) * ActorsCoef
+
+if ToughtnessCoefficient < 1
+	let ToughtnessCoefficient := 1
+endif
+SetFunctionValue ToughtnessCoefficient
+
+end

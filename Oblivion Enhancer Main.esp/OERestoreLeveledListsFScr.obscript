@@ -1,0 +1,54 @@
+﻿scn OERestoreLeveledListsFScr
+
+short ArrSize1
+short ArrSize2
+short index1
+short index2
+short SkipLeveledList
+short LevItemLevel
+short LevItemCount
+
+ref LevItemRef
+ref LeveledListRef
+
+begin function {}
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Вызов функции OERestoreLeveledListsFScr - восстановление уровневых списков из ранее сделанных обычных слепков"
+
+let ArrSize1 := ar_size OEInitQ.OELeveledListsMainArray
+let index1 := 0
+while index1 < ArrSize1
+	let SkipLeveledList := OEInitQ.OELeveledListsMainArray[index1][11]
+	if SkipLeveledList != -1
+		let ArrSize2 := ar_size OEInitQ.OELeveledListsMainArray[index1][1]
+		if ArrSize2 > 0
+			debugprint "Найден простой слепок, индекс [%g], объектов внутри - [%g]" index1 ArrSize2
+			let LeveledListRef := OEInitQ.OELeveledListsMainArray[index1][0]
+			debugprint "Рассматривается уровневый список [%n][%i]" LeveledListRef LeveledListRef
+			ClearLeveledList LeveledListRef
+			debugprint "Уровневый список обнулен"
+			let index2 := 0
+			while index2 < ArrSize2
+				
+				let LevItemRef := OEInitQ.OELeveledListsMainArray[index1][1][index2][0]
+				let LevItemLevel := OEInitQ.OELeveledListsMainArray[index1][1][index2][1]
+				let LevItemCount := OEInitQ.OELeveledListsMainArray[index1][1][index2][2]
+				AddToLeveledList LeveledListRef LevItemRef LevItemLevel LevItemCount
+				debugprint "В уровневый список добавлен объект [%n][%i] с уровнем [%g] и количеством [%g]" LevItemRef LevItemRef LevItemLevel LevItemCount
+				
+				let index2 := index2 + 1
+			loop
+		endif
+	endif
+	let index1 := index1 + 1
+loop
+
+if OEInitQ.OELevelListsNormalizeFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

@@ -1,0 +1,81 @@
+﻿scn OEAddSpeedBoostFScr
+
+ref ScriptTarget
+short RandomDice
+short SpeedExisted
+float SpeedMod
+short SpeedDiff
+short SpeedBoostStrength
+short IsSpeedBoostCritical
+short SpeedBoostTokenCount
+float SpeedBoostChance
+float SpeedBoostVeryHighChance
+
+begin function { ScriptTarget }
+
+set SpeedBoostChance to OEAdditionalSpeedBoostChance + 0.99
+set SpeedBoostVeryHighChance to OEAdditionalSpeedBoostVeryHighChance + 0.99
+
+set SpeedExisted to ScriptTarget.getbaseav Speed + ScriptTarget.GetAVMod Speed script
+;debugprint "Актер [%n], значение скорости base + script = %g" ScriptTarget SpeedExisted
+set RandomDice to rand 1, SpeedBoostChance
+if RandomDice == 1
+
+	set RandomDice to rand 1, 3.99
+
+	if RandomDice == 1
+		set SpeedBoostStrength to 0
+	elseif RandomDice == 2
+		set SpeedBoostStrength to 1
+	elseif RandomDice == 3
+		set SpeedBoostStrength to -1
+	endif
+
+	set RandomDice to rand 1, SpeedBoostVeryHighChance
+	if RandomDice == 1
+		set IsSpeedBoostCritical to 1
+	endif
+	
+	if IsSpeedBoostCritical != 1
+		if SpeedBoostStrength == 0
+			set SpeedMod to 0.66
+		elseif SpeedBoostStrength == 1
+			set SpeedMod to 1
+		elseif SpeedBoostStrength == -1
+			set SpeedMod to 0.33
+		endif
+		set SpeedDiff to SpeedExisted * SpeedMod
+	elseif IsSpeedBoostCritical == 1
+		set SpeedDiff to SpeedExisted * 2
+	endif
+	if SpeedExisted + SpeedDiff > 200
+		set SpeedDiff to 200 - SpeedExisted
+	endif
+	if GetObjectType ScriptTarget == 36
+		let SpeedDiff := SpeedDiff / 4
+		if SpeedExisted + SpeedDiff > 60
+			let SpeedDiff := 60 - SpeedExisted
+		endif
+	endif
+	ScriptTarget.ModAVMod Speed script SpeedDiff
+	;;;;;;;;;;;;
+	set SpeedMod to SpeedMod + 1
+	if IsSpeedBoostCritical != 1
+		;debugprint "Актеру [%n] увеличена скорость в %.2f раза" ScriptTarget SpeedMod
+	else
+		;debugprint "Актеру [%n] увеличена скорость в 3 раза. Критическое увеличение!" ScriptTarget SpeedMod
+	endif
+	;;;;;;;;;;;;
+;;;;;;;;;;;;
+else
+	;debugprint "Актеру [%n] увеличение жизни не производилось" ScriptTarget
+;;;;;;;;;;;;
+endif
+
+set SpeedBoostTokenCount to ScriptTarget.getitemcount OESpeedBoostToken
+ScriptTarget.removeitem OESpeedBoostToken SpeedBoostTokenCount
+ScriptTarget.additem OESpeedBoostToken 1
+
+;debugprint "Актер [%n], выдан токен функции усиления жизни" ScriptTarget
+
+end

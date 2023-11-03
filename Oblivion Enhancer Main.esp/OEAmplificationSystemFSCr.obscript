@@ -1,0 +1,599 @@
+﻿scn OEAmplificationSystemFScr
+
+short SourceModIndex
+
+short SummonTokenCount
+
+short RefIsSummonable
+
+short OEElementalResistTokenCount
+float OEResistFireNew
+float OEResistFireOld
+float OERresistFrostNew
+float OERresistFrostOld
+float OEResistShockNew
+float OEResistShockOld
+
+short OEMagicResistTokenCount
+float OEResistMagicNew
+float OEResistMagicOld
+
+short OEParalysisResistTokenCount
+float OEResistParalysisNew
+float OEResistParalysisOld
+
+short OEPhysicalShieldTokenCount
+float OEPhysicalShieldNew
+float OEPhysicalShieldOld
+
+short OENormalWeaponsResistTokenCount
+float OEResistNormalWeaponsNew
+float OEResistNormalWeaponsOld
+
+short OEReflectDamageTokenCount
+float OEReflectDamageNew
+float OEReflectDamageOld
+
+short OEChameleonTokenCount
+float OEChameleonNew
+float OEChameleonOld
+
+short OESpellAbsorbChanceTokenCount
+float OESpellAbsorbChanceNew
+float OESpellAbsorbChanceOld
+
+short OESpellReflectChanceTokenCount
+float OESpellReflectChanceNew
+float OESpellReflectChanceOld
+
+short OEHealthBoostTokenCount
+
+short OEMagickaBoostTokenCount
+
+short OEFatigueBoostTokenCount
+
+short OERegenTokenCount
+
+short OESpeedBoostTokenCount
+
+short OEFireResistMidTokenCount
+short OEFrostResistMidTokenCount
+short OEShockResistMidTokenCount
+short OEMagicResistMidTokenCount
+short OEParalysisResistMidTokenCount
+short OEPhysicalShieldNoneTokenCount
+short OENormalWeaponsResistNoneTokenCount
+short OEReflectDamageNoneTokenCount
+short OEChameleonNoneTokenCount
+short OESpellAbsorbChanceNoneTokenCount
+short OESpellReflectChanceNoneTokenCount
+
+float MagSum
+
+short OEIndex4
+
+ref ScriptTarget
+
+begin function { OEIndex4 ScriptTarget }
+
+if OEActorsAmplificationSystem == 1
+	set SourceModIndex to GetSourceModIndex ScriptTarget
+	set SummonTokenCount to ScriptTarget.getitemcount OEIsSummonToken
+	set RefIsSummonable to ScriptTarget.IsSummonable
+	if SourceModIndex == 255 && RefIsSummonable == 0 && SummonTokenCount == 0						;только для актеров, созданных в процессе игры
+		debugprint "Группа актеров 1. Запрос функций. SourceModIndex = %g, RefIsSummonable = %g, SummonTokenCount = %g" SourceModIndex RefIsSummonable SummonTokenCount
+		
+		if OEAdditionalElementalResist == 1													;элементальная защита
+			set OEElementalResistTokenCount to ScriptTarget.getitemcount OEElementalResistToken
+			if OEElementalResistTokenCount > 0
+				debugprint "Актер [%n] уже модифицирован по критерию: Есть токен элементальной защиты" ScriptTarget
+				set OEResistFireNew to ScriptTarget.getav resistfire
+				let OEResistFireOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][2]
+				set OERresistFrostNew to ScriptTarget.getav resistfrost
+				let OERresistFrostOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][3]
+				set OEResistShockNew to ScriptTarget.getav resistshock
+				let OEResistShockOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][4]
+				if OEResistFireNew != OEResistFireOld
+					debugprint "Старое (%g) и новое (%g) значение защиты от огня не совпадают. Вызов функции назначения значений огненной защиты"	OEResistFireOld OEResistFireNew
+					let OEResistFireNew := Call OEAddFireResistValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEResistFireNew = %g" OEResistFireNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][2] := OEResistFireNew
+				endif
+				if OERresistFrostNew != OERresistFrostOld
+					debugprint "Старое (%g) и новое (%g) значение защиты от холода не совпадают. Вызов функции назначения значений ледяной защиты"	OERresistFrostOld OERresistFrostNew 
+					let OERresistFrostNew := Call OEAddFrostResistValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OERresistFrostNew = %g" OERresistFrostNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][3] := OERresistFrostNew
+				endif
+				if OEResistShockNew != OEResistShockOld
+					debugprint "Старое (%g) и новое (%g) значение защиты от электричества не совпадают. Вызов функции назначения значений электрической защиты"	OEResistShockOld OEResistShockNew 
+					let OEResistShockNew := Call OEAddShockResistValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEResistShockNew = %g" OEResistShockNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][4] := OEResistShockNew
+				endif
+			elseif OEElementalResistTokenCount == 0
+				debugprint "Вызов функции назначения токена элементальной защиты"
+				call OEAddElementalResistTokenFScr ScriptTarget
+			endif
+		endif
+		
+		if OEAdditionalMagicResist == 1
+			set OEResistMagicNew to ScriptTarget.getav resistmagic
+			let OEResistMagicOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][5]
+			if OEResistMagicNew != OEResistMagicOld
+				set OEMagicResistTokenCount to ScriptTarget.getitemcount OEMagicResistToken
+				if OEMagicResistTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение защиты от магии не совпадают. Вызов функции назначения значений магической защиты"	OEResistMagicOld OEResistMagicNew
+					let OEResistMagicNew := Call OEAddMagicResistValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEResistMagicNew = %g" OEResistMagicNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][5] := OEResistMagicNew
+				elseif OEMagicResistTokenCount == 0
+					debugprint "Вызов функции назначения токена магической защиты"
+					call OEAddMagicResistTokenFScr ScriptTarget
+				endif
+			endif
+		endif
+		
+		if OEAdditionalParalysisResist == 1
+			set OEResistParalysisNew to ScriptTarget.getav resistParalysis
+			let OEResistParalysisOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][6]
+			if OEResistParalysisNew != OEResistParalysisOld
+				set OEParalysisResistTokenCount to ScriptTarget.getitemcount OEParalysisResistToken
+				if OEParalysisResistTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение защиты от паралича не совпадают. Вызов функции назначения значений защиты от паралича"	OEResistParalysisOld OEResistParalysisNew
+					let OEResistParalysisNew := Call OEAddParalysisResistValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEResistParalysisNew = %g" OEResistParalysisNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][6] := OEResistParalysisNew
+				elseif OEParalysisResistTokenCount == 0
+					debugprint "Вызов функции назначения токена защиты от паралича"
+					call OEAddParalysisResistTokenFScr ScriptTarget
+				endif
+			endif
+		endif
+		
+		if OEAdditionalPhysicalShield == 1 && OEAdditionalPhysicalShieldLevel <= player.getlevel
+			set OEPhysicalShieldNew to ScriptTarget.getav DefendBonus
+			let OEPhysicalShieldOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][7]
+			if OEPhysicalShieldNew != OEPhysicalShieldOld
+				set OEPhysicalShieldTokenCount to ScriptTarget.getitemcount OEPhysicalShieldToken
+				if OEPhysicalShieldTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение щита не совпадают. Вызов функции назначения значений щита"	OEPhysicalShieldOld OEPhysicalShieldNew
+					let OEPhysicalShieldNew := Call OEAddPhysicalShieldValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEPhysicalShieldNew = %g" OEPhysicalShieldNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][7] := OEPhysicalShieldNew
+				elseif OEPhysicalShieldTokenCount == 0
+					debugprint "Вызов функции назначения токена щита"
+					call OEAddPhysicalShieldTokenFScr ScriptTarget
+				endif
+			endif
+		endif
+		
+		if OEAdditionalNormalWeaponsResist == 1 && OEAdditionalNormalWeaponsResistLevel <= player.getlevel
+			set OEResistNormalWeaponsNew to ScriptTarget.getav resistNormalWeapons
+			let OEResistNormalWeaponsOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][8]
+			if OEResistNormalWeaponsNew != OEResistNormalWeaponsOld
+				set OENormalWeaponsResistTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistToken
+				if OENormalWeaponsResistTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение защиты от обычного оружия не совпадают. Вызов функции назначения значений защиты от обычного оружия"	OEResistNormalWeaponsOld OEResistNormalWeaponsNew
+					let OEResistNormalWeaponsNew := Call OEAddResistNormalWeaponsValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEResistNormalWeaponsNew = %g" OEResistNormalWeaponsNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][8] := OEResistNormalWeaponsNew
+				elseif OENormalWeaponsResistTokenCount == 0
+					debugprint "Вызов функции назначения токена защиты от обычного оружия"
+					call OEAddResistNormalWeaponsTokenFScr ScriptTarget
+				endif
+			endif
+		endif
+		
+		if OEAdditionalReflectDamage == 1 && OEAdditionalReflectDamageLevel <= player.getlevel
+			set OEReflectDamageNew to ScriptTarget.getav ReflectDamage
+			let OEReflectDamageOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][9]
+			if OEReflectDamageNew != OEReflectDamageOld
+				set OEReflectDamageTokenCount to ScriptTarget.getitemcount OEReflectDamageToken
+				if OEReflectDamageTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение отражения урона не совпадают. Вызов функции назначения значений отражения урона"	OEReflectDamageOld OEReflectDamageNew
+					let OEReflectDamageNew := Call OEAddReflectDamageValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEReflectDamageNew = %g" OEReflectDamageNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][9] := OEReflectDamageNew
+				elseif OEReflectDamageTokenCount == 0
+					debugprint "Вызов функции назначения токена отражения урона"
+					call OEAddReflectDamageTokenFScr ScriptTarget
+				endif
+			endif
+		endif
+		
+		if OEAdditionalChameleon == 1 && OEAdditionalChameleonLevel <= player.getlevel
+			set OEChameleonNew to ScriptTarget.getav Chameleon
+			let OEChameleonOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][10]
+			if OEChameleonNew != OEChameleonOld
+				set OEChameleonTokenCount to ScriptTarget.getitemcount OEChameleonToken
+				if OEChameleonTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение хамелеона не совпадают. Вызов функции назначения значений хамелеона"	OEChameleonOld OEChameleonNew
+					let OEChameleonNew := Call OEAddChameleonValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEChameleonNew = %g" OEChameleonNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][10] := OEChameleonNew
+				elseif OEChameleonTokenCount == 0
+					debugprint "Вызов функции назначения токена хамелеона"
+					call OEAddChameleonTokenFScr ScriptTarget
+				endif
+			endif
+		endif
+		
+		if OEAdditionalSpellAbsorbChance == 1 && OEAdditionalSpellAbsorbChanceLevel <= player.getlevel
+			set OESpellAbsorbChanceNew to ScriptTarget.getav SpellAbsorbChance
+			let OESpellAbsorbChanceOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][11]
+			if OESpellAbsorbChanceNew != OESpellAbsorbChanceOld
+				set OESpellAbsorbChanceTokenCount to ScriptTarget.getitemcount OESpellAbsorbToken
+				if OESpellAbsorbChanceTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение поглощения заклинаний не совпадают. Вызов функции назначения значений поглощения заклинаний"	OESpellAbsorbChanceOld OESpellAbsorbChanceNew
+					let OESpellAbsorbChanceNew := Call OEAddSpellAbsorbChanceValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OESpellAbsorbChanceNew = %g" OESpellAbsorbChanceNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][11] := OESpellAbsorbChanceNew
+				elseif OESpellAbsorbChanceTokenCount == 0
+					debugprint "Вызов функции назначения токена поглощения заклинаний"
+					call OEAddSpellAbsorbChanceTokenFScr ScriptTarget
+				endif
+			endif
+		endif
+		
+		if OEAdditionalSpellReflectChance == 1 && OEAdditionalSpellReflectChanceLevel <= player.getlevel
+			set OESpellReflectChanceNew to ScriptTarget.getav SpellReflectChance
+			let OESpellReflectChanceOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][12]
+			if OESpellReflectChanceNew != OESpellReflectChanceOld
+				set OESpellReflectChanceTokenCount to ScriptTarget.getitemcount OESpellReflectToken
+				if OESpellReflectChanceTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение отражения заклинаний не совпадают. Вызов функции назначения значений отражения заклинаний"	OESpellReflectChanceOld OESpellReflectChanceNew
+					let OESpellReflectChanceNew := Call OEAddSpellReflectChanceValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OESpellReflectChanceNew = %g" OESpellReflectChanceNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][12] := OESpellReflectChanceNew
+				elseif OESpellReflectChanceTokenCount == 0
+					debugprint "Вызов функции назначения токена отражения заклинаний"
+					call OEAddSpellReflectChanceTokenFScr ScriptTarget
+				endif
+			endif
+		endif
+		
+		if OEAdditionalHealthBoost == 1 && OEAdditionalHealthBoostLevel <= player.getlevel
+			set OEHealthBoostTokenCount to ScriptTarget.getitemcount OEHealthBoostToken
+			if OEHealthBoostTokenCount == 0
+				debugprint "Вызов функции назначения усиления жизни и выдачи токена усиления жизни"
+				call OEAddHealthBoostFScr ScriptTarget
+			endif
+		endif
+	
+		if OEAdditionalMagickaBoost == 1 && OEAdditionalMagickaBoostLevel <= player.getlevel
+			set OEMagickaBoostTokenCount to ScriptTarget.getitemcount OEMagickaBoostToken
+			if OEMagickaBoostTokenCount == 0
+				debugprint "Вызов функции назначения усиления маны и выдачи токена усиления маны"
+				call OEAddMagickaBoostFScr ScriptTarget
+			endif
+		endif
+		
+		if OEAdditionalFatigueBoost == 1 && OEAdditionalFatigueBoostLevel <= player.getlevel
+			set OEFatigueBoostTokenCount to ScriptTarget.getitemcount OEFatigueBoostToken
+			if OEFatigueBoostTokenCount == 0
+				debugprint "Вызов функции назначения усиления запаса сил и выдачи токена усиления запаса сил"
+				call OEAddFatigueBoostFScr ScriptTarget
+			endif
+		endif
+		
+		if OEAdditionalRegen == 1 && OEAdditionalRegenLevel <= player.getlevel
+			set OERegenTokenCount to ScriptTarget.getitemcount OERegenToken
+			if  OERegenTokenCount == 0
+				debugprint "Вызов функции назначения токена регенерации"
+				call OEAddRegenTokenFScr ScriptTarget
+			endif
+		endif
+		
+		if OEAdditionalSpeedBoost == 1 && OEAdditionalSpeedBoostLevel <= player.getlevel
+			set OESpeedBoostTokenCount to ScriptTarget.getitemcount OESpeedBoostToken
+			if OESpeedBoostTokenCount == 0
+				debugprint "Вызов функции назначения усиления скорости и выдачи токена усиления скорости"
+				call OEAddSpeedBoostFScr ScriptTarget
+			endif
+		endif
+	
+		
+	endif
+	
+	if (SourceModIndex != 255 && OEAmpUnicActors == 1) || (SourceModIndex == 255 && (RefIsSummonable == 1 || SummonTokenCount == 1))
+		debugprint "Группа актеров 2. Запрос функций. SourceModIndex = %g, RefIsSummonable = %g, SummonTokenCount = %g" SourceModIndex RefIsSummonable SummonTokenCount
+		
+		if OEAdditionalElementalResist == 1													;элементальная защита
+			set OEElementalResistTokenCount to ScriptTarget.getitemcount OEElementalResistToken
+			if OEElementalResistTokenCount > 0
+				debugprint "Актер [%n] уже модифицирован по критерию: Есть токен элементальной защиты" ScriptTarget
+				set OEResistFireNew to ScriptTarget.getav resistfire
+				let OEResistFireOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][2]
+				set OERresistFrostNew to ScriptTarget.getav resistfrost
+				let OERresistFrostOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][3]
+				set OEResistShockNew to ScriptTarget.getav resistshock
+				let OEResistShockOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][4]
+				if OEResistFireNew != OEResistFireOld
+					debugprint "Старое (%g) и новое (%g) значение защиты от огня не совпадают. Вызов функции назначения значений огненной защиты"	OEResistFireOld OEResistFireNew
+					let OEResistFireNew := Call OEAddFireResistValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEResistFireNew = %g" OEResistFireNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][2] := OEResistFireNew
+				endif
+				if OERresistFrostNew != OERresistFrostOld
+					debugprint "Старое (%g) и новое (%g) значение защиты от холода не совпадают. Вызов функции назначения значений ледяной защиты"	OERresistFrostOld OERresistFrostNew 
+					let OERresistFrostNew := Call OEAddFrostResistValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OERresistFrostNew = %g" OERresistFrostNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][3] := OERresistFrostNew
+				endif
+				if OEResistShockNew != OEResistShockOld
+					debugprint "Старое (%g) и новое (%g) значение защиты от электричества не совпадают. Вызов функции назначения значений электрической защиты"	OEResistShockOld OEResistShockNew 
+					let OEResistShockNew := Call OEAddShockResistValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEResistShockNew = %g" OEResistShockNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][4] := OEResistShockNew
+				endif
+			elseif OEElementalResistTokenCount == 0
+				debugprint "Назначение токена элементальной защиты среднего уровня"
+				set OEFireResistMidTokenCount to ScriptTarget.getitemcount OEFireResistMidToken
+				ScriptTarget.removeitem OEFireResistMidToken OEFireResistMidTokenCount
+				ScriptTarget.additem OEFireResistMidToken 1
+				set OEFrostResistMidTokenCount to ScriptTarget.getitemcount OEFrostResistMidToken
+				ScriptTarget.removeitem OEFrostResistMidToken OEFrostResistMidTokenCount
+				ScriptTarget.additem OEFrostResistMidToken 1
+				set OEShockResistMidTokenCount to ScriptTarget.getitemcount OEShockResistMidToken
+				ScriptTarget.removeitem OEShockResistMidToken OEShockResistMidTokenCount
+				ScriptTarget.additem OEShockResistMidToken 1
+				ScriptTarget.additem OEElementalResistToken 1
+			endif
+		endif
+		
+		if OEAdditionalMagicResist == 1
+			set OEResistMagicNew to ScriptTarget.getav resistmagic
+			let OEResistMagicOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][5]
+			if OEResistMagicNew != OEResistMagicOld
+				set OEMagicResistTokenCount to ScriptTarget.getitemcount OEMagicResistToken
+				if OEMagicResistTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение защиты от магии не совпадают. Вызов функции назначения значений магической защиты"	OEResistMagicOld OEResistMagicNew
+					let OEResistMagicNew := Call OEAddMagicResistValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEResistMagicNew = %g" OEResistMagicNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][5] := OEResistMagicNew
+				elseif OEMagicResistTokenCount == 0
+					debugprint "Назначение токена магической защиты среднего уровня"
+					set OEMagicResistMidTokenCount to ScriptTarget.getitemcount OEMagicResistMidToken
+					ScriptTarget.removeitem OEMagicResistMidToken OEMagicResistMidTokenCount
+					ScriptTarget.additem OEMagicResistMidToken 1
+					ScriptTarget.additem OEMagicResistToken 1
+				endif
+			endif
+		endif
+		
+		if OEAdditionalParalysisResist == 1
+			set OEResistParalysisNew to ScriptTarget.getav resistParalysis
+			let OEResistParalysisOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][6]
+			if OEResistParalysisNew != OEResistParalysisOld
+				set OEParalysisResistTokenCount to ScriptTarget.getitemcount OEParalysisResistToken
+				if OEParalysisResistTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение защиты от паралича не совпадают. Вызов функции назначения значений защиты от паралича"	OEResistParalysisOld OEResistParalysisNew
+					let OEResistParalysisNew := Call OEAddParalysisResistValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEResistParalysisNew = %g" OEResistParalysisNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][6] := OEResistParalysisNew
+				elseif OEParalysisResistTokenCount == 0
+					debugprint "Назначение токена защиты от паралича среднего уровня"
+					set OEParalysisResistMidTokenCount to ScriptTarget.getitemcount OEParalysisResistMidToken
+					ScriptTarget.removeitem OEParalysisResistMidToken OEParalysisResistMidTokenCount
+					ScriptTarget.additem OEParalysisResistMidToken 1
+					ScriptTarget.additem OEParalysisResistToken 1
+				endif
+			endif
+		endif
+		
+		if OEAdditionalPhysicalShield == 1 && OEAdditionalPhysicalShieldLevel <= player.getlevel
+			set OEPhysicalShieldNew to ScriptTarget.getav DefendBonus
+			let OEPhysicalShieldOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][7]
+			if OEPhysicalShieldNew != OEPhysicalShieldOld
+				set OEPhysicalShieldTokenCount to ScriptTarget.getitemcount OEPhysicalShieldToken
+				if OEPhysicalShieldTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение щита не совпадают. Вызов функции назначения значений щита"	OEPhysicalShieldOld OEPhysicalShieldNew
+					let OEPhysicalShieldNew := Call OEAddPhysicalShieldValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEPhysicalShieldNew = %g" OEPhysicalShieldNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][7] := OEPhysicalShieldNew
+				elseif OEPhysicalShieldTokenCount == 0
+					debugprint "Назначение токена отсутствия щита"
+					set OEPhysicalShieldNoneTokenCount to ScriptTarget.getitemcount OEPhysicalShieldNoneToken
+					ScriptTarget.removeitem OEPhysicalShieldNoneToken OEPhysicalShieldNoneTokenCount
+					ScriptTarget.additem OEPhysicalShieldNoneToken 1
+					ScriptTarget.additem OEPhysicalShieldToken 1
+				endif
+			endif
+		endif
+		
+		if OEAdditionalNormalWeaponsResist == 1 && OEAdditionalNormalWeaponsResistLevel <= player.getlevel
+			set OEResistNormalWeaponsNew to ScriptTarget.getav resistNormalWeapons
+			let OEResistNormalWeaponsOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][8]
+			if OEResistNormalWeaponsNew != OEResistNormalWeaponsOld
+				set OENormalWeaponsResistTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistToken
+				if OENormalWeaponsResistTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение защиты от обычного оружия не совпадают. Вызов функции назначения значений защиты от обычного оружия"	OEResistNormalWeaponsOld OEResistNormalWeaponsNew
+					let OEResistNormalWeaponsNew := Call OEAddResistNormalWeaponsValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEResistNormalWeaponsNew = %g" OEResistNormalWeaponsNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][8] := OEResistNormalWeaponsNew
+				elseif OENormalWeaponsResistTokenCount == 0
+					debugprint "Назначение токена отсутствия защиты от обычного оружия"
+					set OENormalWeaponsResistNoneTokenCount to ScriptTarget.getitemcount OENormalWeaponsResistNoneToken
+					ScriptTarget.removeitem OENormalWeaponsResistNoneToken OENormalWeaponsResistNoneTokenCount
+					ScriptTarget.additem OENormalWeaponsResistNoneToken 1
+					ScriptTarget.additem OENormalWeaponsResistToken 1
+				endif
+			endif
+		endif
+		
+		if OEAdditionalReflectDamage == 1 && OEAdditionalReflectDamageLevel <= player.getlevel
+			set OEReflectDamageNew to ScriptTarget.getav ReflectDamage
+			let OEReflectDamageOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][9]
+			if OEReflectDamageNew != OEReflectDamageOld
+				set OEReflectDamageTokenCount to ScriptTarget.getitemcount OEReflectDamageToken
+				if OEReflectDamageTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение отражения урона не совпадают. Вызов функции назначения значений отражения урона"	OEReflectDamageOld OEReflectDamageNew
+					let OEReflectDamageNew := Call OEAddReflectDamageValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEReflectDamageNew = %g" OEReflectDamageNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][9] := OEReflectDamageNew
+				elseif OEReflectDamageTokenCount == 0
+					debugprint "Назначение токена отсутствия отражения урона"
+					set OEReflectDamageNoneTokenCount to ScriptTarget.getitemcount OEReflectDamageNoneToken
+					ScriptTarget.removeitem OEReflectDamageNoneToken OEReflectDamageNoneTokenCount
+					ScriptTarget.additem OEReflectDamageNoneToken 1
+					ScriptTarget.additem OEReflectDamageToken 1
+				endif
+			endif
+		endif
+		
+		if OEAdditionalChameleon == 1 && OEAdditionalChameleonLevel <= player.getlevel
+			set OEChameleonNew to ScriptTarget.getav Chameleon
+			let OEChameleonOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][10]
+			if OEChameleonNew != OEChameleonOld
+				set OEChameleonTokenCount to ScriptTarget.getitemcount OEChameleonToken
+				if OEChameleonTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение хамелеона не совпадают. Вызов функции назначения значений хамелеона"	OEChameleonOld OEChameleonNew
+					let OEChameleonNew := Call OEAddChameleonValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OEChameleonNew = %g" OEChameleonNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][10] := OEChameleonNew
+				elseif OEChameleonTokenCount == 0
+					debugprint "Назначение токена отсутствия хамелеона"
+					set OEChameleonNoneTokenCount to ScriptTarget.getitemcount OEChameleonNoneToken
+					ScriptTarget.removeitem OEChameleonNoneToken OEChameleonNoneTokenCount
+					ScriptTarget.additem OEChameleonNoneToken 1
+					ScriptTarget.additem OEChameleonToken 1
+				endif
+			endif
+		endif
+		
+		if OEAdditionalSpellAbsorbChance == 1 && OEAdditionalSpellAbsorbChanceLevel <= player.getlevel
+			set OESpellAbsorbChanceNew to ScriptTarget.getav SpellAbsorbChance
+			let OESpellAbsorbChanceOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][11]
+			if OESpellAbsorbChanceNew != OESpellAbsorbChanceOld
+				set OESpellAbsorbChanceTokenCount to ScriptTarget.getitemcount OESpellAbsorbToken
+				if OESpellAbsorbChanceTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение поглощения заклинаний не совпадают. Вызов функции назначения значений поглощения заклинаний"	OESpellAbsorbChanceOld OESpellAbsorbChanceNew
+					let OESpellAbsorbChanceNew := Call OEAddSpellAbsorbChanceValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OESpellAbsorbChanceNew = %g" OESpellAbsorbChanceNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][11] := OESpellAbsorbChanceNew
+				elseif OESpellAbsorbChanceTokenCount == 0
+					debugprint "Назначение токена отсутствия поглощения заклинаний"
+					set OESpellAbsorbChanceNoneTokenCount to ScriptTarget.getitemcount OESpellAbsorbNoneToken
+					ScriptTarget.removeitem OESpellAbsorbNoneToken OESpellAbsorbChanceNoneTokenCount
+					ScriptTarget.additem OESpellAbsorbNoneToken 1
+					ScriptTarget.additem OESpellAbsorbToken 1
+				endif
+			endif
+		endif
+		
+		if OEAdditionalSpellReflectChance == 1 && OEAdditionalSpellReflectChanceLevel <= player.getlevel
+			set OESpellReflectChanceNew to ScriptTarget.getav SpellReflectChance
+			let OESpellReflectChanceOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][12]
+			if OESpellReflectChanceNew != OESpellReflectChanceOld
+				set OESpellReflectChanceTokenCount to ScriptTarget.getitemcount OESpellReflectToken
+				if OESpellReflectChanceTokenCount > 0
+					debugprint "Старое (%g) и новое (%g) значение отражения заклинаний не совпадают. Вызов функции назначения значений отражения заклинаний"	OESpellReflectChanceOld OESpellReflectChanceNew
+					let OESpellReflectChanceNew := Call OEAddSpellReflectChanceValueFScr ScriptTarget
+					debugprint "Функция была вызвана. Новое записанное значение OESpellReflectChanceNew = %g" OESpellReflectChanceNew
+					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][12] := OESpellReflectChanceNew
+				elseif OESpellReflectChanceTokenCount == 0
+					debugprint "Назначение токена отсутствия отражения заклинаний"
+					set OESpellReflectChanceNoneTokenCount to ScriptTarget.getitemcount OESpellReflectNoneToken
+					ScriptTarget.removeitem OESpellReflectNoneToken OESpellReflectChanceNoneTokenCount
+					ScriptTarget.additem OESpellReflectNoneToken 1
+					ScriptTarget.additem OESpellReflectToken 1
+				endif
+			endif
+		endif
+	endif
+elseif OEActorsAmplificationSystem == -1
+	
+	debugprint "Актер [%n][%i] поступил в систему усиления при значении OEActorsAmplificationSystem == -1, приведение всех AV к стандартному значению" ScriptTarget ScriptTarget
+	
+	set OEResistFireNew to ScriptTarget.getav resistfire
+	let OEResistFireOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][2]
+	set OERresistFrostNew to ScriptTarget.getav resistfrost
+	let OERresistFrostOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][3]
+	set OEResistShockNew to ScriptTarget.getav resistshock
+	let OEResistShockOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][4]
+	if OEResistFireNew != OEResistFireOld
+		let MagSum := ScriptTarget.GetTotalActiveEffectMagnitude RSFI + ScriptTarget.GetTotalActiveEffectMagnitude FISH + ScriptTarget.GetTotalActiveEffectMagnitude WKFI
+		ScriptTarget.SetAVModC 61 max MagSum
+		let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][2] := MagSum
+	endif
+	if OERresistFrostNew != OERresistFrostOld
+		let MagSum := ScriptTarget.GetTotalActiveEffectMagnitude RSFR + ScriptTarget.GetTotalActiveEffectMagnitude FRSH + ScriptTarget.GetTotalActiveEffectMagnitude WKFR
+		ScriptTarget.SetAVModC 62 max MagSum
+		let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][3] := MagSum
+	endif
+	if OEResistShockNew != OEResistShockOld
+		let MagSum := ScriptTarget.GetTotalActiveEffectMagnitude RSSH + ScriptTarget.GetTotalActiveEffectMagnitude LISH + ScriptTarget.GetTotalActiveEffectMagnitude WKSH
+		ScriptTarget.SetAVModC 68 max MagSum
+		let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][4] := MagSum
+	endif
+	
+	set OEResistMagicNew to ScriptTarget.getav resistmagic
+	let OEResistMagicOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][5]
+	if OEResistMagicNew != OEResistMagicOld
+		let MagSum := ScriptTarget.GetTotalActiveEffectMagnitude RSMA + ScriptTarget.GetTotalActiveEffectMagnitude WKMA
+		ScriptTarget.SetAVModC 64 max MagSum
+		let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][5] := MagSum
+	endif
+	
+	set OEResistParalysisNew to ScriptTarget.getav resistParalysis
+	let OEResistParalysisOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][6]
+	if OEResistParalysisNew != OEResistParalysisOld
+		let MagSum := ScriptTarget.GetTotalActiveEffectMagnitude RSPA
+		ScriptTarget.SetAVModC 66 max MagSum
+		let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][6] := MagSum
+	endif
+				
+	set OEPhysicalShieldNew to ScriptTarget.getav DefendBonus
+	let OEPhysicalShieldOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][7]
+	if OEPhysicalShieldNew != OEPhysicalShieldOld
+		let MagSum := ScriptTarget.GetTotalActiveEffectMagnitude SHLD + ScriptTarget.GetTotalActiveEffectMagnitude FISH + ScriptTarget.GetTotalActiveEffectMagnitude FRSH + ScriptTarget.GetTotalActiveEffectMagnitude LISH
+		ScriptTarget.SetAVModC 63 max MagSum
+		let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][7] := MagSum
+	endif
+
+	set OEResistNormalWeaponsNew to ScriptTarget.getav resistNormalWeapons
+	let OEResistNormalWeaponsOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][8]
+	if OEResistNormalWeaponsNew != OEResistNormalWeaponsOld
+		let MagSum := ScriptTarget.GetTotalActiveEffectMagnitude RSNW + ScriptTarget.GetTotalActiveEffectMagnitude WKNW
+		ScriptTarget.SetAVModC 65 max MagSum
+		let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][8] := MagSum
+	endif
+
+	set OEReflectDamageNew to ScriptTarget.getav ReflectDamage
+	let OEReflectDamageOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][9]
+	if OEReflectDamageNew != OEReflectDamageOld
+		let MagSum := ScriptTarget.GetTotalActiveEffectMagnitude REDG
+		ScriptTarget.SetAVModC 59 max MagSum
+		let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][9] := MagSum
+	endif
+
+	set OEChameleonNew to ScriptTarget.getav Chameleon
+	let OEChameleonOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][10]
+	if OEChameleonNew != OEChameleonOld
+		let MagSum := ScriptTarget.GetTotalActiveEffectMagnitude CHML
+		ScriptTarget.SetAVModC 46 max MagSum
+		let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][10] := MagSum
+	endif
+
+	set OESpellAbsorbChanceNew to ScriptTarget.getav SpellAbsorbChance
+	let OESpellAbsorbChanceOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][11]
+	if OESpellAbsorbChanceNew != OESpellAbsorbChanceOld
+		let MagSum := ScriptTarget.GetTotalActiveEffectMagnitude SABS
+		ScriptTarget.SetAVModC 52 max MagSum
+		let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][11] := MagSum
+	endif
+
+	set OESpellReflectChanceNew to ScriptTarget.getav SpellReflectChance
+	let OESpellReflectChanceOld := OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][12]
+	if OESpellReflectChanceNew != OESpellReflectChanceOld
+		let MagSum := ScriptTarget.GetTotalActiveEffectMagnitude SABS
+		ScriptTarget.SetAVModC 53 max MagSum
+		let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][12] := MagSum
+	endif
+	
+	debugprint "Актер [%n][%i] нормализован"
+				
+endif
+
+end

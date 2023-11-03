@@ -1,0 +1,102 @@
+﻿ScriptName OEAutoWeaponRechargeFunction
+
+short ChargeCurrent
+short ChargeMax
+short ChargeAmount
+short AzurasSoulLevel
+short ChargePercent 
+
+ref PlayerWeapon
+ref AzuraRef
+ref ItemRef
+
+Begin Function {AzuraRef, AzurasSoulLevel }
+
+
+if AzurasSoulLevel == 1
+	set ChargeAmount to OEInitQ.GSiSoulLevelValuePetty
+elseif AzurasSoulLevel == 2
+	set ChargeAmount to OEInitQ.GSiSoulLevelValueLesser
+elseif AzurasSoulLevel == 3
+	set ChargeAmount to OEInitQ.GSiSoulLevelValueCommon
+elseif AzurasSoulLevel == 4
+	set ChargeAmount to OEInitQ.GSiSoulLevelValueGreater
+elseif AzurasSoulLevel == 5
+	set ChargeAmount to OEInitQ.GSiSoulLevelValueGrand
+endif
+
+set ChargePercent to OEChargePercent * 100
+
+if OERechargeMode > 0
+
+	debugprint "Вызов функции OEAutoWeaponRechargeFunction - автоматическая подзарядка вещей в инвентаре игрока при помощи звезды Азуры"
+
+	let PlayerWeapon := player.getequippedobject 16
+
+	if PlayerWeapon != 0 && GetEnchantment PlayerWeapon
+		let ChargeMax := GetObjectCharge PlayerWeapon - 1
+		if ChargeMax > 0
+			set ChargeCurrent to player.GetEquippedCurrentCharge 16
+			;set chargepercentcurrentweapon to (ChargeCurrent / ChargeMax)
+			;DebugPrint "[%g]" chargepercentcurrentweapon
+			;DebugPrint "[%g]" OEGlobalWatch.ChargePercent
+			if (ChargeCurrent / ChargeMax) <= OEChargePercent
+				DebugPrint "Старый заряд: %g. Максимальный заряд: %g." ChargeCurrent ChargeMax
+				if ChargeMax - ChargeCurrent < ChargeAmount
+					player.SetEquippedCurrentCharge ChargeMax 16
+					set ChargeAmount to ChargeMax - ChargeCurrent
+					DebugPrint "Заряд души (частичный, из-за превышения максимума):%g" ChargeAmount
+					MessageEx "Плененная душа полностью зарядила [%n]" PlayerWeapon, 3
+				else
+					player.ModEquippedCurrentCharge ChargeAmount 16
+					DebugPrint "Заряд души: %g" ChargeAmount
+					set ChargeCurrent to player.GetEquippedCurrentCharge 16
+					if (ChargeCurrent / ChargeMax) <= OEChargePercent
+						MessageEx "Плененная душа частично зарядила [%n]" PlayerWeapon, 3
+					else
+						MessageEx "Плененная душа зарядила [%n] до %g процентов" PlayerWeapon ChargePercent, 3
+					endif
+				endif
+				let ChargeCurrent := player.GetEquippedCurrentCharge 16
+				DebugPrint "Новый заряд: %g. Максимальный заряд: %g." ChargeCurrent ChargeMax
+				set ChargeAmount to 0										;обнуление заряда после подзарядки
+				AzuraRef.SetCurrentSoulLevel 0
+			endif
+		endif
+	endif
+	if OERechargeMode > 1
+		foreach ItemRef <- playerref
+			if ChargeAmount > 0 && ItemRef.IsWeapon == 1 && GetEnchantment ItemRef
+				let ChargeMax := GetObjectCharge ItemRef - 1
+				if ChargeMax > 0
+					let ChargeCurrent := ItemRef.GetCurrentCharge
+					if (ChargeCurrent / ChargeMax) <= OEChargePercent
+						DebugPrint "Старый заряд: %g. Максимальный заряд: %g." ChargeCurrent ChargeMax
+						if ChargeMax - ChargeCurrent < ChargeAmount
+							ItemRef.SetCurrentCharge ChargeMax
+							set ChargeAmount to ChargeMax - ChargeCurrent
+							DebugPrint "Заряд души (частичный, из-за превышения максимума):%g" ChargeAmount
+							MessageEx "Плененная душа полностью зарядила [%n]" ItemRef, 3
+						else
+							ItemRef.ModCurrentCharge ChargeAmount
+							DebugPrint "Заряд души: %g" ChargeAmount
+							set ChargeCurrent to ItemRef.GetCurrentCharge
+							if (ChargeCurrent / ChargeMax) <= OEChargePercent
+								MessageEx "Плененная душа частично зарядила [%n]" ItemRef, 3
+							else
+								MessageEx "Плененная душа зарядила [%n] до %g процентов" ItemRef ChargePercent, 3
+							endif
+						endif
+						let ChargeCurrent := ItemRef.GetCurrentCharge
+						DebugPrint "Новый заряд: %g. Максимальный заряд: %g." ChargeCurrent ChargeMax
+						set ChargeAmount to 0										;обнуление заряда после подзарядки
+						AzuraRef.SetCurrentSoulLevel 0
+						break
+					endif
+				endif
+			endif
+		loop
+	endif
+endif
+
+End

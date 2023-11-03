@@ -1,0 +1,130 @@
+﻿scn OEKSESortkMEFScr
+
+array_var MagicSchoolIdsArray
+array_var TempArr
+
+short ArrSize
+short ArrSize2
+short ArrSize3
+short index1
+short index2
+short index3
+short CycleCount
+short CycleExchangeCount
+short SortExchangeCount
+short CompareResult
+short EffectsCount
+short MagicSchoolId
+
+ref EffectRef
+ref ScriptRef
+
+string_var Name1Str
+string_var Name2Str
+
+Begin function {}
+
+if OEKSEInitQ.OEKSESortkMEFScrDebugMode == 1
+	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+endif
+
+debugprint "Вызов функции OEKSESortkMEFScr - сортировка массива kME в алфавитном порядке согласно именам эффектов"
+
+let ArrSize := ar_size keaEffectExtender.kME
+debugprint "Всего в массиве kME %g эффектов" ArrSize
+let MagicSchoolIdsArray := ar_construct Array
+let TempArr := ar_construct Array
+let SortExchangeCount := 0
+let CycleCount := 0
+let index1 := 0
+;сортировка тип 2. тип 1 с откидыванием второго эффекта в конец массива показал свою неэффективность
+while index1 < ArrSize
+	let ArrSize2 := (ar_size keaEffectExtender.kME) - 1
+	let index2 := 0
+	let CycleExchangeCount := 0
+	while index2 < ArrSize2
+		let index3 := index2 + 1
+		debugprint "Рассматриваются два эффекта:"
+		if eval(ar_size keaEffectExtender.kME[index2]) == 3
+			let EffectRef := keaEffectExtender.kME[index2][2]
+			let Name1Str := $EffectRef
+			debugprint "Эффект 1 - [%z][%i]" Name1Str EffectRef
+		else
+			let Name1Str := keaEffectExtender.kME[index2][6]
+			let ScriptRef := keaEffectExtender.kME[index2][3]
+			debugprint "Эффект 1 - [%z][%i] (скрипт-эффект)" Name1Str ScriptRef
+		endif
+		if eval(ar_size keaEffectExtender.kME[index3]) == 3
+			let EffectRef := keaEffectExtender.kME[index3][2]
+			let Name2Str := $EffectRef
+			debugprint "Эффект 2 - [%z][%i]" Name2Str EffectRef
+		else
+			let Name2Str := keaEffectExtender.kME[index3][6]
+			let ScriptRef := keaEffectExtender.kME[index3][3]
+			debugprint "Эффект 2 - [%z][%i] (скрипт-эффект)" Name2Str ScriptRef
+		endif
+		;выполняется сравнение двух строк
+		;нечувствительность к регистру не работает с русскими буквами (например, "Монарх" ставится перед "атронах")
+		let CompareResult := sv_Compare $Name1Str Name2Str 0
+		if CompareResult == 1
+			debugprint "Эффект [%z] должен идти после [%z]. Эффекты меняются местами" Name1Str Name2Str
+			let ArrSize3 := ar_size keaEffectExtender.kME
+			let keaEffectExtender.kME[ArrSize3] := keaEffectExtender.kME[index2]
+			let keaEffectExtender.kME[index2] := keaEffectExtender.kME[index3] 
+			let keaEffectExtender.kME[index3] := keaEffectExtender.kME[ArrSize3]
+			ar_erase keaEffectExtender.kME ArrSize3
+			let CycleExchangeCount := CycleExchangeCount + 1
+			let SortExchangeCount := SortExchangeCount + 1
+		endif
+		let index2 := index2 + 1
+	loop
+	if CycleExchangeCount == 0
+		break
+	endif
+	let CycleCount := CycleCount + 1
+	let index1 := index1 + 1
+loop
+
+
+;пересортировка в соответствии с сортировкой по школам KSE
+if KeaGenSpellNameSystem == 1
+	let MagicSchoolIdsArray[0] := 5
+	let MagicSchoolIdsArray[1] := 0
+	let MagicSchoolIdsArray[2] := 3
+	let MagicSchoolIdsArray[3] := 1
+	let MagicSchoolIdsArray[4] := 4
+	let MagicSchoolIdsArray[5] := 2
+	let EffectsCount := (ar_size keaEffectExtender.kME) - 1
+	let index1 := 0
+	let index3 := 0
+	while index1 <= 5
+		let index2 := 0
+		while index2 <= EffectsCount
+			if eval(ar_size keaEffectExtender.kME[index2]) == 3
+				let EffectRef := keaEffectExtender.kME[index2][2]
+				let MagicSchoolId := GetMagicEffectSchool EffectRef
+			else
+				let MagicSchoolId := keaEffectExtender.kME[index2][7]
+			endif
+			if eval(MagicSchoolId == MagicSchoolIdsArray[index1])
+				let TempArr[index3] := keaEffectExtender.kME[index2]
+				let index3 := index3 + 1
+			endif
+			let index2 := index2 + 1
+		loop
+		let index1 := index1 + 1
+	loop
+	let keaEffectExtender.kME := TempArr
+endif
+
+debugprint "========================"
+debugprint "Сортировка массива kME выполнена за %g замен, в последней итерации цикла выполнено %g замен, выполнено %g итераций циклов из %g возможных" SortExchangeCount CycleExchangeCount CycleCount ArrSize
+debugprint "========================"
+
+sv_destruct Name1Str Name2Str
+
+if OEKSEInitQ.OEKSESortkMEFScrDebugMode == 1
+	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+endif
+
+end

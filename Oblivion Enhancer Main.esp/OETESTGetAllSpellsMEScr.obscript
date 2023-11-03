@@ -1,0 +1,33 @@
+﻿scn OETESTGetAllSpellsMEScr
+
+array_var SpellsArray
+
+short index
+short SpellsCount
+
+ref Self
+ref SpellRef
+
+
+begin ScriptEffectStart
+
+let Self := GetSelf
+
+;GetLeveledSpells
+let SpellsArray := GetSpells
+
+let SpellsCount := ar_size SpellsArray
+
+let index := 0
+if SpellsCount > 0
+	printc "Актер [%n][%i], его заклинания (%g штук):" Self Self SpellsCount
+	while index < SpellsCount
+		let SpellRef := SpellsArray[index]
+		printc "[%g] [Заклинание: %n][%i]" index SpellRef SpellRef
+		let index := index + 1
+	loop
+endif
+
+messagebox "Spells"
+
+end

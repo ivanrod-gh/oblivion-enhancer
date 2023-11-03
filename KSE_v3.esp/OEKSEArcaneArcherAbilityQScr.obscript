@@ -1,0 +1,498 @@
+﻿scn OEKSEArcaneArcherAbilityQScr
+
+float fQuestDelayTime
+
+array_var OEKSEDebuffTargetsArray
+array_var OEKSEDebuffSpellsArray
+array_var OEKSEDebuffReadyToUseSpellsArray
+array_var OEKSEDebuffUsedSpellsArray
+array_var OEKSEArrayElement
+
+short index1
+short index2
+short counter
+short ArrSize
+short OEKSEAbilityActive
+short OEKSEAbilityLevel
+short OEKSEAbilityLevelOld
+short OEKSEShowInitMessage
+short OEKSEShowAbilityMessage
+short OEKSEMustRecalcStats
+short OEKSEBaseVal
+short OEKSEQuestLocked
+short OEKSEAtronachBirthsign
+short OEKSESpellMagnitude
+short OEKSEContinuousSpellMagnitude
+short OEKSEOldSpellMagnitude
+short OEKSEMaxWeight
+short OEKSEEffectsCount
+short OEKSETargetIsAttacking
+short OEKSEAADebuffAdditionalTargetsCount
+short OEKSECompareDistance
+short OEKSETargetIsDodging
+float OEKSETimer500msec
+float OEKSETimer5sec
+float OEKSEAACounterAttackCostMod
+float OEKSEAARepeatCostMod
+float OEKSEAALevelDiffCostMod
+float OEKSEAADebuffArea
+float OEKSEDistanceSpellCostMod
+float OEKSEActorMagicResistance
+float OEKSEEncumbranceCurrent
+float OEKSEDistanceSpellMagnitudeMod
+float OEKSEPCMagickaBase
+float OEKSEPCMagickaCost
+float OEKSEContinuousDebuffDuration
+float OEKSEExtraContinuousDebuffDuration
+
+ref OEKSEArcaneArcherEffectRef
+ref OEKSETargetRef
+ref OEKSEActorRef
+ref OEKSENearestActor
+ref OEKSEAdditionalTargetRef
+ref OEKSESpellRef
+ref OEKSEWeaponBase
+ref OEKSEHitWeaponRef
+
+begin gamemode
+
+if OEKSEArcaneArcherAbility == 0 || PlayerRef.GetDead == 1
+	return
+endif
+
+if OEKSEInitQ.OEKSEArcaneArcherAbilityQScrDebugMode == 1
+	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+endif
+
+debugprint "Выполняется обработка способности Волшебный стрелок"
+
+let fQuestDelayTime := 0.1
+
+if GetGameLoaded || GetGameRestarted
+	set OEKSEQuestLocked to OEKSEQuestLocked - 1
+endif
+if OEKSEQuestLocked != 0
+	if OEKSEInitQ.OEKSEInitializationCount > 0
+		set OEKSEInitQ.OEKSEInitializationCount to OEKSEInitQ.OEKSEInitializationCount - 1
+		set OEKSEQuestLocked to 0
+	else
+		if OEKSEInitQ.OEKSEArcaneArcherAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+endif
+
+;проверка актуального уровня Волшебного стрелка
+let OEKSETimer5sec := OEKSETimer5sec + getsecondspassed
+if OEKSETimer5sec > 5
+	let OEKSEMustRecalcStats := 1
+	let OEKSETimer5sec := 0
+endif
+
+if OEKSEMustRecalcStats == 1
+	debugprint "Выполняется перерасчет эффекта от способности Волшебный стрелок"
+	let OEKSEBaseVal := PlayerRef.GetBaseAV marksman
+	if PlayerRef.IsSpellTarget BSAtronach 
+		let OEKSEAtronachBirthsign := 1
+		let OEKSEAbilityLevel := 0
+	else
+		let OEKSEAtronachBirthsign := 0
+		if OEKSEBaseVal < 25
+			let OEKSEAbilityLevel := 0
+		else
+			if OEKSEBaseVal < 50
+				let OEKSEAbilityLevel := 1
+				let OEKSEAACounterAttackCostMod := OEKSEArcaneArcherLev1CounterAttackCostMod
+				let OEKSEAARepeatCostMod := OEKSEArcaneArcherLev1RepeatCostMod
+				let OEKSEAALevelDiffCostMod := OEKSEArcaneArcherLev1LevelDiffCostMod
+				let OEKSEAADebuffArea := OEKSEArcaneArcherLev1DebuffArea
+				let OEKSEAADebuffAdditionalTargetsCount := OEKSEArcaneArcherLev1AdditionalTargets
+				let OEKSEContinuousDebuffDuration := OEKSEArcaneArcherLev1ContinuousDebuffDuration
+				let OEKSEExtraContinuousDebuffDuration := OEKSEArcaneArcherLev1ExtraContinuousDebuffDuration
+			elseif OEKSEBaseVal < 75
+				let OEKSEAbilityLevel := 2
+				let OEKSEAACounterAttackCostMod := OEKSEArcaneArcherLev2CounterAttackCostMod
+				let OEKSEAARepeatCostMod := OEKSEArcaneArcherLev2RepeatCostMod
+				let OEKSEAALevelDiffCostMod := OEKSEArcaneArcherLev2LevelDiffCostMod
+				let OEKSEAADebuffArea := OEKSEArcaneArcherLev2DebuffArea
+				let OEKSEAADebuffAdditionalTargetsCount := OEKSEArcaneArcherLev2AdditionalTargets
+				let OEKSEContinuousDebuffDuration := OEKSEArcaneArcherLev2ContinuousDebuffDuration
+				let OEKSEExtraContinuousDebuffDuration := OEKSEArcaneArcherLev2ExtraContinuousDebuffDuration
+			elseif OEKSEBaseVal < 100
+				let OEKSEAbilityLevel := 3
+				let OEKSEAACounterAttackCostMod := OEKSEArcaneArcherLev3CounterAttackCostMod
+				let OEKSEAARepeatCostMod := OEKSEArcaneArcherLev3RepeatCostMod
+				let OEKSEAALevelDiffCostMod := OEKSEArcaneArcherLev3LevelDiffCostMod
+				let OEKSEAADebuffArea := OEKSEArcaneArcherLev3DebuffArea
+				let OEKSEAADebuffAdditionalTargetsCount := OEKSEArcaneArcherLev3AdditionalTargets
+				let OEKSEContinuousDebuffDuration := OEKSEArcaneArcherLev3ContinuousDebuffDuration
+				let OEKSEExtraContinuousDebuffDuration := OEKSEArcaneArcherLev3ExtraContinuousDebuffDuration
+			elseif OEKSEBaseVal >= 100
+				let OEKSEAbilityLevel := 4
+				let OEKSEAACounterAttackCostMod := OEKSEArcaneArcherLev4CounterAttackCostMod
+				let OEKSEAARepeatCostMod := OEKSEArcaneArcherLev4RepeatCostMod
+				let OEKSEAALevelDiffCostMod := OEKSEArcaneArcherLev4LevelDiffCostMod
+				let OEKSEAADebuffArea := OEKSEArcaneArcherLev4DebuffArea
+				let OEKSEAADebuffAdditionalTargetsCount := OEKSEArcaneArcherLev4AdditionalTargets
+				let OEKSEContinuousDebuffDuration := OEKSEArcaneArcherLev4ContinuousDebuffDuration
+				let OEKSEExtraContinuousDebuffDuration := OEKSEArcaneArcherLev4ExtraContinuousDebuffDuration
+			endif
+			let OEKSEArcaneArcherEffectRef := OEKSESpArcaneArcherNoLevel
+		endif
+	endif
+
+	let OEKSEWeaponBase := PlayerRef.GetEquippedObject 16
+
+	if ( OEKSEAbilityLevelOld != 0 && OEKSEAbilityLevel == 0 ) || OEKSEAtronachBirthsign == 1
+		let OEKSEAbilityActive := 0
+	elseif OEKSEAbilityActive == 2 && OEKSEAbilityLevel != OEKSEAbilityLevelOld && OEKSEAtronachBirthsign == 0
+		PlayerRef.Dispel OEKSEArcaneArcherEffectRef
+		OEKSECaster.moveto PlayerRef 0 0 150
+		OEKSECaster.Cast OEKSEArcaneArcherEffectRef PlayerRef
+	endif
+	
+	let OEKSEAbilityLevelOld := OEKSEAbilityLevel
+	let OEKSEMustRecalcStats := 0
+endif
+
+if OEKSEShowInitMessage == 1 && OEKSEAbilityActive == 2
+	if OEKSEAbilityLevel == 4 && OEKSEShowAbilityMessage < 4
+		messageboxex "Вершина развития Волшебного стрелка - уровень Мастер.%rТеперь ваши специальные умения могут дополнительно задеть сразу трех врагов в небольшой области, цена за использование умений по атакующему врагу или при повторном использовании еще меньше, а штраф за применение умений по более сильному противнику полностью отсутствует"
+		debugprint "Показано сообщение про улучшение способности до уровня 4"
+		let OEKSEShowAbilityMessage := 4
+		if OEKSEInitQ.OEKSEArcaneArcherAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+	if OEKSEAbilityLevel == 3 && OEKSEShowAbilityMessage < 3
+		messageboxex "Волшебный стрелок достиг уровня Эксперт!%rТеперь специальные умения могут дополнительно задеть сразу двух противников, а стоимость умений при повторном использовании или по атакующему врагу снижается еще больше, как и штраф за сильных противников. Также увеличивается время действия специальных умений, примененных более одного раза по одной и той же цели"
+		debugprint "Показано сообщение про улучшение способности до уровня 3"
+		let OEKSEShowAbilityMessage := 3
+		if OEKSEInitQ.OEKSEArcaneArcherAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+	if OEKSEAbilityLevel == 2 && OEKSEShowAbilityMessage < 2
+		messageboxex "Способность Волшебный стрелок развилась до уровня Специалист!%rТеперь стоимость специальных умений значительно снижается, если применять их по врагу, который атакует или творит заклинания! Также снижается стоимость применения таких умений при повторном использовании (по одному и тому же противнику) или по более сильному врагу. Специальные умения, помимо основной, могут задеть еще и соседнюю цель"
+		debugprint "Показано сообщение про улучшение способности до уровня 2"
+		let OEKSEShowAbilityMessage := 2
+		if OEKSEInitQ.OEKSEArcaneArcherAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+	if OEKSEAbilityLevel == 1 && OEKSEShowAbilityMessage < 1
+		messageboxex "Способность: Волшебный стрелок. Уровень - Ученик.%rВы делаете первые шаги по пути Волшебного стрелка. В зависимости от расстояния до цели, при выстреле из лука будет применено останавливающее или замедляющее умение, причем останавливающее заберет больше маны. Если противник будет значительно сильнее Волшебного стрелка, то стоимость умений возрастет. При повторном применении умений по замедленному или остановленному врагу умения стоят немного меньше маны"
+		debugprint "Показано сообщение про получение способности уровня 1 (базового)"
+		let OEKSEShowAbilityMessage := 1
+		if OEKSEInitQ.OEKSEArcaneArcherAbilityQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+endif
+if OEKSEShowInitMessage == 0 && OEKSEAbilityLevel >= 1
+	messageboxex "Вы получили доступ к способности лучника - Волшебный стрелок!%rВолшебные стрелки используют свои магические умения для того, чтобы замедлять и останавливать врагов. В своей практике они не полагаются на традиционные силу воли или количество маны. Естественное восстановление магического резерва происходит только за счет параметра ловкости, а увеличение количества маны приводит к росту стоимости специальных умений Волшебного стрелка"
+	debugprint "Показано начальное сообщение"
+	let OEKSEShowInitMessage := 1
+	if OEKSEInitQ.OEKSEArcaneArcherAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+
+;0 - отрабатывает и переключается в -1 (выкл)
+;1 - отрабатывает и переключается в 2 (вкл)
+if OEKSEAbilityActive == -1
+	debugprint "Активность способности Волшебный стрелок: [-1], прерывание"
+	if OEKSEInitQ.OEKSEArcaneArcherAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+if OEKSEAbilityActive == 0
+	debugprint "Переключение режима работы [0 -> -1]"
+
+	PlayerRef.Dispel OEKSEArcaneArcherEffectRef
+	PlayerRef.RemoveSpellNS OEKSEAbArcaneArcherStuntedMagicka
+
+	let OEKSEAbilityActive := -1
+	if OEKSEInitQ.OEKSEArcaneArcherAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+if OEKSEAbilityActive == 1
+	debugprint "Переключение режима работы [1 -> 2]"
+	debugprint "Игрок получает эффект замороженной магии и регенерацию маны только от ловкости, а не от количества маны/силы воли"
+
+	PlayerRef.Dispel OEKSEArcaneArcherEffectRef
+
+	OEKSECaster.moveto PlayerRef 0 0 150
+	OEKSECaster.Cast OEKSEArcaneArcherEffectRef PlayerRef
+	PlayerRef.AddSpellNS OEKSEAbArcaneArcherStuntedMagicka
+
+	let OEKSEAbilityActive := 2
+	if OEKSEInitQ.OEKSEArcaneArcherAbilityQScrDebugMode == 1
+		SetDebugMode 0 OEKSEInitQ.KSEModIndex
+	endif
+	return
+endif
+
+if OEKSEAbilityActive == 2
+	; расчет и применение способности Волшебный стрелок
+	if OEKSETargetRef
+		let OEKSETargetIsDodging := OEKSETargetRef.call OEKSECheckActorIsDodgingFScr
+	endif
+	if OEKSETargetRef && OEKSEHitWeaponRef && OEKSETargetRef.GetDead == 0 && OEKSETargetIsDodging == 0 && OEKSETargetRef.GetDisabled == 0
+		if OEKSETargetRef.GetBaseAV Health < PlayerRef.GetLevel * 5 && OEKSEArcaneArcherIgnoreWeakActors == 1
+			; пропуск, если цель слишком слабая
+		else
+			let OEKSEActorMagicResistance := OEKSETargetRef.GetAV ResistMagic
+			if OEKSEActorMagicResistance < 99 && OEKSETargetRef.GetAV SpellAbsorbChance < 99 && OEKSETargetRef.GetAV SpellReflectChance < 99
+				let OEKSEMaxWeight := OEKSETargetRef.GetAV Strength * 5
+				let OEKSEEncumbranceCurrent := OEKSETargetRef.GetAV Encumbrance
+
+				let OEKSEDebuffReadyToUseSpellsArray := ar_Copy OEKSEDebuffSpellsArray
+				let index1 := ( ar_size OEKSEDebuffReadyToUseSpellsArray ) - 1
+				while index1 >= 0
+					let OEKSESpellRef := OEKSEDebuffReadyToUseSpellsArray[index1]
+					if eval(ar_HasKey OEKSEDebuffUsedSpellsArray GetRawFormIDString OEKSESpellRef) == 1
+						ar_Erase OEKSEDebuffReadyToUseSpellsArray index1
+					endif
+					let index1 := index1 - 1
+				loop
+
+				; смотрится, есть ли на противнике эффект от предыдущих применений
+				let OEKSEEffectsCount := OEKSETargetRef.GetActiveEffectCount
+				let index1 := 0
+				let OEKSEOldSpellMagnitude := 0
+				if OEKSEEffectsCount > 0
+					while index1 < OEKSEEffectsCount
+						let OEKSESpellRef := OEKSETargetRef.GetNthActiveEffectMagicItem index1
+						;if OEKSESpellRef == OEKSESpArcaneArcherDebuff
+						if eval(ar_Find OEKSESpellRef OEKSEDebuffSpellsArray) >= 0
+							let OEKSEOldSpellMagnitude := OEKSEOldSpellMagnitude + OEKSETargetRef.GetNthActiveEffectMagnitude index1
+							OEKSETargetRef.DispelNthActiveEffect index1
+							;break
+						endif
+						let index1 := index1 + 1
+					loop
+				endif
+
+				let OEKSEPCMagickaBase := PlayerRef.GetBaseAV magicka + PlayerRef.GetTotalAENonAbilityMagnitude FOSP Magicka
+				
+				; расчет стоимости умения и его силы в зависимости от расстояния до цели
+				if PlayerRef.getdistance OEKSETargetRef < OEKSEArcaneArcherShortDistanceValue
+					let OEKSEDistanceSpellCostMod := OEKSEArcaneArcherShortDistanceSpellCostMod
+					let OEKSEDistanceSpellMagnitudeMod := 2
+				elseif PlayerRef.getdistance OEKSETargetRef > OEKSEArcaneArcherLongDistanceValue
+					let OEKSEDistanceSpellCostMod := OEKSEArcaneArcherLongDistanceSpellCostMod
+					let OEKSEDistanceSpellMagnitudeMod := 0.5
+				else
+					let OEKSEDistanceSpellCostMod := OEKSEArcaneArcherAverageDistanceSpellCostMod
+					let OEKSEDistanceSpellMagnitudeMod := 0.8
+				endif
+				let OEKSEPCMagickaCost := -OEKSEPCMagickaBase * OEKSEDistanceSpellCostMod
+				
+				; увеличение стоимости умения при разнице в уровнях между игроком и целью
+				if ( OEKSETargetRef.GetLevel - PlayerRef.GetLevel ) > 15
+					let OEKSEPCMagickaCost := OEKSEPCMagickaCost * OEKSEAALevelDiffCostMod
+				elseif ( OEKSETargetRef.GetLevel - PlayerRef.GetLevel ) > 5
+					let OEKSEPCMagickaCost := OEKSEPCMagickaCost * (( OEKSEAALevelDiffCostMod - 1 ) * ( OEKSETargetRef.GetLevel - PlayerRef.GetLevel - 5 ) / 10 + 1)
+				endif
+				
+				; снижение стоимости при перехватывающих атаках
+				if OEKSETargetIsAttacking == 1
+					let OEKSEPCMagickaCost := OEKSEPCMagickaCost * OEKSEAACounterAttackCostMod
+				endif
+				
+				; снижение стоимости при повторном наложении эффекта
+				if OEKSEOldSpellMagnitude > 0
+					let OEKSEPCMagickaCost := OEKSEPCMagickaCost * OEKSEAARepeatCostMod
+				endif
+				
+				if PlayerRef.GetAV magicka >= -OEKSEPCMagickaCost
+					let OEKSESpellMagnitude := ( OEKSEMaxWeight - ( OEKSEEncumbranceCurrent - OEKSEOldSpellMagnitude )) * ( 100 / ( 100 - OEKSEActorMagicResistance ))
+
+					; применяется только по целям без перегруза (перегруз от предыдущих применений не учитывается)
+					if OEKSESpellMagnitude > 0
+						let OEKSEContinuousSpellMagnitude := OEKSESpellMagnitude * 0.8
+						let OEKSESpellMagnitude := OEKSESpellMagnitude * OEKSEDistanceSpellMagnitudeMod
+
+						; взятие стоимости в мане
+						PlayerRef.ModAVMod magicka "damage" OEKSEPCMagickaCost
+						
+						if eval(ar_size OEKSEDebuffReadyToUseSpellsArray) == 0
+							let OEKSESpellRef := OEKSESpArcaneArcherDebuff
+							let OEKSESpellRef := CloneForm OEKSESpellRef
+							let OEKSEDebuffReadyToUseSpellsArray[0] := OEKSESpellRef
+							let OEKSEDebuffSpellsArray[ar_size OEKSEDebuffSpellsArray] := OEKSESpellRef
+						else
+							let OEKSESpellRef := OEKSEDebuffReadyToUseSpellsArray[0]
+						endif
+						
+						; переназначение параметров дебаффа
+						RemoveNthEffectItem OEKSESpellRef 2
+						RemoveNthEffectItem OEKSESpellRef 1
+						AddEffectItem BRDN OEKSESpellRef
+						SetNthEffectItemMagnitude OEKSESpellMagnitude OEKSESpellRef 1
+						if OEKSEOldSpellMagnitude > 0 && OEKSEDistanceSpellMagnitudeMod < 2
+							SetNthEffectItemDuration OEKSEContinuousDebuffDuration OEKSESpellRef 1
+						else
+							SetNthEffectItemDuration OEKSEArcaneArcherDebuffDuration OEKSESpellRef 1
+						endif
+						SetNthEffectItemRange 1 OEKSESpellRef 1
+						if OEKSEOldSpellMagnitude > 0 && OEKSEDistanceSpellMagnitudeMod == 2
+							AddEffectItem BRDN OEKSESpellRef
+							SetNthEffectItemMagnitude OEKSEContinuousSpellMagnitude OEKSESpellRef 2
+							SetNthEffectItemDuration OEKSEExtraContinuousDebuffDuration OEKSESpellRef 2
+							SetNthEffectItemRange 1 OEKSESpellRef 2
+						endif
+						
+						; применение дебаффа по основной цели
+						OEKSECaster.moveto OEKSETargetRef 0 0 150
+						OEKSECaster.Cast OEKSESpellRef OEKSETargetRef
+						OEKSETargetRef.PlaySound3D SPLAlterationHit
+
+						let OEKSEDebuffUsedSpellsArray[GetRawFormIDString OEKSESpellRef] := OEKSEArcaneArcherDebuffDuration + 1
+
+						if eval(ar_Find OEKSESpellRef OEKSEDebuffReadyToUseSpellsArray) >= 0
+							ar_erase OEKSEDebuffReadyToUseSpellsArray (ar_Find OEKSESpellRef OEKSEDebuffReadyToUseSpellsArray)
+						endif
+
+						; применение умений по области
+						if OEKSEAADebuffArea > 0
+							let OEKSEDebuffTargetsArray := ar_construct Array
+							let OEKSEActorRef := GetFirstRef 69 2
+							while OEKSEActorRef
+								if OEKSEActorRef.GetDead == 0 && OEKSEActorRef.GetDisabled == 0 && OEKSEActorRef != OEKSETargetRef && OEKSEActorRef.GetDistance OEKSETargetRef < OEKSEAADebuffArea && OEKSEActorRef.GetAV ResistMagic < 99 && OEKSEActorRef.GetAV SpellAbsorbChance < 99 && OEKSEActorRef.GetAV SpellReflectChance < 99 && ( OEKSEActorRef.GetShouldAttack PlayerRef == 1 || OEKSEActorRef.GetCombatTarget == PlayerRef )
+									let OEKSEDebuffTargetsArray[ar_size OEKSEDebuffTargetsArray] := OEKSEActorRef
+								endif
+								let OEKSEActorRef := GetNextRef
+							loop
+							
+							; сортировка по близости к игроку
+							let OEKSEDebuffTargetsArray := ar_CustomSort OEKSEDebuffTargetsArray OEKSECustomSortObjectsByDistanceToPlayerFScr
+							
+							; обрезаются лишние цели - в соответствии с уровнем способности
+							if eval(ar_size OEKSEDebuffTargetsArray) > OEKSEAADebuffAdditionalTargetsCount
+								ar_Resize OEKSEDebuffTargetsArray OEKSEAADebuffAdditionalTargetsCount
+							endif
+							
+							let index1 := 0
+							let ArrSize := ar_size OEKSEDebuffTargetsArray
+							while index1 < ArrSize
+								let OEKSEActorRef := OEKSEDebuffTargetsArray[index1]
+
+								; снятие всех предыдущих дебаффов, если такие есть
+								let OEKSEEffectsCount := OEKSEActorRef.GetActiveEffectCount
+								let index2 := 0
+								let OEKSEOldSpellMagnitude := 0
+								if OEKSEEffectsCount > 0
+									while index2 < OEKSEEffectsCount
+										let OEKSESpellRef := OEKSEActorRef.GetNthActiveEffectMagicItem index2
+										if eval(ar_Find OEKSESpellRef OEKSEDebuffSpellsArray) >= 0
+											let OEKSEOldSpellMagnitude := OEKSEOldSpellMagnitude + OEKSEActorRef.GetNthActiveEffectMagnitude index2
+											OEKSEActorRef.DispelNthActiveEffect index2
+										endif
+										let index2 := index2 + 1
+									loop
+								endif
+
+								if eval(ar_size OEKSEDebuffReadyToUseSpellsArray) == 0
+									let OEKSESpellRef := OEKSESpArcaneArcherDebuff
+									let OEKSESpellRef := CloneForm OEKSESpellRef
+									let OEKSEDebuffReadyToUseSpellsArray[0] := OEKSESpellRef
+									let OEKSEDebuffSpellsArray[ar_size OEKSEDebuffSpellsArray] := OEKSESpellRef
+								else
+									let OEKSESpellRef := OEKSEDebuffReadyToUseSpellsArray[0]
+								endif
+
+								; перерасчета силы дебаффа для каждой дополнительной цели, т.к. возникают всякие коллизии и цель может получить постоянный перегруз
+								let OEKSEMaxWeight := OEKSEActorRef.GetAV Strength * 5
+								let OEKSEEncumbranceCurrent := OEKSEActorRef.GetAV Encumbrance
+								let OEKSEActorMagicResistance := OEKSEActorRef.GetAV ResistMagic
+								let OEKSESpellMagnitude := ( OEKSEMaxWeight - ( OEKSEEncumbranceCurrent - OEKSEOldSpellMagnitude )) * ( 100 / ( 100 - OEKSEActorMagicResistance ))
+
+								if OEKSESpellMagnitude > 0
+									let OEKSEContinuousSpellMagnitude := OEKSESpellMagnitude * 0.8
+									let OEKSESpellMagnitude := OEKSESpellMagnitude * OEKSEDistanceSpellMagnitudeMod
+								
+									; для каждой цели - свое заклинание дебаффа, чтобы не разбираться с последствиями переназначения параметров дебаффа в одном кадре
+									RemoveNthEffectItem OEKSESpellRef 2
+									RemoveNthEffectItem OEKSESpellRef 1
+									AddEffectItem BRDN OEKSESpellRef
+									SetNthEffectItemMagnitude OEKSESpellMagnitude OEKSESpellRef 1
+									if OEKSEOldSpellMagnitude > 0 && OEKSEDistanceSpellMagnitudeMod < 2
+										SetNthEffectItemDuration OEKSEContinuousDebuffDuration OEKSESpellRef 1
+									else
+										SetNthEffectItemDuration OEKSEArcaneArcherDebuffDuration OEKSESpellRef 1
+									endif
+									SetNthEffectItemRange 1 OEKSESpellRef 1
+									if OEKSEOldSpellMagnitude > 0 && OEKSEDistanceSpellMagnitudeMod == 2
+										AddEffectItem BRDN OEKSESpellRef
+										SetNthEffectItemMagnitude OEKSEContinuousSpellMagnitude OEKSESpellRef 2
+										SetNthEffectItemDuration OEKSEExtraContinuousDebuffDuration OEKSESpellRef 2
+										SetNthEffectItemRange 1 OEKSESpellRef 2
+									endif
+
+									; применение измененных заклинаний дебаффа на дополнительные цели
+									OEKSECaster.moveto OEKSEActorRef 0 0 150
+									OEKSECaster.Cast OEKSESpellRef OEKSEActorRef
+									OEKSEActorRef.PlaySound3D SPLAlterationHit
+
+									; дебафф уходит на откат
+									let OEKSEDebuffUsedSpellsArray[GetRawFormIDString OEKSESpellRef] := OEKSEArcaneArcherDebuffDuration + 1
+									; и удаляется из массива готовых к применению дебаффов
+									if eval(ar_Find OEKSESpellRef OEKSEDebuffReadyToUseSpellsArray) >= 0
+										ar_erase OEKSEDebuffReadyToUseSpellsArray (ar_Find OEKSESpellRef OEKSEDebuffReadyToUseSpellsArray)
+									endif
+								endif
+								
+								let index1 := index1 + 1
+							loop
+						endif
+					endif
+				else
+					playsound SPLIllusionFail
+				endif
+			else
+				playsound SPLIllusionFail
+				message "Эту цель магией не взять!", 1
+			endif
+		endif
+	endif
+	let OEKSETargetRef := 0
+	let OEKSEHitWeaponRef := 0
+	let OEKSETargetIsAttacking := 0
+	
+	; обработка использованных клонов дебаффов
+	foreach OEKSEArrayElement <- OEKSEDebuffUsedSpellsArray
+		if eval(OEKSEDebuffUsedSpellsArray[OEKSEArrayElement["key"]] <= 0)
+			ar_erase OEKSEDebuffUsedSpellsArray OEKSEArrayElement["key"]
+		else
+			let OEKSEDebuffUsedSpellsArray[OEKSEArrayElement["key"]] -= 0.1
+		endif
+	loop
+
+	;проверка наличия измененной регенерации на игроке
+	let OEKSETimer500msec := OEKSETimer500msec + getsecondspassed
+	if OEKSETimer500msec > 0.5
+		if PlayerRef.IsSpellTarget OEKSEArcaneArcherEffectRef == 0
+			OEKSECaster.moveto PlayerRef 0 0 150
+			OEKSECaster.Cast OEKSEArcaneArcherEffectRef PlayerRef
+		endif
+		
+		let OEKSETimer500msec := 0
+	endif
+endif
+
+if OEKSEInitQ.OEKSEArcaneArcherAbilityQScrDebugMode == 1
+	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+endif
+
+end

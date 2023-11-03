@@ -1,0 +1,25 @@
+﻿scn OEKSEFortificationAbilityMEScr
+
+float FAMagickaDrain
+
+Begin ScriptEffectStart
+
+if OEKSEFortificationAbilityQ.OEKSEAbilityLevel > 0
+	if OEKSEFortificationAbilityQ.OEKSEAbilityActive == -1
+		let FAMagickaDrain := (PlayerRef.getbaseav magicka + ( PlayerRef.GetTotalAENonAbilityMagnitude FOSP Magicka ) + ( PlayerRef.GetTotalAENonAbilityMagnitude DRSP Magicka )) / 2
+		if player.getav magicka > FAMagickaDrain
+			let OEKSEFortificationAbilityQ.OEKSEMustRecalcStats := 1
+			let OEKSEFortificationAbilityQ.OEKSEAbilityActive := 1
+			let OEKSEArcaneArcherAbilityQ.OEKSEAbilityActive := 0
+			let OEKSEBattleMagicAbilityQ.OEKSEAbilityActive := 0
+		else
+			Message "Укрепление: недостаточно маны"
+		endif
+	elseif OEKSEFortificationAbilityQ.OEKSEAbilityActive == 2
+		let OEKSEFortificationAbilityQ.OEKSEAbilityActive := 0
+	endif
+elseif OEKSEFortificationAbilityQ.OEKSEAbilityLevel == 0
+	Message "Укрепление: ваши воинские навыки недостаточно развиты"
+endif
+
+End

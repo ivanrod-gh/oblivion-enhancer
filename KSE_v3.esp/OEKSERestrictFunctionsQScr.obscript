@@ -1,0 +1,388 @@
+﻿scn OEKSERestrictFunctionsQScr
+
+float fQuestDelayTime
+
+array_var OEKSEAbsorbedsArray
+array_var OEKSEArrayElem
+
+short OEKSEArrSize1
+short OEKSEIndex1
+short OEKSEIndex2
+short OEKSEEffectsCount
+short OEKSEAbsorbSpellFound
+short OEKSEActorValIndex
+short OEKSEEffectMagnitude
+short OEKSEDoOncePerFullLoad
+short OEKSEDoOncePerInstance
+short OEKSEDoOncePerInstance2
+short OEKSEQuestLocked
+short OEKSERestrictFunctionsStep
+short OEKSERestrictFunctionsStepedMode
+short OEKSERestrictFunctionsMustPCFullRecalc
+short OEKSERestrictFunctionsMustPCFullRecalcOld
+short OEKSERestrictFunctionsMustPCFullAdditionalRecalc
+int OEKSEEffectCode
+float OEKSETimer30sec		;раз в 30 секунд происходит переназначение значений некоторых глобальных переменных
+float OEKSETimer200msec		;следит за тем, чтобы полный перерасчет ограничивающих функций происходил не чаще 1 раза в 0.2сек
+float OEKSETimer1			;обслуживает обработку поглощения игроком навыков и атрибутов
+
+ref none1
+ref none2
+ref OEKSEActorRef
+ref OEKSESpellRef
+ref OEKSESpellRef2
+
+begin GameMode
+
+if OEKSEInitQ.OEKSERestrictFunctionsQScrDebugMode == 1
+	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+endif
+
+let fQuestDelayTime := 0.01
+
+if GetGameLoaded || GetGameRestarted
+	set OEKSEQuestLocked to OEKSEQuestLocked - 1
+endif
+if OEKSEQuestLocked != 0
+	if OEKSEInitQ.OEKSEInitializationCount > 0
+		set OEKSEInitQ.OEKSEInitializationCount to OEKSEInitQ.OEKSEInitializationCount - 1
+		set OEKSEQuestLocked to 0
+	else
+		if OEKSEInitQ.OEKSERestrictFunctionsQScrDebugMode == 1
+			SetDebugMode 0 OEKSEInitQ.KSEModIndex
+		endif
+		return
+	endif
+endif
+
+if OEKSERestrictFunctions == 1
+
+	if OEKSEDoOncePerInstance2 == 1
+		set OEKSEAttributesModMax to player.getlevel * 2
+		set OEKSEAttributeSpeedModMax to player.getlevel * 4
+		set OEKSEAttributeLuckModMax to player.getlevel ;/ 2
+		set OEKSESkillsModMax to player.getlevel * 1.5
+		set OEKSESkillAcrobaticsModMax to OEKSESkillsModMax
+		set OEKSEHealthModMax to player.getlevel * 5
+		set OEKSEMagickaModMax to player.getlevel * 10
+		set OEKSEFatigueModMax to player.getlevel * 5
+		;вызов проверки исключений из ограничивающих функций (определенная вещь, дающая параметры, надета при выполнении определенного квеста и т.д.)
+		call OEKSECheckRestictExeptionsFScr
+		
+		if OEKSEFlatRestrictions == 1
+			if player.getlevel >= 1 && player.getlevel <= 20
+				set OEKSEResistModMax to player.getlevel * 1.25 + 50
+			elseif player.getlevel >= 21 && player.getlevel <= 35
+				set OEKSEResistModMax to ( player.getlevel - 20 ) * 0.8334 + 75
+			elseif player.getlevel >= 36 && player.getlevel <= 45
+				set OEKSEResistModMax to ( player.getlevel - 35 ) * 0.625 + 87.5
+			elseif player.getlevel >= 46
+				set OEKSEResistModMax to 93.75
+			endif
+			set OEKSESpecialModMax to 50
+		elseif OEKSEFlatRestrictions == 0
+			set OEKSEResistModMax to 93.75
+			set OEKSESpecialModMax to 100
+		endif
+		let OEKSERestrictFunctionsStep := 0
+		let OEKSEDoOncePerInstance2 := 0
+	endif
+	
+	if OEKSEDoOncePerFullLoad == 1
+		
+		SetEventHandler OnActorEquip OEKSERestrictFunctionsFScr first::playerref
+		SetEventHandler OnActorUnequip OEKSERestrictFunctionsFScr first::playerref
+		SetEventHandler OnDrinkPotion OEKSERestrictFunctionsFScr first::playerref
+		
+		SetEventHandler "OnMagicApply" OEKSECatchPCAbsorbedActorsFScr second::playerref
+		SetEventHandler "OnMagicEffectHit" OEKSECatchPCGetMagicHitFScr first::playerref
+
+		let OEKSEDoOncePerFullLoad := 0
+	endif
+	
+	;поиск и обработка актеров, на которых игрок скастовал заклинание поглощения атрибутов или навыков
+	
+	
+	if eval(ar_size OEKSEAbsorbedsArray) > 0
+		let OEKSETimer1 := OEKSETimer1 + getsecondspassed
+		if OEKSETimer1 > 0.25
+			let OEKSEPCAbsorbAttributeStrength := 0
+			let OEKSEPCAbsorbAttributeIntelligence := 0
+			let OEKSEPCAbsorbAttributeWillpower := 0
+			let OEKSEPCAbsorbAttributeAgility := 0
+			let OEKSEPCAbsorbAttributeSpeed := 0
+			let OEKSEPCAbsorbAttributeEndurance := 0
+			let OEKSEPCAbsorbAttributePersonality := 0
+			let OEKSEPCAbsorbAttributeLuck := 0
+			
+			let OEKSEPCAbsorbSkillArmorer := 0
+			let OEKSEPCAbsorbSkillAthletics := 0
+			let OEKSEPCAbsorbSkillBlade := 0
+			let OEKSEPCAbsorbSkillBlock := 0
+			let OEKSEPCAbsorbSkillBlunt := 0
+			let OEKSEPCAbsorbSkillHandtohand := 0
+			let OEKSEPCAbsorbSkillHeavyarmor := 0
+			let OEKSEPCAbsorbSkillAlchemy := 0
+			let OEKSEPCAbsorbSkillAlteration := 0
+			let OEKSEPCAbsorbSkillConjuration := 0
+			let OEKSEPCAbsorbSkillDestruction := 0
+			let OEKSEPCAbsorbSkillIllusion := 0
+			let OEKSEPCAbsorbSkillMysticism := 0
+			let OEKSEPCAbsorbSkillRestoration := 0
+			let OEKSEPCAbsorbSkillAcrobatics := 0
+			let OEKSEPCAbsorbSkillLightarmor := 0
+			let OEKSEPCAbsorbSkillMarksman := 0
+			let OEKSEPCAbsorbSkillMercantile := 0
+			let OEKSEPCAbsorbSkillSecurity := 0
+			let OEKSEPCAbsorbSkillSneak := 0
+			let OEKSEPCAbsorbSkillSpeechcraft := 0
+			
+			foreach OEKSEArrayElem <- OEKSEAbsorbedsArray
+				let OEKSEActorRef := OEKSEAbsorbedsArray[$OEKSEArrayElem["key"]][0]
+				if IsFormValid OEKSEActorRef == 1
+					debugprint "Рассматривается актер [%n][%i] на наличие действующих против него заклинаний поглощения" OEKSEActorRef OEKSEActorRef
+					let OEKSEArrSize1 := ar_size OEKSEAbsorbedsArray[$OEKSEArrayElem["key"]]
+					if OEKSEArrSize1 > 1
+						let OEKSEIndex1 := OEKSEArrSize1 - 1
+						while OEKSEIndex1 > 0
+							let OEKSESpellRef := OEKSEAbsorbedsArray[$OEKSEArrayElem["key"]][OEKSEIndex1]
+							debugprint "У него ищется заклинание [%n][%i]" OEKSESpellRef OEKSESpellRef
+							
+							let OEKSEEffectsCount := OEKSEActorRef.GetActiveEffectCount
+							let OEKSEIndex2 := 0
+							let OEKSEAbsorbSpellFound := 0
+							if OEKSEEffectsCount > 0
+								while OEKSEIndex2 < OEKSEEffectsCount
+									let OEKSESpellRef2 := OEKSEActorRef.GetNthActiveEffectMagicItem OEKSEIndex2
+									
+									if OEKSESpellRef == OEKSESpellRef2
+										
+										let OEKSEEffectCode := OEKSEActorRef.GetNthActiveEffectCode OEKSEIndex2
+										if eval(GetMagicEffectCharsC OEKSEEffectCode == "ABAT") || eval(GetMagicEffectCharsC OEKSEEffectCode == "ABSK")
+											let OEKSEActorValIndex := OEKSEActorRef.GetNthActiveEffectActorValue OEKSEIndex2
+											let OEKSEEffectMagnitude := -(OEKSEActorRef.GetNthActiveEffectMagnitude OEKSEIndex2)
+											if OEKSEActorValIndex == 0
+												let OEKSEPCAbsorbAttributeStrength += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 1
+												let OEKSEPCAbsorbAttributeIntelligence += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 2
+												let OEKSEPCAbsorbAttributeWillpower += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 3
+												let OEKSEPCAbsorbAttributeAgility += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 4
+												let OEKSEPCAbsorbAttributeSpeed += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 5
+												let OEKSEPCAbsorbAttributeEndurance += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 6
+												let OEKSEPCAbsorbAttributePersonality += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 7
+												let OEKSEPCAbsorbAttributeLuck += OEKSEEffectMagnitude
+											
+											
+											elseif OEKSEActorValIndex == 12
+												let OEKSEPCAbsorbSkillArmorer += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 13
+												let OEKSEPCAbsorbSkillAthletics += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 14
+												let OEKSEPCAbsorbSkillBlade += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 15
+												let OEKSEPCAbsorbSkillBlock += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 16
+												let OEKSEPCAbsorbSkillBlunt += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 17
+												let OEKSEPCAbsorbSkillHandtohand += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 18
+												let OEKSEPCAbsorbSkillHeavyarmor += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 19
+												let OEKSEPCAbsorbSkillAlchemy += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 20
+												let OEKSEPCAbsorbSkillAlteration += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 21
+												let OEKSEPCAbsorbSkillConjuration += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 22
+												let OEKSEPCAbsorbSkillDestruction += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 23
+												let OEKSEPCAbsorbSkillIllusion += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 24
+												let OEKSEPCAbsorbSkillMysticism += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 25
+												let OEKSEPCAbsorbSkillRestoration += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 26
+												let OEKSEPCAbsorbSkillAcrobatics += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 27
+												let OEKSEPCAbsorbSkillLightarmor += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 28
+												let OEKSEPCAbsorbSkillMarksman += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 29
+												let OEKSEPCAbsorbSkillMercantile += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 30
+												let OEKSEPCAbsorbSkillSecurity += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 31
+												let OEKSEPCAbsorbSkillSneak += OEKSEEffectMagnitude
+											elseif OEKSEActorValIndex == 32
+												let OEKSEPCAbsorbSkillSpeechcraft += OEKSEEffectMagnitude
+											endif
+											debugprint "Поглощение AV %g увеличено на %g" OEKSEActorValIndex OEKSEEffectMagnitude
+										endif
+										
+										if OEKSEAbsorbSpellFound == 0
+											let OEKSEAbsorbSpellFound := 1
+										endif
+									endif
+									
+									let OEKSEIndex2 := OEKSEIndex2 + 1
+								loop
+							endif
+							
+							if OEKSEAbsorbSpellFound == 0
+								debugprint "У актера нет этого заклинания, удаление заклинания из подмассива актера"
+								ar_erase OEKSEAbsorbedsArray[$OEKSEArrayElem["key"]] OEKSEIndex1
+							endif
+							let OEKSEIndex1 := OEKSEIndex1 - 1
+						loop
+					else
+						debugprint "На актере [%n][%i] нет действующих эффектов от заклинаний поглощения, скастованных игроком"
+					endif
+				else
+					debugprint "Найден невалидный реф [%n][%i]" OEKSEActorRef OEKSEActorRef
+				endif
+			loop
+			
+			;очистка массива OEKSEAbsorbedsArray (выбивает из цикла при ar_erase внутри foreach, причина не ясна) в отдельном цикле
+			foreach OEKSEArrayElem <- OEKSEAbsorbedsArray
+				let OEKSEActorRef := OEKSEAbsorbedsArray[$OEKSEArrayElem["key"]][0]
+				let OEKSEArrSize1 := ar_size OEKSEAbsorbedsArray[$OEKSEArrayElem["key"]]
+				if IsFormValid OEKSEActorRef == 0
+					debugprint "Найден невалидный реф [%n][%i]. Он удаляется из массива" OEKSEActorRef OEKSEActorRef
+					ar_erase OEKSEAbsorbedsArray $OEKSEArrayElem["key"]
+				elseif OEKSEArrSize1 == 1
+					debugprint "На актере [%n][%i] нет действующих эффектов от заклинаний поглощения, скастованных игроком. Удаление актера из массива OEKSEAbsorbedsArray" OEKSEActorRef OEKSEActorRef
+					ar_erase OEKSEAbsorbedsArray $OEKSEArrayElem["key"]
+				endif
+			loop
+			let OEKSETimer1 := 0
+		endif
+	endif
+
+	
+	let OEKSETimer30sec := OEKSETimer30sec + getsecondspassed
+	if OEKSETimer30sec > 30
+		set OEKSEAttributesModMax to player.getlevel * 2
+		set OEKSEAttributeSpeedModMax to player.getlevel * 3
+		set OEKSEAttributeLuckModMax to player.getlevel ;/ 2
+		set OEKSESkillsModMax to player.getlevel * 1.5
+		set OEKSESkillAcrobaticsModMax to OEKSESkillsModMax
+		set OEKSEHealthModMax to player.getlevel * 5
+		set OEKSEMagickaModMax to player.getlevel * 10
+		set OEKSEFatigueModMax to player.getlevel * 5
+		;вызов проверки исключений из ограничивающих функций (определенная вещь, дающая параметры, надета при выполнении определенного квеста и т.д.)
+		call OEKSECheckRestictExeptionsFScr
+		
+		if OEKSEFlatRestrictions == 1
+			if player.getlevel >= 1 && player.getlevel <= 20
+				set OEKSEResistModMax to player.getlevel * 1.25 + 50
+			elseif player.getlevel >= 21 && player.getlevel <= 35
+				set OEKSEResistModMax to ( player.getlevel - 20 ) * 0.8334 + 75
+			elseif player.getlevel >= 36 && player.getlevel <= 45
+				set OEKSEResistModMax to ( player.getlevel - 35 ) * 0.625 + 87.5
+			elseif player.getlevel >= 46
+				set OEKSEResistModMax to 93.75
+			endif
+			set OEKSESpecialModMax to 50
+		elseif OEKSEFlatRestrictions == 0
+			set OEKSEResistModMax to 93.75
+			set OEKSESpecialModMax to 100
+		endif
+		let OEKSETimer30sec := 0
+	endif
+
+	;пресечение слишком частого запуска полного перерасчета
+	if OEKSERestrictFunctionsMustPCFullRecalcOld == 0 && OEKSERestrictFunctionsMustPCFullAdditionalRecalc == 1
+		let OEKSERestrictFunctionsMustPCFullRecalc := 1
+		let OEKSERestrictFunctionsMustPCFullAdditionalRecalc := 0
+	endif
+	if OEKSERestrictFunctionsMustPCFullRecalc == 1
+		let OEKSERestrictFunctionsMustPCFullRecalcOld := 1
+	endif
+	if OEKSERestrictFunctionsMustPCFullRecalcOld == 1
+		if OEKSETimer200msec > 0
+			if OEKSERestrictFunctionsMustPCFullRecalc == 1
+				let OEKSERestrictFunctionsMustPCFullAdditionalRecalc := 1
+			endif
+			let OEKSERestrictFunctionsMustPCFullRecalc := 0
+		endif
+		let OEKSETimer200msec += getsecondspassed
+		if OEKSETimer200msec > 0.2
+			let OEKSERestrictFunctionsMustPCFullRecalcOld := 0
+			let OEKSETimer200msec := 0
+		endif
+	endif
+	
+	if OEKSERestrictFunctionsMustPCFullRecalc == 0
+		let OEKSERestrictFunctionsStepedMode := 1
+	endif
+	call OEKSERestrictFunctionsFScr none1 none2
+	let OEKSERestrictFunctionsStepedMode := 0
+	let OEKSERestrictFunctionsStep := OEKSERestrictFunctionsStep + 1
+	if OEKSERestrictFunctionsStep >= 45
+		let OEKSERestrictFunctionsStep := 1
+	endif
+	let OEKSERestrictFunctionsMustPCFullRecalc := 0
+	
+
+endif
+
+if OEKSERestrictFunctions == 0 && OEKSEDoOncePerInstance == 1
+	set OEKSEAttributeAgilityTeoretic to 0
+	set OEKSEAttributeEnduranceTeoretic to 0
+	set OEKSEAttributeIntelligenceTeoretic to 0
+	set OEKSEAttributeLuckTeoretic to 0
+	set OEKSEAttributePersonalityTeoretic to 0
+	set OEKSEAttributeSpeedTeoretic to 0
+	set OEKSEAttributeStrengthTeoretic to 0
+	set OEKSEAttributeWillpowerTeoretic to 0
+	set OEKSEChameleonTeoretic to 0
+	set OEKSEFatigueTeoretic to 0
+	set OEKSEHealthTeoretic to 0
+	set OEKSEMagickaTeoretic to 0
+	set OEKSEReflectDamageTeoretic to 0
+	set OEKSEResistDiseaseTeoretic to 0
+	set OEKSEResistFireTeoretic to 0
+	set OEKSEResistFrostTeoretic to 0
+	set OEKSEResistMagicTeoretic to 0
+	set OEKSEResistNormalWeaponsTeoretic to 0
+	set OEKSEResistParalysisTeoretic to 0
+	set OEKSEResistPoisonTeoretic to 0
+	set OEKSEResistShockTeoretic to 0
+	set OEKSESkillAcrobaticsTeoretic to 0
+	set OEKSESkillAlchemyTeoretic to 0
+	set OEKSESkillAlterationTeoretic to 0
+	set OEKSESkillArmorerTeoretic to 0
+	set OEKSESkillAthleticsTeoretic to 0
+	set OEKSESkillBladeTeoretic to 0
+	set OEKSESkillBlockTeoretic to 0
+	set OEKSESkillBluntTeoretic to 0
+	set OEKSESkillConjurationTeoretic to 0
+	set OEKSESkillDestructionTeoretic to 0
+	set OEKSESkillHandToHandTeoretic to 0
+	set OEKSESkillHeavyArmorTeoretic to 0
+	set OEKSESkillIllusionTeoretic to 0
+	set OEKSESkillLightArmorTeoretic to 0
+	set OEKSESkillMarksmanTeoretic to 0
+	set OEKSESkillMercantileTeoretic to 0
+	set OEKSESkillMysticismTeoretic to 0
+	set OEKSESkillRestorationTeoretic to 0
+	set OEKSESkillSecurityTeoretic to 0
+	set OEKSESkillSneakTeoretic to 0
+	set OEKSESkillSpeechcraftTeoretic to 0
+	set OEKSESpellAbsorbChanceTeoretic to 0
+	set OEKSESpellReflectChanceTeoretic to 0
+	
+	let OEKSEDoOncePerInstance := 0
+endif
+
+if OEKSEInitQ.OEKSERestrictFunctionsQScrDebugMode == 1
+	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+endif
+
+end

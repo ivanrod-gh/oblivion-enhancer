@@ -1,0 +1,454 @@
+﻿scn OEKSEInsertInInputTextFScr2
+
+float mpowup
+float mpdraabs
+float mpowsum
+
+begin function { }
+
+;предыдущее - блокирование
+;квестовый скрипт: keaTimePenaltiesQ
+
+if player.GetAVModC 16 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Blunt
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Blunt + player.GetTotalAENonAbilityMagnitude DRSK Blunt
+	let mpowsum := player.GetAVModC 16 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Дробящ. оружие = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillBluntTeoretic
+	endif
+endif
+
+if player.GetAVModC 17 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK HandToHand
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK HandToHand + player.GetTotalAENonAbilityMagnitude DRSK HandToHand
+	let mpowsum := player.GetAVModC 17 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Рукопашный бой = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillHandToHandTeoretic
+	endif
+endif
+
+if player.GetAVModC 18 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK HeavyArmor
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK HeavyArmor + player.GetTotalAENonAbilityMagnitude DRSK HeavyArmor
+	let mpowsum := player.GetAVModC 18 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Тяжелая броня = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillHeavyArmorTeoretic
+	endif
+endif
+
+if player.GetAVModC 19 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Alchemy
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Alchemy + player.GetTotalAENonAbilityMagnitude DRSK Alchemy
+	let mpowsum := player.GetAVModC 19 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Алхимия = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillAlchemyTeoretic
+	endif
+endif
+
+if player.GetAVModC 20 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Alteration
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Alteration + player.GetTotalAENonAbilityMagnitude DRSK Alteration
+	let mpowsum := player.GetAVModC 20 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Изменение = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillAlterationTeoretic
+	endif
+endif
+
+if player.GetAVModC 21 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Conjuration
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Conjuration + player.GetTotalAENonAbilityMagnitude DRSK Conjuration
+	let mpowsum := player.GetAVModC 21 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Колдовство = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillConjurationTeoretic
+	endif
+endif
+
+if player.GetAVModC 22 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Destruction
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Destruction + player.GetTotalAENonAbilityMagnitude DRSK Destruction
+	let mpowsum := player.GetAVModC 22 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Разрушение = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillDestructionTeoretic
+	endif
+endif
+
+if player.GetAVModC 23 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Illusion
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Illusion + player.GetTotalAENonAbilityMagnitude DRSK Illusion
+	let mpowsum := player.GetAVModC 23 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Иллюзия = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillIllusionTeoretic
+	endif
+endif
+
+if player.GetAVModC 24 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Mysticism
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Mysticism + player.GetTotalAENonAbilityMagnitude DRSK Mysticism
+	let mpowsum := player.GetAVModC 24 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Мистицизм = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillMysticismTeoretic
+	endif
+endif
+
+if player.GetAVModC 25 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Restoration
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Restoration + player.GetTotalAENonAbilityMagnitude DRSK Restoration
+	let mpowsum := player.GetAVModC 25 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Восстановление = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillRestorationTeoretic
+	endif
+endif
+
+if player.GetAVModC 26 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Acrobatics
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Acrobatics + player.GetTotalAENonAbilityMagnitude DRSK Acrobatics
+	let mpowsum := player.GetAVModC 26 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Акробатика/Бездоспешный бой = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillAcrobaticsTeoretic
+	endif
+endif
+
+if player.GetAVModC 27 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK LightArmor
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK LightArmor + player.GetTotalAENonAbilityMagnitude DRSK LightArmor
+	let mpowsum := player.GetAVModC 27 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Легкая броня = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillLightArmorTeoretic
+	endif
+endif
+
+if player.GetAVModC 28 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Marksman
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Marksman + player.GetTotalAENonAbilityMagnitude DRSK Marksman
+	let mpowsum := player.GetAVModC 28 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Стрельба = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillMarksmanTeoretic
+	endif
+endif
+
+if player.GetAVModC 29 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Mercantile
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Mercantile + player.GetTotalAENonAbilityMagnitude DRSK Mercantile
+	let mpowsum := player.GetAVModC 29 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Торговля = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillMercantileTeoretic
+	endif
+endif
+
+if player.GetAVModC 30 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Security
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Security + player.GetTotalAENonAbilityMagnitude DRSK Security
+	let mpowsum := player.GetAVModC 30 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Взлом = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillSecurityTeoretic
+	endif
+endif
+
+if player.GetAVModC 31 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Sneak
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Sneak + player.GetTotalAENonAbilityMagnitude DRSK Sneak
+	let mpowsum := player.GetAVModC 31 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Скрытность = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillSneakTeoretic
+	endif
+endif
+
+if player.GetAVModC 32 max != 0
+	let mpowup := player.GetTotalAENonAbilityMagnitude FOSK Speechcraft
+	let mpdraabs := player.GetTotalAENonAbilityMagnitude ABSK Speechcraft + player.GetTotalAENonAbilityMagnitude DRSK Speechcraft
+	let mpowsum := player.GetAVModC 32 max
+	InsertInInputText "<br><FONT face=3>"
+	InsertInInputText "Красноречие = "
+	if mpowsum == OEKSESkillsModMax && OEKSERestrictFunctions == 1
+		InsertInInputText "<FONT color=005b04>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum > 0
+		InsertInInputText "<FONT color=00FF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	elseif mpowsum < 0 && mpdraabs != 0
+		InsertInInputText "<FONT color=FFFF00>%+.0f   </FONT><FONT face=3>" mpowsum
+	else
+		InsertInInputText "%+.0f <FONT face=3>" mpowsum
+	endif
+	if mpowup > 0 && mpdraabs != 0
+		InsertInInputText "(<FONT color=00FF00>%+.0f</FONT><FONT face=3>) " mpowup
+	endif
+	if mpdraabs < 0 && mpowup != 0
+		InsertInInputText "(<FONT color=FFFF00>%+.0f</FONT><FONT face=3>) " mpdraabs
+	endif
+	if OEKSERestrictFunctions == 1
+		InsertInInputText "(%+.0f)" OEKSESkillSpeechcraftTeoretic
+	endif
+endif
+
+end

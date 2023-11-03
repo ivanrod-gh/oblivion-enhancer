@@ -1,0 +1,33 @@
+﻿scn OETESTGetAllItemsFScr
+
+array_var ItemsArray
+array_var ArrayElem
+
+ref ItemRef
+ref Self
+
+short ItemsCount
+short ItemsInStackCount
+short index
+
+begin ScriptEffectStart
+
+let Self := GetSelf
+let ItemsArray := ar_construct Array
+let ItemsArray := Self.GetItems
+let ItemsCount := ar_size ItemsArray
+
+let index := 0
+if ItemsCount > 0
+	printc "Актер [%n], имеет %g предметов:" Self ItemsCount
+	while index < ItemsCount
+		let ItemRef := ItemsArray[index]
+		let ItemsInStackCount := Self.getitemcount ItemRef
+		printc "[%g] [Предмет: %n] [Id предмета: %i][Количество: %g]" index ItemRef ItemRef ItemsInStackCount
+		let index := index + 1
+	loop
+endif
+
+messagebox "Items"
+
+End

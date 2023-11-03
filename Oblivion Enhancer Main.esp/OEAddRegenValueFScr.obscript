@@ -1,0 +1,93 @@
+﻿scn OEAddRegenValueFScr
+
+ref ScriptTarget
+float RegenHP
+float RegenMP
+float RegenF
+float CentralHP
+float CentralMP
+float CentralF
+float HealthMax
+float MagickaMax
+float FatigueMax
+
+begin function { ScriptTarget }
+
+;скрипт крутится _4_ раза в секунду, для понимания величин итоговые значения надо умножать на 4
+
+set CentralHP to player.getlevel / 4
+set CentralMP to player.getlevel / 4
+set CentralF to player.getlevel / 4
+
+set HealthMax to ScriptTarget.getbaseav health + ScriptTarget.getavmod health script + ScriptTarget.GetTotalActiveEffectMagnitude FOHE Health + ScriptTarget.GetTotalActiveEffectMagnitude DRHE Health
+set MagickaMax to ScriptTarget.getbaseav magicka + ScriptTarget.getavmod magicka script + ScriptTarget.GetTotalActiveEffectMagnitude FOSP Magicka + ScriptTarget.GetTotalActiveEffectMagnitude DRSP Magicka
+set FatigueMax to ScriptTarget.getbaseav fatigue + ScriptTarget.getavmod fatigue script + ScriptTarget.GetTotalActiveEffectMagnitude FOFA Fatigue + ScriptTarget.GetTotalActiveEffectMagnitude DRFA Fatigue
+
+
+if ScriptTarget.getitemcount OERegenLowToken == 1
+	set RegenHP to (CentralHP / 2) * OEAdditionalRegenValue
+	set RegenMP to (CentralMP / 2) * OEAdditionalRegenValue
+	set RegenF to (CentralF / 2) * OEAdditionalRegenValue
+endif
+
+if ScriptTarget.getitemcount OERegenMidToken == 1
+	set RegenHP to (CentralHP / 1.33) * OEAdditionalRegenValue
+	set RegenMP to (CentralMP / 1.33) * OEAdditionalRegenValue
+	set RegenF to (CentralF / 1.33) * OEAdditionalRegenValue
+endif
+
+if ScriptTarget.getitemcount OERegenHighToken == 1
+	set RegenHP to CentralHP * OEAdditionalRegenValue
+	set RegenMP to CentralMP * OEAdditionalRegenValue
+	set RegenF to CentralF * OEAdditionalRegenValue
+endif
+
+if ScriptTarget.getitemcount OERegenVeryHighToken == 1
+	set RegenHP to CentralHP * 1.5 * OEAdditionalRegenVeryHighValue
+	set RegenMP to CentralMP * 1.5 * OEAdditionalRegenVeryHighValue
+	set RegenF to CentralF * 1.5 * OEAdditionalRegenVeryHighValue
+endif
+
+
+if ScriptTarget.getav health < HealthMax
+	if ScriptTarget.getav health + RegenHP < HealthMax
+		;ScriptTarget.modav2 health RegenHP
+		ScriptTarget.modavmod health damage RegenHP
+	elseif ScriptTarget.getav health + RegenHP >= HealthMax
+		;debugprint "ScriptTarget.getav health + RegenHP > HealthMax"
+		set RegenHP to (HealthMax - ScriptTarget.getav health) + 1
+		;set currenthealth to ScriptTarget.getav health
+		;debugprint "RegenHP = %g, currenthealth = %g" RegenHP currenthealth
+		ScriptTarget.modav2 health RegenHP
+		;set currenthealth to ScriptTarget.getav health
+		;debugprint "currenthealth after health = %g" currenthealth
+	endif
+endif
+
+;set currentmagicka to ScriptTarget.getav magicka
+;debugprint "Статус: currentmagicka = %g, MagickaMax = %g, RegenMP = %g" currentmagicka MagickaMax RegenMP
+if ScriptTarget.getav magicka < MagickaMax
+	;debugprint "Попытка регенерации маны"
+	if ScriptTarget.getav magicka + RegenMP < MagickaMax
+		;ScriptTarget.modav2 magicka RegenMP
+		ScriptTarget.modavmod magicka damage RegenMP
+	elseif ScriptTarget.getav magicka + RegenMP >= MagickaMax
+		set RegenMP to (MagickaMax - ScriptTarget.getav magicka) + 1
+		ScriptTarget.modav2 magicka RegenMP
+	endif
+endif
+;set currentmagicka to ScriptTarget.getav magicka
+;debugprint "Статус после регенерации: currentmagicka = %g, MagickaMax = %g" currentmagicka MagickaMax
+
+if ScriptTarget.getav fatigue < FatigueMax
+	if ScriptTarget.getav fatigue + RegenF < FatigueMax
+		ScriptTarget.modavmod fatigue damage RegenF
+	elseif ScriptTarget.getav fatigue + RegenF >= FatigueMax
+		set RegenF to (FatigueMax - ScriptTarget.getav fatigue) + 1
+		ScriptTarget.modav2 fatigue RegenF
+	endif
+endif
+
+debugprint "Актер [%n], выполнена регенерация" ScriptTarget
+
+end

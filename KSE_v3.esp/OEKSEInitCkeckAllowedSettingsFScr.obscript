@@ -1,0 +1,513 @@
+﻿scn OEKSEInitCkeckAllowedSettingsFScr
+
+Begin Function {}
+
+if OEKSERestrictFunctions < 0 || OEKSERestrictFunctions > 1
+	set OEKSERestrictFunctions to 1
+endif
+if OEKSEFlatRestrictions < 0 || OEKSEFlatRestrictions > 1
+	set OEKSEFlatRestrictions to 1
+endif
+if OEKSEArrowBugFix < 0 || OEKSEArrowBugFix > 1
+	set OEKSEArrowBugFix to 1
+endif
+if OEKSETrainingLimit < 0 || OEKSETrainingLimit > 1
+	set OEKSETrainingLimit to 1
+endif
+if OEKSECloneRetentionSystem < 0 || OEKSECloneRetentionSystem > 1
+	set OEKSECloneRetentionSystem to 1
+endif
+if OEKSEfCreatureCalcDamageMod < 1.35 || OEKSEfCreatureCalcDamageMod > 10.0
+	set OEKSEfCreatureCalcDamageMod to 2.5
+endif
+if OEKSEShowStaminaBar < 0 || OEKSEShowStaminaBar > 2
+	set OEKSEShowStaminaBar to 2
+endif
+if OEKSEStaminaBarX < -9999 || OEKSEStaminaBarX > 9999
+	set OEKSEStaminaBarX to 625
+endif
+if OEKSEStaminaBarY < -9999 || OEKSEStaminaBarY > 9999
+	set OEKSEStaminaBarY to 30
+endif
+if OEKSELvlUpIconX < -9999 || OEKSELvlUpIconX > 9999
+	set OEKSELvlUpIconX to 824
+endif
+if OEKSEFortificationAbility < 0 || OEKSEFortificationAbility > 1
+	set OEKSEFortificationAbility to 1
+endif
+
+;v1.1.0
+if OEKSEArmorAbsorbSkillDependencePC < 0 || OEKSEArmorAbsorbSkillDependencePC > 1
+	set OEKSEArmorAbsorbSkillDependencePC to 1
+endif
+if OEKSEDaggerIgnoreMult < 0.0 || OEKSEDaggerIgnoreMult > 1.0
+	set OEKSEDaggerIgnoreMult to 0.45
+endif
+if OEKSEShortBladeIgnoreMult < 0.0 || OEKSEShortBladeIgnoreMult > 1.0
+	set OEKSEShortBladeIgnoreMult to 0.35
+endif
+if OEKSELongBladeIgnoreMult < 0.0 || OEKSELongBladeIgnoreMult > 1.0
+	set OEKSELongBladeIgnoreMult to 0.25
+endif
+if OEKSETwoHandBladeIgnoreMult < 0.0 || OEKSETwoHandBladeIgnoreMult > 1.0
+	set OEKSETwoHandBladeIgnoreMult to 0.1
+endif
+if OEKSEAddDamageMultPC < 0.0 || OEKSEAddDamageMultPC > 1.0
+	set OEKSEAddDamageMultPC to 0.06
+endif
+if OEKSEAddDamageCritChancePC < 0 || OEKSEAddDamageCritChancePC > 100
+	set OEKSEAddDamageCritChancePC to 20
+endif
+if OEKSEAddDamagePowCritChancePC < 0 || OEKSEAddDamagePowCritChancePC > 100
+	set OEKSEAddDamagePowCritChancePC to 10
+endif
+if OEKSERSMAConstEffEnchFactor < 0 || OEKSERSMAConstEffEnchFactor > 50
+	set OEKSERSMAConstEffEnchFactor to 9
+endif
+
+;v1.1.1
+if OEKSEFortificationAbKnockdown < 0 || OEKSEFortificationAbKnockdown > 1
+	set OEKSEFortificationAbKnockdown to 1
+endif
+if OEKSEFortificationAbBaseCooldownTime < 1 || OEKSEFortificationAbBaseCooldownTime > 50
+	set OEKSEFortificationAbBaseCooldownTime to 15
+endif
+if OEKSEFortificationAbLev1Enemy1KnockdownChance < 0 || OEKSEFortificationAbLev1Enemy1KnockdownChance > 100
+	set OEKSEFortificationAbLev1Enemy1KnockdownChance to 100
+endif
+if OEKSEFortificationAbLev2Enemy1KnockdownChance < 0 || OEKSEFortificationAbLev2Enemy1KnockdownChance > 100
+	set OEKSEFortificationAbLev2Enemy1KnockdownChance to 100
+endif
+if OEKSEFortificationAbLev3Enemy1KnockdownChance < 0 || OEKSEFortificationAbLev3Enemy1KnockdownChance > 100
+	set OEKSEFortificationAbLev3Enemy1KnockdownChance to 100
+endif
+if OEKSEFortificationAbLev4Enemy1KnockdownChance < 0 || OEKSEFortificationAbLev4Enemy1KnockdownChance > 100
+	set OEKSEFortificationAbLev4Enemy1KnockdownChance to 100
+endif
+if OEKSEFortificationAbLev1Enemy2KnockdownChance < 0 || OEKSEFortificationAbLev1Enemy2KnockdownChance > 100
+	set OEKSEFortificationAbLev1Enemy2KnockdownChance to 0
+endif
+if OEKSEFortificationAbLev2Enemy2KnockdownChance < 0 || OEKSEFortificationAbLev2Enemy2KnockdownChance > 100
+	set OEKSEFortificationAbLev2Enemy2KnockdownChance to 50
+endif
+if OEKSEFortificationAbLev3Enemy2KnockdownChance < 0 || OEKSEFortificationAbLev3Enemy2KnockdownChance > 100
+	set OEKSEFortificationAbLev3Enemy2KnockdownChance to 80
+endif
+if OEKSEFortificationAbLev4Enemy2KnockdownChance < 0 || OEKSEFortificationAbLev4Enemy2KnockdownChance > 100
+	set OEKSEFortificationAbLev4Enemy2KnockdownChance to 90
+endif
+if OEKSEFortificationAbLev1Enemy3KnockdownChance < 0 || OEKSEFortificationAbLev1Enemy3KnockdownChance > 100
+	set OEKSEFortificationAbLev1Enemy3KnockdownChance to 0
+endif
+if OEKSEFortificationAbLev2Enemy3KnockdownChance < 0 || OEKSEFortificationAbLev2Enemy3KnockdownChance > 100
+	set OEKSEFortificationAbLev2Enemy3KnockdownChance to 10
+endif
+if OEKSEFortificationAbLev3Enemy3KnockdownChance < 0 || OEKSEFortificationAbLev3Enemy3KnockdownChance > 100
+	set OEKSEFortificationAbLev3Enemy3KnockdownChance to 20
+endif
+if OEKSEFortificationAbLev4Enemy3KnockdownChance < 0 || OEKSEFortificationAbLev4Enemy3KnockdownChance > 100
+	set OEKSEFortificationAbLev4Enemy3KnockdownChance to 35
+endif
+if OEKSEFortificationAbLev1Enemy4KnockdownChance < 0 || OEKSEFortificationAbLev1Enemy4KnockdownChance > 100
+	set OEKSEFortificationAbLev1Enemy4KnockdownChance to 0
+endif
+if OEKSEFortificationAbLev2Enemy4KnockdownChance < 0 || OEKSEFortificationAbLev2Enemy4KnockdownChance > 100
+	set OEKSEFortificationAbLev2Enemy4KnockdownChance to 0
+endif
+if OEKSEFortificationAbLev3Enemy4KnockdownChance < 0 || OEKSEFortificationAbLev3Enemy4KnockdownChance > 100
+	set OEKSEFortificationAbLev3Enemy4KnockdownChance to 10
+endif
+if OEKSEFortificationAbLev4Enemy4KnockdownChance < 0 || OEKSEFortificationAbLev4Enemy4KnockdownChance > 100
+	set OEKSEFortificationAbLev4Enemy4KnockdownChance to 20
+endif
+if OEKSEFortificationAbLev1Enemy5KnockdownChance < 0 || OEKSEFortificationAbLev1Enemy5KnockdownChance > 100
+	set OEKSEFortificationAbLev1Enemy5KnockdownChance to 0
+endif
+if OEKSEFortificationAbLev2Enemy5KnockdownChance < 0 || OEKSEFortificationAbLev2Enemy5KnockdownChance > 100
+	set OEKSEFortificationAbLev2Enemy5KnockdownChance to 0
+endif
+if OEKSEFortificationAbLev3Enemy5KnockdownChance < 0 || OEKSEFortificationAbLev3Enemy5KnockdownChance > 100
+	set OEKSEFortificationAbLev3Enemy5KnockdownChance to 0
+endif
+if OEKSEFortificationAbLev4Enemy5KnockdownChance < 0 || OEKSEFortificationAbLev4Enemy5KnockdownChance > 100
+	set OEKSEFortificationAbLev4Enemy5KnockdownChance to 10
+endif
+if OEKSEFortificationAbBulletTime < 0 || OEKSEFortificationAbBulletTime > 1
+	set OEKSEFortificationAbBulletTime to 1
+endif
+if OEKSEFortificationAbLev1Enemy1BulletTimeStrength < 0 || OEKSEFortificationAbLev1Enemy1BulletTimeStrength > 1
+	set OEKSEFortificationAbLev1Enemy1BulletTimeStrength to 0.8
+endif
+if OEKSEFortificationAbLev2Enemy1BulletTimeStrength < 0.5 || OEKSEFortificationAbLev2Enemy1BulletTimeStrength > 0.95
+	set OEKSEFortificationAbLev2Enemy1BulletTimeStrength to 0.8
+endif
+if OEKSEFortificationAbLev3Enemy1BulletTimeStrength < 0.5 || OEKSEFortificationAbLev3Enemy1BulletTimeStrength > 0.95
+	set OEKSEFortificationAbLev3Enemy1BulletTimeStrength to 0.8
+endif
+if OEKSEFortificationAbLev4Enemy1BulletTimeStrength < 0.5 || OEKSEFortificationAbLev4Enemy1BulletTimeStrength > 0.95
+	set OEKSEFortificationAbLev4Enemy1BulletTimeStrength to 0.8
+endif
+if OEKSEFortificationAbLev2Enemy2BulletTimeStrength < 0.5 || OEKSEFortificationAbLev2Enemy2BulletTimeStrength > 0.95
+	set OEKSEFortificationAbLev2Enemy2BulletTimeStrength to 0.7
+endif
+if OEKSEFortificationAbLev3Enemy2BulletTimeStrength < 0.5 || OEKSEFortificationAbLev3Enemy2BulletTimeStrength > 0.95
+	set OEKSEFortificationAbLev3Enemy2BulletTimeStrength to 0.7
+endif
+if OEKSEFortificationAbLev4Enemy2BulletTimeStrength < 0.5 || OEKSEFortificationAbLev4Enemy2BulletTimeStrength > 0.95
+	set OEKSEFortificationAbLev4Enemy2BulletTimeStrength to 0.7
+endif
+if OEKSEFortificationAbLev3Enemy3BulletTimeStrength < 0.5 || OEKSEFortificationAbLev3Enemy3BulletTimeStrength > 0.95
+	set OEKSEFortificationAbLev3Enemy3BulletTimeStrength to 0.65
+endif
+if OEKSEFortificationAbLev4Enemy3BulletTimeStrength < 0.5 || OEKSEFortificationAbLev4Enemy3BulletTimeStrength > 0.95
+	set OEKSEFortificationAbLev4Enemy3BulletTimeStrength to 0.65
+endif
+if OEKSEFortificationAbLev4Enemy4BulletTimeStrength < 0.5 || OEKSEFortificationAbLev4Enemy4BulletTimeStrength > 0.95
+	set OEKSEFortificationAbLev4Enemy4BulletTimeStrength to 0.6
+endif
+if OEKSEFortificationAbFortify < 0 || OEKSEFortificationAbFortify > 1
+	set OEKSEFortificationAbFortify to 1
+endif
+if OEKSEFortificationPlayRechargeEffect < 0 || OEKSEFortificationPlayRechargeEffect > 1
+	set OEKSEFortificationPlayRechargeEffect to 1
+endif
+if OEKSEArcaneArcherAbility < 0 || OEKSEArcaneArcherAbility > 1
+	set OEKSEArcaneArcherAbility to 1
+endif
+if OEKSEArcaneArcherDebuffDuration < 1.0 || OEKSEArcaneArcherDebuffDuration > 10.0
+	set OEKSEArcaneArcherDebuffDuration to 3.0
+endif
+if OEKSEArcaneArcherLev1ContinuousDebuffDuration < 1 || OEKSEArcaneArcherLev1ContinuousDebuffDuration > 20
+	set OEKSEArcaneArcherLev1ContinuousDebuffDuration to 3
+endif
+if OEKSEArcaneArcherLev2ContinuousDebuffDuration < 1 || OEKSEArcaneArcherLev2ContinuousDebuffDuration > 20
+	set OEKSEArcaneArcherLev2ContinuousDebuffDuration to 5
+endif
+if OEKSEArcaneArcherLev3ContinuousDebuffDuration < 1 || OEKSEArcaneArcherLev3ContinuousDebuffDuration > 20
+	set OEKSEArcaneArcherLev3ContinuousDebuffDuration to 6
+endif
+if OEKSEArcaneArcherLev4ContinuousDebuffDuration < 1 || OEKSEArcaneArcherLev4ContinuousDebuffDuration > 20
+	set OEKSEArcaneArcherLev4ContinuousDebuffDuration to 7
+endif
+if OEKSEArcaneArcherLev1ExtraContinuousDebuffDuration < 1 || OEKSEArcaneArcherLev1ExtraContinuousDebuffDuration > 20
+	set OEKSEArcaneArcherLev1ExtraContinuousDebuffDuration to 3
+endif
+if OEKSEArcaneArcherLev2ExtraContinuousDebuffDuration < 1 || OEKSEArcaneArcherLev2ExtraContinuousDebuffDuration > 20
+	set OEKSEArcaneArcherLev2ExtraContinuousDebuffDuration to 7
+endif
+if OEKSEArcaneArcherLev3ExtraContinuousDebuffDuration < 1 || OEKSEArcaneArcherLev3ExtraContinuousDebuffDuration > 20
+	set OEKSEArcaneArcherLev3ExtraContinuousDebuffDuration to 9
+endif
+if OEKSEArcaneArcherLev4ExtraContinuousDebuffDuration < 1 || OEKSEArcaneArcherLev4ExtraContinuousDebuffDuration > 20
+	set OEKSEArcaneArcherLev4ExtraContinuousDebuffDuration to 11
+endif
+if OEKSEArcaneArcherShortDistanceValue < 100 || OEKSEArcaneArcherShortDistanceValue > 2000
+	set OEKSEArcaneArcherShortDistanceValue to 500
+endif
+if OEKSEArcaneArcherLongDistanceValue < 100 || OEKSEArcaneArcherLongDistanceValue > 2000
+	set OEKSEArcaneArcherLongDistanceValue to 1000
+endif
+if OEKSEArcaneArcherShortDistanceValue >= OEKSEArcaneArcherLongDistanceValue
+	set OEKSEArcaneArcherShortDistanceValue to 500
+	set OEKSEArcaneArcherLongDistanceValue to 1000
+endif
+if OEKSEArcaneArcherShortDistanceSpellCostMod < 0.0 || OEKSEArcaneArcherShortDistanceSpellCostMod > 1.0
+	set OEKSEArcaneArcherShortDistanceSpellCostMod to 0.3
+endif
+if OEKSEArcaneArcherAverageDistanceSpellCostMod < 0.0 || OEKSEArcaneArcherAverageDistanceSpellCostMod > 1.0
+	set OEKSEArcaneArcherAverageDistanceSpellCostMod to 0.15
+endif
+if OEKSEArcaneArcherLongDistanceSpellCostMod < 0.0 || OEKSEArcaneArcherLongDistanceSpellCostMod > 1.0
+	set OEKSEArcaneArcherLongDistanceSpellCostMod to 0.075
+endif
+if OEKSEArcaneArcherLev1CounterAttackCostMod < 0.0 || OEKSEArcaneArcherLev1CounterAttackCostMod > 5.0
+	set OEKSEArcaneArcherLev1CounterAttackCostMod to 1.0
+endif
+if OEKSEArcaneArcherLev2CounterAttackCostMod < 0.0 || OEKSEArcaneArcherLev2CounterAttackCostMod > 5.0
+	set OEKSEArcaneArcherLev2CounterAttackCostMod to 0.5
+endif
+if OEKSEArcaneArcherLev3CounterAttackCostMod < 0.0 || OEKSEArcaneArcherLev3CounterAttackCostMod > 5.0
+	set OEKSEArcaneArcherLev3CounterAttackCostMod to 0.45
+endif
+if OEKSEArcaneArcherLev4CounterAttackCostMod < 0.0 || OEKSEArcaneArcherLev4CounterAttackCostMod > 5.0
+	set OEKSEArcaneArcherLev4CounterAttackCostMod to 0.4
+endif
+if OEKSEArcaneArcherLev1RepeatCostMod < 0.0 || OEKSEArcaneArcherLev1RepeatCostMod > 5.0
+	set OEKSEArcaneArcherLev1RepeatCostMod to 0.8
+endif
+if OEKSEArcaneArcherLev2RepeatCostMod < 0.0 || OEKSEArcaneArcherLev2RepeatCostMod > 5.0
+	set OEKSEArcaneArcherLev2RepeatCostMod to 0.7
+endif
+if OEKSEArcaneArcherLev3RepeatCostMod < 0.0 || OEKSEArcaneArcherLev3RepeatCostMod > 5.0
+	set OEKSEArcaneArcherLev3RepeatCostMod to 0.65
+endif
+if OEKSEArcaneArcherLev4RepeatCostMod < 0.0 || OEKSEArcaneArcherLev4RepeatCostMod > 5.0
+	set OEKSEArcaneArcherLev4RepeatCostMod to 0.6
+endif
+if OEKSEArcaneArcherLev1LevelDiffCostMod < 1.0 || OEKSEArcaneArcherLev1LevelDiffCostMod > 5.0
+	set OEKSEArcaneArcherLev1LevelDiffCostMod to 2.0
+endif
+if OEKSEArcaneArcherLev2LevelDiffCostMod < 1.0 || OEKSEArcaneArcherLev2LevelDiffCostMod > 5.0
+	set OEKSEArcaneArcherLev2LevelDiffCostMod to 1.5
+endif
+if OEKSEArcaneArcherLev3LevelDiffCostMod < 1.0 || OEKSEArcaneArcherLev3LevelDiffCostMod > 5.0
+	set OEKSEArcaneArcherLev3LevelDiffCostMod to 1.25
+endif
+if OEKSEArcaneArcherLev4LevelDiffCostMod < 1.0 || OEKSEArcaneArcherLev4LevelDiffCostMod > 5.0
+	set OEKSEArcaneArcherLev4LevelDiffCostMod to 1.0
+endif
+if OEKSEArcaneArcherLev1AdditionalTargets < 0 || OEKSEArcaneArcherLev1AdditionalTargets > 10
+	set OEKSEArcaneArcherLev1AdditionalTargets to 0
+endif
+if OEKSEArcaneArcherLev2AdditionalTargets < 0 || OEKSEArcaneArcherLev2AdditionalTargets > 10
+	set OEKSEArcaneArcherLev2AdditionalTargets to 1
+endif
+if OEKSEArcaneArcherLev3AdditionalTargets < 0 || OEKSEArcaneArcherLev3AdditionalTargets > 10
+	set OEKSEArcaneArcherLev3AdditionalTargets to 2
+endif
+if OEKSEArcaneArcherLev4AdditionalTargets < 0 || OEKSEArcaneArcherLev4AdditionalTargets > 10
+	set OEKSEArcaneArcherLev4AdditionalTargets to 3
+endif
+if OEKSEArcaneArcherLev1DebuffArea < 0 || OEKSEArcaneArcherLev1DebuffArea > 1000
+	set OEKSEArcaneArcherLev1DebuffArea to 0
+endif
+if OEKSEArcaneArcherLev2DebuffArea < 0 || OEKSEArcaneArcherLev2DebuffArea > 1000
+	set OEKSEArcaneArcherLev2DebuffArea to 150
+endif
+if OEKSEArcaneArcherLev3DebuffArea < 0 || OEKSEArcaneArcherLev3DebuffArea > 1000
+	set OEKSEArcaneArcherLev3DebuffArea to 175
+endif
+if OEKSEArcaneArcherLev4DebuffArea < 0 || OEKSEArcaneArcherLev4DebuffArea > 1000
+	set OEKSEArcaneArcherLev4DebuffArea to 200
+endif
+if OEKSEArcaneArcherIgnoreWeakActors < 0 || OEKSEArcaneArcherIgnoreWeakActors > 1
+	set OEKSEArcaneArcherIgnoreWeakActors to 1
+endif
+if OEKSEArcaneArcherMagickaReturnMult < 0.001 || OEKSEArcaneArcherMagickaReturnMult > 1.0
+	set OEKSEArcaneArcherMagickaReturnMult to 0.05
+endif
+if OEKSEBattleMagicAbility < 0 || OEKSEBattleMagicAbility > 1
+	set OEKSEBattleMagicAbility to 1
+endif
+if OEKSEBattleMagicBurnBaseDamage < 0.1 || OEKSEBattleMagicBurnBaseDamage > 20.0
+	set OEKSEBattleMagicBurnBaseDamage to 4.0
+endif
+if OEKSEBattleMagicLev1Area < 100 || OEKSEBattleMagicLev1Area > 1000
+	set OEKSEBattleMagicLev1Area to 200
+endif
+if OEKSEBattleMagicLev2Area < 100 || OEKSEBattleMagicLev2Area > 1000
+	set OEKSEBattleMagicLev2Area to 250
+endif
+if OEKSEBattleMagicLev3Area < 100 || OEKSEBattleMagicLev3Area > 1000
+	set OEKSEBattleMagicLev3Area to 300
+endif
+if OEKSEBattleMagicLev4Area < 100 || OEKSEBattleMagicLev4Area > 1000
+	set OEKSEBattleMagicLev4Area to 400
+endif
+if OEKSEBattleMagicBurnBaseDuration < 5.0 || OEKSEBattleMagicBurnBaseDuration > 20.0
+	set OEKSEBattleMagicBurnBaseDuration to 10.0
+endif
+if OEKSEBattleMagicBurnLev1AdditionalDuration < 0.0 || OEKSEBattleMagicBurnLev1AdditionalDuration > 10.0
+	set OEKSEBattleMagicBurnLev1AdditionalDuration to 0.0
+endif
+if OEKSEBattleMagicBurnLev2AdditionalDuration < 0.0 || OEKSEBattleMagicBurnLev2AdditionalDuration > 10.0
+	set OEKSEBattleMagicBurnLev2AdditionalDuration to 0.0
+endif
+if OEKSEBattleMagicBurnLev3AdditionalDuration < 0.0 || OEKSEBattleMagicBurnLev3AdditionalDuration > 10.0
+	set OEKSEBattleMagicBurnLev3AdditionalDuration to 2.5
+endif
+if OEKSEBattleMagicBurnLev4AdditionalDuration < 0.0 || OEKSEBattleMagicBurnLev4AdditionalDuration > 10.0
+	set OEKSEBattleMagicBurnLev4AdditionalDuration to 5.0
+endif
+if OEKSEBattleMagicBurnMaxCooldownTime < 1 || OEKSEBattleMagicBurnMaxCooldownTime > 20
+	set OEKSEBattleMagicBurnMaxCooldownTime to 10
+endif
+if OEKSEBattleMagicBurnMinCooldownTime < 1 || OEKSEBattleMagicBurnMinCooldownTime > 20
+	set OEKSEBattleMagicBurnMinCooldownTime to 6
+endif
+if OEKSEBattleMagicLev1RepeatDamageMod < 0.5 || OEKSEBattleMagicLev1RepeatDamageMod > 5.0
+	set OEKSEBattleMagicLev1RepeatDamageMod to 0.5
+endif
+if OEKSEBattleMagicLev2RepeatDamageMod < 0.5 || OEKSEBattleMagicLev2RepeatDamageMod > 5.0
+	set OEKSEBattleMagicLev2RepeatDamageMod to 0.85
+endif
+if OEKSEBattleMagicLev3RepeatDamageMod < 0.5 || OEKSEBattleMagicLev3RepeatDamageMod > 5.0
+	set OEKSEBattleMagicLev3RepeatDamageMod to 1.0
+endif
+if OEKSEBattleMagicLev4RepeatDamageMod < 0.5 || OEKSEBattleMagicLev4RepeatDamageMod > 5.0
+	set OEKSEBattleMagicLev4RepeatDamageMod to 1.15
+endif
+if OEKSEBattleMagicBurnBlockStagger < 0 || OEKSEBattleMagicBurnBlockStagger > 1
+	set OEKSEBattleMagicBurnBlockStagger to 1
+endif
+if OEKSEBattleMagicBurnStagger < 0 || OEKSEBattleMagicBurnStagger > 1
+	set OEKSEBattleMagicBurnStagger to 1
+endif
+if OEKSEBattleMagicLev1PrimaryTargetStaggerChance < 0 || OEKSEBattleMagicLev1PrimaryTargetStaggerChance > 100
+	set OEKSEBattleMagicLev1PrimaryTargetStaggerChance to 35
+endif
+if OEKSEBattleMagicLev2PrimaryTargetStaggerChance < 0 || OEKSEBattleMagicLev2PrimaryTargetStaggerChance > 100
+	set OEKSEBattleMagicLev2PrimaryTargetStaggerChance to 40
+endif
+if OEKSEBattleMagicLev3PrimaryTargetStaggerChance < 0 || OEKSEBattleMagicLev3PrimaryTargetStaggerChance > 100
+	set OEKSEBattleMagicLev3PrimaryTargetStaggerChance to 50
+endif
+if OEKSEBattleMagicLev4PrimaryTargetStaggerChance < 0 || OEKSEBattleMagicLev4PrimaryTargetStaggerChance > 100
+	set OEKSEBattleMagicLev4PrimaryTargetStaggerChance to 55
+endif
+if OEKSEBattleMagicLev1SecondaryTargetStaggerChance < 0 || OEKSEBattleMagicLev1SecondaryTargetStaggerChance > 100
+	set OEKSEBattleMagicLev1SecondaryTargetStaggerChance to 15
+endif
+if OEKSEBattleMagicLev2SecondaryTargetStaggerChance < 0 || OEKSEBattleMagicLev2SecondaryTargetStaggerChance > 100
+	set OEKSEBattleMagicLev2SecondaryTargetStaggerChance to 20
+endif
+if OEKSEBattleMagicLev3SecondaryTargetStaggerChance < 0 || OEKSEBattleMagicLev3SecondaryTargetStaggerChance > 100
+	set OEKSEBattleMagicLev3SecondaryTargetStaggerChance to 25
+endif
+if OEKSEBattleMagicLev4SecondaryTargetStaggerChance < 0 || OEKSEBattleMagicLev4SecondaryTargetStaggerChance > 100
+	set OEKSEBattleMagicLev4SecondaryTargetStaggerChance to 25
+endif
+if OEKSEBattleMagicLev1BurnMinStaggerChance < 0 || OEKSEBattleMagicLev1BurnMinStaggerChance > 100
+	set OEKSEBattleMagicLev1BurnMinStaggerChance to 20
+endif
+if OEKSEBattleMagicLev2BurnMinStaggerChance < 0 || OEKSEBattleMagicLev2BurnMinStaggerChance > 100
+	set OEKSEBattleMagicLev2BurnMinStaggerChance to 25
+endif
+if OEKSEBattleMagicLev3BurnMinStaggerChance < 0 || OEKSEBattleMagicLev3BurnMinStaggerChance > 100
+	set OEKSEBattleMagicLev3BurnMinStaggerChance to 30
+endif
+if OEKSEBattleMagicLev4BurnMinStaggerChance < 0 || OEKSEBattleMagicLev4BurnMinStaggerChance > 100
+	set OEKSEBattleMagicLev4BurnMinStaggerChance to 35
+endif
+if OEKSEBattleMagicDamageToImmune < 0 || OEKSEBattleMagicDamageToImmune > 1
+	set OEKSEBattleMagicDamageToImmune to 1
+endif
+if OEKSEBattleMagicLev1DamageToImmuneMod < 0.0 || OEKSEBattleMagicLev1DamageToImmuneMod > 1.0
+	set OEKSEBattleMagicLev1DamageToImmuneMod to 0.0
+endif
+if OEKSEBattleMagicLev2DamageToImmuneMod < 0.0 || OEKSEBattleMagicLev2DamageToImmuneMod > 1.0
+	set OEKSEBattleMagicLev2DamageToImmuneMod to 0.25
+endif
+if OEKSEBattleMagicLev3DamageToImmuneMod < 0.0 || OEKSEBattleMagicLev3DamageToImmuneMod > 1.0
+	set OEKSEBattleMagicLev3DamageToImmuneMod to 0.35
+endif
+if OEKSEBattleMagicLev4DamageToImmuneMod < 0.0 || OEKSEBattleMagicLev4DamageToImmuneMod > 1.0
+	set OEKSEBattleMagicLev4DamageToImmuneMod to 0.5
+endif
+if OEKSEBattleMagicSpentMagickaRechargeValue < 10 || OEKSEBattleMagicSpentMagickaRechargeValue > 1000
+	set OEKSEBattleMagicSpentMagickaRechargeValue to 100
+endif
+if OEKSEBattleMagicPlayRechargeEffect < 0 || OEKSEBattleMagicPlayRechargeEffect > 1
+	set OEKSEBattleMagicPlayRechargeEffect to 1
+endif
+if OEKSEAddTargetHealthAbsorbSpells < 0 || OEKSEAddTargetHealthAbsorbSpells > 1
+	set OEKSEAddTargetHealthAbsorbSpells to 1
+endif
+if OEKSERapidFire < 0 || OEKSERapidFire > 1
+	set OEKSERapidFire to 1
+endif
+if OEKSERapidFireDistance < 100 || OEKSERapidFireDistance > 3000
+	set OEKSERapidFireDistance to 1200
+endif
+if OEKSERapidFirePCDuration < 3 || OEKSERapidFirePCDuration > 50
+	set OEKSERapidFirePCDuration to 8
+endif
+if OEKSERapidFireNPCDuration < 3 || OEKSERapidFireNPCDuration > 50
+	set OEKSERapidFireNPCDuration to 6
+endif
+if OEKSERapidFireBowExtraDamageMinSequence < 1 || OEKSERapidFireBowExtraDamageMinSequence > 50
+	set OEKSERapidFireBowExtraDamageMinSequence to 4
+endif
+if OEKSERapidFireLev1PCShortDistanceCounter < 1 || OEKSERapidFireLev1PCShortDistanceCounter > 10
+	set OEKSERapidFireLev1PCShortDistanceCounter to 1
+endif
+if OEKSERapidFireLev2PCShortDistanceCounter < 1 || OEKSERapidFireLev2PCShortDistanceCounter > 10
+	set OEKSERapidFireLev2PCShortDistanceCounter to 2
+endif
+if OEKSERapidFireLev3PCShortDistanceCounter < 1 || OEKSERapidFireLev3PCShortDistanceCounter > 10
+	set OEKSERapidFireLev3PCShortDistanceCounter to 3
+endif
+if OEKSERapidFireLev4PCShortDistanceCounter < 1 || OEKSERapidFireLev4PCShortDistanceCounter > 10
+	set OEKSERapidFireLev4PCShortDistanceCounter to 3
+endif
+if OEKSERapidFireLev1NPCShortDistanceCounter < 1 || OEKSERapidFireLev1NPCShortDistanceCounter > 10
+	set OEKSERapidFireLev1NPCShortDistanceCounter to 1
+endif
+if OEKSERapidFireLev2NPCShortDistanceCounter < 1 || OEKSERapidFireLev2NPCShortDistanceCounter > 10
+	set OEKSERapidFireLev2NPCShortDistanceCounter to 1
+endif
+if OEKSERapidFireLev3NPCShortDistanceCounter < 1 || OEKSERapidFireLev3NPCShortDistanceCounter > 10
+	set OEKSERapidFireLev3NPCShortDistanceCounter to 2
+endif
+if OEKSERapidFireLev4NPCShortDistanceCounter < 1 || OEKSERapidFireLev4NPCShortDistanceCounter > 10
+	set OEKSERapidFireLev4NPCShortDistanceCounter to 2
+endif
+if OEKSERapidFireLev1BowExtraDamageMaxSequence < 1 || OEKSERapidFireLev1BowExtraDamageMaxSequence > 50
+	set OEKSERapidFireLev1BowExtraDamageMaxSequence to 8
+endif
+if OEKSERapidFireLev2BowExtraDamageMaxSequence < 1 || OEKSERapidFireLev2BowExtraDamageMaxSequence > 50
+	set OEKSERapidFireLev2BowExtraDamageMaxSequence to 12
+endif
+if OEKSERapidFireLev3BowExtraDamageMaxSequence < 1 || OEKSERapidFireLev3BowExtraDamageMaxSequence > 50
+	set OEKSERapidFireLev3BowExtraDamageMaxSequence to 16
+endif
+if OEKSERapidFireLev4BowExtraDamageMaxSequence < 1 || OEKSERapidFireLev4BowExtraDamageMaxSequence > 50
+	set OEKSERapidFireLev4BowExtraDamageMaxSequence to 20
+endif
+if OEKSERapidFirePCCritical < 0 || OEKSERapidFirePCCritical > 1
+	set OEKSERapidFirePCCritical to 1
+endif
+if OEKSERapidFireNPCCritical < 0 || OEKSERapidFireNPCCritical > 1
+	set OEKSERapidFireNPCCritical to 0
+endif
+if OEKSERapidFireCriticalMinSequence < 1 || OEKSERapidFireCriticalMinSequence > 50
+	set OEKSERapidFireCriticalMinSequence to 10
+endif
+if OEKSERapidFireLev1CriticalMod < 1.0 || OEKSERapidFireLev1CriticalMod > 10.0
+	set OEKSERapidFireLev1CriticalMod to 2.0
+endif
+if OEKSERapidFireLev2CriticalMod < 1.0 || OEKSERapidFireLev2CriticalMod > 10.0
+	set OEKSERapidFireLev2CriticalMod to 2.5
+endif
+if OEKSERapidFireLev3CriticalMod < 1.0 || OEKSERapidFireLev3CriticalMod > 10.0
+	set OEKSERapidFireLev3CriticalMod to 3.0
+endif
+if OEKSERapidFireLev4CriticalMod < 1.0 || OEKSERapidFireLev4CriticalMod > 10.0
+	set OEKSERapidFireLev4CriticalMod to 3.5
+endif
+if OEKSERapidFireMinCriticalChance < 0 || OEKSERapidFireMinCriticalChance > 100
+	set OEKSERapidFireMinCriticalChance to 25
+endif
+if OEKSERapidFireMaxCriticalChance < 0 || OEKSERapidFireMaxCriticalChance > 100
+	set OEKSERapidFireMaxCriticalChance to 80
+endif
+if OEKSERapidFireMinCriticalChance > OEKSERapidFireMaxCriticalChance
+	set OEKSERapidFireMinCriticalChance to 25
+	set OEKSERapidFireMaxCriticalChance to 80
+endif
+if OEKSERapidFireLev1PCCounterDecrease < 1 || OEKSERapidFireLev1PCCounterDecrease > 10
+	set OEKSERapidFireLev1PCCounterDecrease to 4
+endif
+if OEKSERapidFireLev2PCCounterDecrease < 1 || OEKSERapidFireLev2PCCounterDecrease > 10
+	set OEKSERapidFireLev2PCCounterDecrease to 3
+endif
+if OEKSERapidFireLev3PCCounterDecrease < 1 || OEKSERapidFireLev3PCCounterDecrease > 10
+	set OEKSERapidFireLev3PCCounterDecrease to 2
+endif
+if OEKSERapidFireLev4PCCounterDecrease < 1 || OEKSERapidFireLev4PCCounterDecrease > 10
+	set OEKSERapidFireLev4PCCounterDecrease to 2
+endif
+if OEKSERapidFireLev1NPCCounterDecrease < 1 || OEKSERapidFireLev1NPCCounterDecrease > 10
+	set OEKSERapidFireLev1NPCCounterDecrease to 4
+endif
+if OEKSERapidFireLev2NPCCounterDecrease < 1 || OEKSERapidFireLev2NPCCounterDecrease > 10
+	set OEKSERapidFireLev2NPCCounterDecrease to 4
+endif
+if OEKSERapidFireLev3NPCCounterDecrease < 1 || OEKSERapidFireLev3NPCCounterDecrease > 10
+	set OEKSERapidFireLev3NPCCounterDecrease to 3
+endif
+if OEKSERapidFireLev4NPCCounterDecrease < 1 || OEKSERapidFireLev4NPCCounterDecrease > 10
+	set OEKSERapidFireLev4NPCCounterDecrease to 3
+endif
+
+End

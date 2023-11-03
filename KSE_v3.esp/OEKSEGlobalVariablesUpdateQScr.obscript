@@ -1,0 +1,55 @@
+﻿scn OEKSEGlobalVariablesUpdateQScr
+
+float fQuestDelayTime
+
+short OEKSEQuestLocked
+float OEKSETimer
+
+begin gamemode
+
+let fQuestDelayTime := 1
+
+let OEKSETimer := OEKSETimer + getsecondspassed
+
+if GetGameLoaded || GetGameRestarted
+	set OEKSEQuestLocked to OEKSEQuestLocked - 1
+endif
+if OEKSEQuestLocked != 0
+	if OEKSEInitQ.OEKSEInitializationCount > 0
+		set OEKSEInitQ.OEKSEInitializationCount to OEKSEInitQ.OEKSEInitializationCount - 1
+		set OEKSEQuestLocked to 0
+	else
+		return
+	endif
+endif
+
+if OEKSETimer > 10
+	;срабатывает раз в 10 секунд, отслеживает параметры игры
+	
+	;блок глобальных переменных игры (GMST)
+	let OEKSEInitQ.GSDamageWeaponMult := getgs fDamageWeaponMult
+	if OEKSEInitQ.GSDamageWeaponMult == 0
+		let OEKSEInitQ.GSDamageWeaponMult := 1
+	endif
+	let OEKSEInitQ.GSDamageSkillBase := getgs fDamageSkillBase
+	if OEKSEInitQ.GSDamageSkillBase == 0
+		let OEKSEInitQ.GSDamageSkillBase := 1
+	endif
+	let OEKSEInitQ.GSDamageSkillMult := getgs fDamageSkillMult
+	if OEKSEInitQ.GSDamageSkillMult == 0
+		let OEKSEInitQ.GSDamageSkillMult := 1
+	endif
+	let OEKSEInitQ.GSDamageStrengthBase := getgs fDamageStrengthBase
+	if OEKSEInitQ.GSDamageStrengthBase == 0
+		let OEKSEInitQ.GSDamageStrengthBase := 1
+	endif
+	let OEKSEInitQ.GSDamageStrengthMult := getgs fDamageStrengthMult
+	if OEKSEInitQ.GSDamageStrengthMult == 0
+		let OEKSEInitQ.GSDamageStrengthMult := 1
+	endif
+	;блок глобальных переменных игры (GMST)
+
+	let OEKSETimer := 0
+endif
+
+end

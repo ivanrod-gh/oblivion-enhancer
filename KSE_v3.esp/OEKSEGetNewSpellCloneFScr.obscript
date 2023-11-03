@@ -1,0 +1,59 @@
+﻿scn OEKSEGetNewSpellCloneFScr
+
+;в функцию передается цель (актер/существо), функция возвращает свободную для использования клонформу
+
+ref SpellClone
+ref OwnerRef
+
+short ArrSize
+
+begin function { OwnerRef }
+
+if OEKSEInitQ.OEKSEGetNewSpellCloneFScrDebugMode == 1
+	SetDebugMode 1 OEKSEInitQ.KSEModIndex
+endif
+
+debugprint "Вызов функции OEKSEGetNewSpellCloneFScr - получение неиспользуемого заклинания-клона из системы удержания клонов"
+
+if KeaSettingMagicSystem  == 0 || OEKSECloneRetentionSystem == 0
+	debugprint "OEKSEGetNewSpellCloneFScr возврат" 
+	return
+endif
+
+;в момент вызова функции в SpellClone находится реф актера/нпс, который хочет получить клон заклинания
+
+let ArrSize := ar_size OEKSECloneRetentionSystemQ.FreeSpellsArray
+debugprint "Свободных клонов в данный момент: %g" ArrSize
+;если нет свободных клонформ, то в массив свободных клонформ клонируется одно заклинание StandardRestoreHealth1Novice
+if ArrSize == 0
+	let SpellClone := StandardRestoreHealth1Novice
+	let SpellClone := CloneForm SpellClone
+	let OEKSECloneRetentionSystemQ.ClonedCount := OEKSECloneRetentionSystemQ.ClonedCount + 1
+	let OEKSECloneRetentionSystemQ.FreeSpellsArray[0] := SpellClone
+	debugprint "Создан новый клон [%n][%i]" SpellClone SpellClone
+endif
+
+let ArrSize := (ar_size OEKSECloneRetentionSystemQ.FreeSpellsArray) - 1
+if ArrSize >= 0
+;перемещение клонформы из массива свободных клонформ в массив занятых клонформ
+;клонформа при этом используется актером/существом %OwnerRef%
+	let SpellClone := OEKSECloneRetentionSystemQ.FreeSpellsArray[ArrSize]
+	ar_erase OEKSECloneRetentionSystemQ.FreeSpellsArray ArrSize
+	
+	let ArrSize := ar_size OEKSECloneRetentionSystemQ.BusySpellsArray
+	let OEKSECloneRetentionSystemQ.BusySpellsArray[ArrSize] := ar_Construct Array
+	let OEKSECloneRetentionSystemQ.BusySpellsArray[ArrSize][0] := SpellClone	;реф заклинания-клона
+	let OEKSECloneRetentionSystemQ.BusySpellsArray[ArrSize][1] := 0				;кулдаун счетчик, по-умолчанию = 0
+	let OEKSECloneRetentionSystemQ.BusySpellsArray[ArrSize][2] := OwnerRef		;реф владельца заклинания
+
+	debugprint "Выделение одного из неиспользуемых заклинаний-клонов [%n][%i] для использования" SpellClone SpellClone
+endif
+
+debugprint "Возврат идентификатора заклинания-клона [%n][%i] по месту вызова" SpellClone SpellClone
+setfunctionvalue SpellClone	;свободная (никем не используемая) в данный момент клонформа передается обратно
+
+if OEKSEInitQ.OEKSEGetNewSpellCloneFScrDebugMode == 1
+	SetDebugMode 0 OEKSEInitQ.KSEModIndex
+endif
+
+end

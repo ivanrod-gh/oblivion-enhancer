@@ -1,0 +1,13 @@
+﻿scn OEKSECheckActorIsDodgingFScr
+
+; Вызывается от имени актера
+
+begin function {}
+
+if IsAnimGroupPlaying DodgeForward || IsAnimGroupPlaying DodgeBack || IsAnimGroupPlaying DodgeLeft || IsAnimGroupPlaying DodgeRight
+	SetFunctionValue 1
+else
+	SetFunctionValue 0
+endif
+
+end

@@ -1,0 +1,93 @@
+﻿scn OEAddSpellAbsorbChanceTokenFScr
+
+ref ScriptTarget
+
+short RandomDice
+
+short SpellAbsorbChanceStrength
+float SpellAbsorbChancemagsum
+short SpellAbsorbChance100TokenCount
+short MaximumSpellAbsorbChanceTokenCount
+short ActorHasSpellAbsorbChanceToken
+float SpellAbsorbChancetChance
+float MaximumSpellAbsorbChancetChance
+short IsSpellAbsorbChanceMaximum
+short SpellAbsorbChanceLowTokenCount
+short SpellAbsorbChanceMidTokenCount
+short SpellAbsorbChanceHighTokenCount
+short SpellAbsorbChanceNoneTokenCount
+
+begin function { ScriptTarget }
+
+set RandomDice to rand 1, 3.99
+
+if RandomDice == 1
+	set SpellAbsorbChanceStrength to -1
+elseif RandomDice == 2
+	set SpellAbsorbChanceStrength to 0
+elseif RandomDice == 3
+	set SpellAbsorbChanceStrength to 1
+endif
+
+set SpellAbsorbChancetChance to OEAdditionalSpellAbsorbChanceChance + 0.99
+set MaximumSpellAbsorbChancetChance to OEAdditionalMaximumSpellAbsorbChanceChance + 0.99
+
+set SpellAbsorbChancemagsum to ScriptTarget.GetTotalAEAbilityMagnitude SABS + ScriptTarget.GetTotalAELesserPowerMagnitude SABS + ScriptTarget.GetTotalAEPowerMagnitude SABS
+
+;;debugprint "Актер [%n], SpellAbsorbChancemagsum = %g" ScriptTarget SpellAbsorbChancemagsum
+
+if SpellAbsorbChancemagsum >= 100
+	set SpellAbsorbChance100TokenCount to ScriptTarget.getitemcount OESpellAbsorb100Token
+	ScriptTarget.removeitem OESpellAbsorb100Token SpellAbsorbChance100TokenCount
+	ScriptTarget.additem OESpellAbsorb100Token 1
+	set ActorHasSpellAbsorbChanceToken to 1
+	;debugprint "Актеру [%n] выдан токен 100-процентного поглощения заклинаний, т.к. у него есть врожденное 100-процентное поглощение заклинаний" ScriptTarget
+endif
+if ActorHasSpellAbsorbChanceToken == 0
+	set RandomDice to rand 1, SpellAbsorbChancetChance
+	if RandomDice == 1
+		if (OEAdditionalMaximumSpellAbsorbChance == 1) && (OEAdditionalMaximumSpellAbsorbChanceLevel <= player.getlevel)
+			set RandomDice to rand 1, MaximumSpellAbsorbChancetChance
+			if RandomDice == 1
+				set IsSpellAbsorbChanceMaximum to 1
+				set MaximumSpellAbsorbChanceTokenCount to ScriptTarget.getitemcount OESpellAbsorbMaximumToken 
+				ScriptTarget.removeitem OESpellAbsorbMaximumToken MaximumSpellAbsorbChanceTokenCount
+				ScriptTarget.additem OESpellAbsorbMaximumToken 1
+				;debugprint "Актеру [%n] выдан токен максимального поглощения заклинаний" ScriptTarget
+			endif
+		endif
+		if IsSpellAbsorbChanceMaximum != 1
+			if SpellAbsorbChanceStrength == -1
+				set SpellAbsorbChanceLowTokenCount to ScriptTarget.getitemcount OESpellAbsorbLowToken
+				ScriptTarget.removeitem OESpellAbsorbLowToken SpellAbsorbChanceLowTokenCount
+				ScriptTarget.additem OESpellAbsorbLowToken 1
+				;debugprint "Актеру [%n] выдан токен поглощения заклинаний пониженного уровня" ScriptTarget
+			elseif SpellAbsorbChanceStrength == 0
+				set SpellAbsorbChanceMidTokenCount to ScriptTarget.getitemcount OESpellAbsorbMidToken
+				ScriptTarget.removeitem OESpellAbsorbMidToken SpellAbsorbChanceMidTokenCount
+				ScriptTarget.additem OESpellAbsorbMidToken 1
+				;debugprint "Актеру [%n] выдан токен поглощения заклинаний среднего уровня" ScriptTarget
+			elseif SpellAbsorbChanceStrength == 1
+				set SpellAbsorbChanceHighTokenCount to ScriptTarget.getitemcount OESpellAbsorbHighToken
+				ScriptTarget.removeitem OESpellAbsorbHighToken SpellAbsorbChanceHighTokenCount
+				ScriptTarget.additem OESpellAbsorbHighToken 1
+				;debugprint "Актеру [%n] выдан токен поглощения заклинаний повышенного уровня" ScriptTarget
+			endif
+		endif
+	else
+		set SpellAbsorbChanceNoneTokenCount to ScriptTarget.getitemcount OESpellAbsorbNoneToken
+		ScriptTarget.removeitem OESpellAbsorbNoneToken SpellAbsorbChanceNoneTokenCount
+		ScriptTarget.additem OESpellAbsorbNoneToken 1
+		;debugprint "Актеру [%n] выдан токен отсутствия поглощения заклинаний" ScriptTarget
+	endif
+endif
+
+;debugprint "Актеру [%n] выдан токен поглощения заклинаний" ScriptTarget
+ScriptTarget.additem OESpellAbsorbToken 1
+
+
+
+;debugprint "конец функции"
+
+
+end

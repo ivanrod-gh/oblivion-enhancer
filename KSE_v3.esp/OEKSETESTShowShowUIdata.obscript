@@ -1,0 +1,26 @@
+﻿ScriptName OEKSETESTShowShowUIdata
+
+string_var fullPath
+short currentMenu
+float fQuestDelayTime
+short ScriptIsUnLocked
+
+short Value1
+short Value2
+short Value3
+string_var skillstringname
+string_var skillstringnamedefault
+string_var skillstringnameicon_filename
+short maxV
+short playerHA
+
+
+Begin MenuMode	
+let fQuestDelayTime := 0.01
+if OnKeyDown 38; && ScriptIsUnLocked == 1 ; when L is pressed	
+	let fullPath := GetActiveUIComponentFullName	
+	let currentMenu := GetActiveMenuMode 
+	PrintC "Menumode %.0f: %z", currentMenu, fullPath	
+	PrintTileInfo $fullPath currentMenu	
+endif
+End

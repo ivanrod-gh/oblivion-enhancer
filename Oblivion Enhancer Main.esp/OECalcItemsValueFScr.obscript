@@ -1,0 +1,288 @@
+﻿scn OECalcItemsValueFScr
+
+array_var ObjectChargeArray
+
+begin function {}
+
+;  0: head
+;  1: hair
+;  2: upper body
+;  3: lower body
+;  4: hand
+;  5: foot
+;  6: right ring
+;  7: left ring
+;  8: amulet
+;  9: weapon
+;10: back weapon
+;11: side weapon
+;12: quiver
+;13: shield
+;14: torch
+;15: tail
+;16: weapon
+;17: ammo
+;18: lower and upper body
+;19: lower and upper and foot
+;20: lower, upper, hand and foot
+;21: lower, upper, and hand
+;22: upper and hand
+
+;0: Blade1H
+;1: Blade2H
+;2: Blunt1H
+;3: Blunt2H
+;4: Staff
+;5: Bow
+
+;0: Light Armor
+;1: Heavy Armor
+
+;0: Scroll
+;1: Staff
+;2: Weapon
+;3: Apparel
+
+let OEInitQ.OEItemsValueArray := ar_construct Array
+let OEInitQ.OEItemsValueArray[0] := 0		;повязка
+let OEInitQ.OEItemsValueArray[1] := ar_construct Array
+let OEInitQ.OEItemsValueArray[1][0] := GetArmorAR FurHelmet			;легкий шлем мин
+let OEInitQ.OEItemsValueArray[1][1] := GetArmorAR GlassHelmet		;легкий шлем макс
+let OEInitQ.OEItemsValueArray[1][2] := GetArmorAR IronHelmet		;тяжелый шлем мин
+let OEInitQ.OEItemsValueArray[1][3] := GetArmorAR DaedricHelmet		;тяжелый шлем макс
+;дополнительные данные для перебалансировки
+;прочность брони
+let OEInitQ.OEItemsValueArray[1][4] := GetObjectHealth FurHelmet		;прочность легкий шлем мин
+let OEInitQ.OEItemsValueArray[1][5] := GetObjectHealth GlassHelmet		;прочность легкий шлем макс
+let OEInitQ.OEItemsValueArray[1][6] := GetObjectHealth IronHelmet		;прочность тяжелый шлем мин
+let OEInitQ.OEItemsValueArray[1][7] := GetObjectHealth DaedricHelmet	;прочность тяжелый шлем макс
+;цена брони
+let OEInitQ.OEItemsValueArray[1][8] := GetGoldValue FurHelmet		;цена легкий шлем мин
+let OEInitQ.OEItemsValueArray[1][9] := GetGoldValue GlassHelmet		;цена легкий шлем макс
+let OEInitQ.OEItemsValueArray[1][10] := GetGoldValue IronHelmet		;цена тяжелый шлем мин
+let OEInitQ.OEItemsValueArray[1][11] := GetGoldValue DaedricHelmet		;цена тяжелый шлем макс
+;
+let OEInitQ.OEItemsValueArray[2] := ar_construct Array
+let OEInitQ.OEItemsValueArray[2][0] := GetArmorAR FurCuirass		;легая кираса мин
+let OEInitQ.OEItemsValueArray[2][1] := GetArmorAR GlassCuirass		;легкая кираса макс
+let OEInitQ.OEItemsValueArray[2][2] := GetArmorAR IronCuirass		;тяжелая кираса мин
+let OEInitQ.OEItemsValueArray[2][3] := GetArmorAR DaedricCuirass	;тяжелая кираса макс
+;дополнительные данные для перебалансировки
+;прочность брони
+let OEInitQ.OEItemsValueArray[2][4] := GetObjectHealth FurCuirass		;прочность легкий шлем мин
+let OEInitQ.OEItemsValueArray[2][5] := GetObjectHealth GlassCuirass		;прочность легкий шлем макс
+let OEInitQ.OEItemsValueArray[2][6] := GetObjectHealth IronCuirass		;прочность тяжелый шлем мин
+let OEInitQ.OEItemsValueArray[2][7] := GetObjectHealth DaedricCuirass	;прочность тяжелый шлем макс
+;цена брони
+let OEInitQ.OEItemsValueArray[2][8] := GetGoldValue FurCuirass			;цена легкий шлем мин
+let OEInitQ.OEItemsValueArray[2][9] := GetGoldValue GlassCuirass		;цена легкий шлем макс
+let OEInitQ.OEItemsValueArray[2][10] := GetGoldValue IronCuirass		;цена тяжелый шлем мин
+let OEInitQ.OEItemsValueArray[2][11] := GetGoldValue DaedricCuirass		;цена тяжелый шлем макс
+;
+let OEInitQ.OEItemsValueArray[3] := ar_construct Array
+let OEInitQ.OEItemsValueArray[3][0] := GetArmorAR FurGreaves		;легкие поножи мин
+let OEInitQ.OEItemsValueArray[3][1] := GetArmorAR GlassGreaves		;легкие поножи макс
+let OEInitQ.OEItemsValueArray[3][2] := GetArmorAR IronGreaves		;тяжелые поножи мин
+let OEInitQ.OEItemsValueArray[3][3] := GetArmorAR DaedricGreaves	;тяжелые поножи макс
+;дополнительные данные для перебалансировки
+;прочность брони
+let OEInitQ.OEItemsValueArray[3][4] := GetObjectHealth FurGreaves		;прочность легкий шлем мин
+let OEInitQ.OEItemsValueArray[3][5] := GetObjectHealth GlassGreaves		;прочность легкий шлем макс
+let OEInitQ.OEItemsValueArray[3][6] := GetObjectHealth IronGreaves		;прочность тяжелый шлем мин
+let OEInitQ.OEItemsValueArray[3][7] := GetObjectHealth DaedricGreaves		;прочность тяжелый шлем макс
+;цена брони
+let OEInitQ.OEItemsValueArray[3][8] := GetGoldValue FurGreaves			;цена легкий шлем мин
+let OEInitQ.OEItemsValueArray[3][9] := GetGoldValue GlassGreaves		;цена легкий шлем макс
+let OEInitQ.OEItemsValueArray[3][10] := GetGoldValue IronGreaves		;цена тяжелый шлем мин
+let OEInitQ.OEItemsValueArray[3][11] := GetGoldValue DaedricGreaves		;цена тяжелый шлем макс
+;
+let OEInitQ.OEItemsValueArray[4] := ar_construct Array
+let OEInitQ.OEItemsValueArray[4][0] := GetArmorAR FurGauntlets		;легкие перчатки мин
+let OEInitQ.OEItemsValueArray[4][1] := GetArmorAR GlassGauntlets	;легкие перчатки макс
+let OEInitQ.OEItemsValueArray[4][2] := GetArmorAR IronGauntlets		;тяжелые перчатки мин
+let OEInitQ.OEItemsValueArray[4][3] := GetArmorAR DaedricGauntlets	;тяжелые перчатки макс
+;дополнительные данные для перебалансировки
+;прочность брони
+let OEInitQ.OEItemsValueArray[4][4] := GetObjectHealth FurGauntlets		;прочность легкий шлем мин
+let OEInitQ.OEItemsValueArray[4][5] := GetObjectHealth GlassGauntlets	;прочность легкий шлем макс
+let OEInitQ.OEItemsValueArray[4][6] := GetObjectHealth IronGauntlets	;прочность тяжелый шлем мин
+let OEInitQ.OEItemsValueArray[4][7] := GetObjectHealth DaedricGauntlets	;прочность тяжелый шлем макс
+;цена брони
+let OEInitQ.OEItemsValueArray[4][8] := GetGoldValue FurGauntlets		;цена легкий шлем мин
+let OEInitQ.OEItemsValueArray[4][9] := GetGoldValue GlassGauntlets		;цена легкий шлем макс
+let OEInitQ.OEItemsValueArray[4][10] := GetGoldValue IronGauntlets		;цена тяжелый шлем мин
+let OEInitQ.OEItemsValueArray[4][11] := GetGoldValue DaedricGauntlets	;цена тяжелый шлем макс
+;
+let OEInitQ.OEItemsValueArray[5] := ar_construct Array
+let OEInitQ.OEItemsValueArray[5][0] := GetArmorAR FurBoots		;легкие ботинки мин
+let OEInitQ.OEItemsValueArray[5][1] := GetArmorAR GlassBoots	;легкие ботинки макс
+let OEInitQ.OEItemsValueArray[5][2] := GetArmorAR IronBoots		;тяжелые ботинки мин
+let OEInitQ.OEItemsValueArray[5][3] := GetArmorAR DaedricBoots	;тяжелые ботинки макс
+;дополнительные данные для перебалансировки
+;прочность брони
+let OEInitQ.OEItemsValueArray[5][4] := GetObjectHealth FurBoots		;прочность легкий шлем мин
+let OEInitQ.OEItemsValueArray[5][5] := GetObjectHealth GlassBoots	;прочность легкий шлем макс
+let OEInitQ.OEItemsValueArray[5][6] := GetObjectHealth IronBoots	;прочность тяжелый шлем мин
+let OEInitQ.OEItemsValueArray[5][7] := GetObjectHealth DaedricBoots	;прочность тяжелый шлем макс
+;цена брони
+let OEInitQ.OEItemsValueArray[5][8] := GetGoldValue FurBoots		;цена легкий шлем мин
+let OEInitQ.OEItemsValueArray[5][9] := GetGoldValue GlassBoots		;цена легкий шлем макс
+let OEInitQ.OEItemsValueArray[5][10] := GetGoldValue IronBoots		;цена тяжелый шлем мин
+let OEInitQ.OEItemsValueArray[5][11] := GetGoldValue DaedricBoots	;цена тяжелый шлем макс
+;
+let OEInitQ.OEItemsValueArray[6] := 0		;кольцо на правой руке
+let OEInitQ.OEItemsValueArray[7] := 0		;кольцо на левой руке
+let OEInitQ.OEItemsValueArray[8] := 0		;амулет
+let OEInitQ.OEItemsValueArray[9] := 0		;оружие?
+let OEInitQ.OEItemsValueArray[10] := 0	;оружие?
+let OEInitQ.OEItemsValueArray[11] := 0	;оружие?
+let OEInitQ.OEItemsValueArray[12] := 0	;колчан
+let OEInitQ.OEItemsValueArray[13] := ar_construct Array
+let OEInitQ.OEItemsValueArray[13][0] := GetArmorAR FurShield		;легкий щит мин
+let OEInitQ.OEItemsValueArray[13][1] := GetArmorAR GlassShield		;легкий щит макс
+let OEInitQ.OEItemsValueArray[13][2] := GetArmorAR IronShield		;тяжелый щит мин
+let OEInitQ.OEItemsValueArray[13][3] := GetArmorAR DaedricShield	;тяжелый щит макс
+;дополнительные данные для перебалансировки
+;прочность брони
+let OEInitQ.OEItemsValueArray[13][4] := GetObjectHealth FurShield		;прочность легкий щит мин
+let OEInitQ.OEItemsValueArray[13][5] := GetObjectHealth GlassShield		;прочность легкий щит макс
+let OEInitQ.OEItemsValueArray[13][6] := GetObjectHealth IronShield		;прочность тяжелый щит мин
+let OEInitQ.OEItemsValueArray[13][7] := GetObjectHealth DaedricShield	;прочность тяжелый щит макс
+;цена брони
+let OEInitQ.OEItemsValueArray[13][8] := GetGoldValue FurShield			;цена легкий щит макс
+let OEInitQ.OEItemsValueArray[13][9] := GetGoldValue GlassShield		;цена легкий щит макс
+let OEInitQ.OEItemsValueArray[13][10] := GetGoldValue IronShield		;цена тяжелый щит макс
+let OEInitQ.OEItemsValueArray[13][11] := GetGoldValue DaedricShield		;цена тяжелый щит макс
+;
+let OEInitQ.OEItemsValueArray[14] := 0	;факел
+let OEInitQ.OEItemsValueArray[15] := 0	;хвост
+let OEInitQ.OEItemsValueArray[16] := ar_construct Array
+;blade1h
+let OEInitQ.OEItemsValueArray[16][0] := GetAttackDamage WeapIronDagger			;кинжал мин
+let OEInitQ.OEItemsValueArray[16][1] := GetAttackDamage WeapDaedricDagger		;кинжал макс
+let OEInitQ.OEItemsValueArray[16][2] := GetAttackDamage WeapIronShortsword		;короткий меч мин
+let OEInitQ.OEItemsValueArray[16][3] := GetAttackDamage WeapDaedricShortsword	;короткий меч макс
+let OEInitQ.OEItemsValueArray[16][4] := GetAttackDamage WeapIronLongsword		;длинный меч мин
+let OEInitQ.OEItemsValueArray[16][5] := GetAttackDamage WeapDaedricLongsword	;длинный меч макс
+let OEInitQ.OEItemsValueArray[16][6] := (GetWeaponReach WeapIronDagger + GetWeaponReach WeapIronShortsword)/2		;мин дальность - (кинжал + кор. меч)/2
+let OEInitQ.OEItemsValueArray[16][7] := (GetWeaponReach WeapIronShortsword + GetWeaponReach WeapIronLongsword)/2		;макс дальность - (кор. меч + длинный меч)/2
+;blade2h
+let OEInitQ.OEItemsValueArray[16][8] := GetAttackDamage WeapIronClaymore	;клеймора мин
+let OEInitQ.OEItemsValueArray[16][9] := GetAttackDamage WeapDaedricClaymore	;клеймора макс
+;blunt1h
+let OEInitQ.OEItemsValueArray[16][10] := GetAttackDamage WeapIronWarAxe		;топор мин
+let OEInitQ.OEItemsValueArray[16][11] := GetAttackDamage WeapDaedricWarAxe	;топор макс
+let OEInitQ.OEItemsValueArray[16][12] := GetAttackDamage WeapIronMace		;булава мин
+let OEInitQ.OEItemsValueArray[16][13] := GetAttackDamage WeapDaedricMace	;булава макс
+let OEInitQ.OEItemsValueArray[16][14] := (GetWeaponReach WeapIronWarAxe + GetWeaponReach WeapIronMace)/2		;мин дальность - (топор + булава)/2
+;blunt2h
+let OEInitQ.OEItemsValueArray[16][15] := GetAttackDamage WeapIronBattleAxe		;секира мин
+let OEInitQ.OEItemsValueArray[16][16] := GetAttackDamage WeapDaedricBattleAxe	;секира макс
+let OEInitQ.OEItemsValueArray[16][17] := GetAttackDamage WeapIronWarhammer		;молот мин
+let OEInitQ.OEItemsValueArray[16][18] := GetAttackDamage WeapDaedricWarHammer	;молот макс
+let OEInitQ.OEItemsValueArray[16][19] := (GetWeaponReach WeapIronBattleAxe + GetWeaponReach WeapIronWarhammer)/2		;мин дальность - (секира + молот)/2
+;staff
+let OEInitQ.OEItemsValueArray[16][20] := 0
+;bow
+let OEInitQ.OEItemsValueArray[16][21] := GetAttackDamage WeapIronBow		;лук мин
+let OEInitQ.OEItemsValueArray[16][22] := GetAttackDamage WeapDaedricBow		;лук макс
+;дополнительные данные для перебалансировки
+;дльность оружия ближнего боя
+let OEInitQ.OEItemsValueArray[16][23] := GetWeaponReach WeapIronLongsword	;макс дальность одноручного клинка
+let OEInitQ.OEItemsValueArray[16][24] := GetWeaponReach WeapIronClaymore	;макс дальность двуручного клинка
+let OEInitQ.OEItemsValueArray[16][25] := GetWeaponReach WeapIronMace		;макс дальность одноручного крушащего
+let OEInitQ.OEItemsValueArray[16][26] := GetWeaponReach WeapIronWarhammer	;макс дальность двуручного крушащего
+;скорость оружия ближнего боя
+let OEInitQ.OEItemsValueArray[16][27] := GetWeaponSpeed WeapIronDagger		;макс скорость одноручного клинка
+let OEInitQ.OEItemsValueArray[16][28] := GetWeaponSpeed WeapIronClaymore	;макс скорость двуручного клинка
+let OEInitQ.OEItemsValueArray[16][29] := GetWeaponSpeed WeapIronWarAxe		;макс скорость одноручного крушащего
+let OEInitQ.OEItemsValueArray[16][30] := GetWeaponSpeed WeapIronBattleAxe	;макс скорость двуручного крушащего
+;цена оружия
+let OEInitQ.OEItemsValueArray[16][31] := GetGoldValue WeapIronDagger		;мин стоимость кинжала
+let OEInitQ.OEItemsValueArray[16][32] := GetGoldValue WeapDaedricDagger		;макс стоимость кинжала
+let OEInitQ.OEItemsValueArray[16][33] := GetGoldValue WeapIronShortsword	;мин стоимость кор. меча
+let OEInitQ.OEItemsValueArray[16][34] := GetGoldValue WeapDaedricShortsword	;макс стоимость кор. меча
+let OEInitQ.OEItemsValueArray[16][35] := GetGoldValue WeapIronLongsword		;мин стоимость длин. меча
+let OEInitQ.OEItemsValueArray[16][36] := GetGoldValue WeapDaedricLongsword	;макс стоимость длин. меча
+let OEInitQ.OEItemsValueArray[16][37] := GetGoldValue WeapIronClaymore		;мин стоимость клейморы
+let OEInitQ.OEItemsValueArray[16][38] := GetGoldValue WeapDaedricClaymore	;макс стоимость клейморы
+let OEInitQ.OEItemsValueArray[16][39] := GetGoldValue WeapIronWarAxe		;мин стоимость топора
+let OEInitQ.OEItemsValueArray[16][40] := GetGoldValue WeapDaedricWarAxe		;макс стоимость топора
+let OEInitQ.OEItemsValueArray[16][41] := GetGoldValue WeapIronMace			;мин стоимость булавы
+let OEInitQ.OEItemsValueArray[16][42] := GetGoldValue WeapDaedricMace		;макс стоимость булавы
+let OEInitQ.OEItemsValueArray[16][43] := GetGoldValue WeapIronBattleAxe		;мин стоимость секиры
+let OEInitQ.OEItemsValueArray[16][44] := GetGoldValue WeapDaedricBattleAxe	;макс стоимость секиры
+let OEInitQ.OEItemsValueArray[16][45] := GetGoldValue WeapIronWarhammer		;мин стоимость молота
+let OEInitQ.OEItemsValueArray[16][46] := GetGoldValue WeapDaedricWarHammer	;макс стоимость молота
+let OEInitQ.OEItemsValueArray[16][47] := GetGoldValue WeapIronBow			;мин стоимость лука
+let OEInitQ.OEItemsValueArray[16][48] := GetGoldValue WeapDaedricBow		;макс стоимость лука
+;
+let OEInitQ.OEItemsValueArray[17] := 0	;стрела
+let OEInitQ.OEItemsValueArray[18] := ar_construct Array
+let OEInitQ.OEItemsValueArray[18][0] := OEInitQ.OEItemsValueArray[2][0] + OEInitQ.OEItemsValueArray[3][0]	;легкий верх + низ мин
+let OEInitQ.OEItemsValueArray[18][1] := OEInitQ.OEItemsValueArray[2][1] + OEInitQ.OEItemsValueArray[3][1]	;легкий верх + низ макс
+let OEInitQ.OEItemsValueArray[18][2] := OEInitQ.OEItemsValueArray[2][2] + OEInitQ.OEItemsValueArray[3][2]	;тяжелый верх + низ мин
+let OEInitQ.OEItemsValueArray[18][3] := OEInitQ.OEItemsValueArray[2][3] + OEInitQ.OEItemsValueArray[3][3]	;тяжелый верх + низ макс
+let OEInitQ.OEItemsValueArray[19] := ar_construct Array
+let OEInitQ.OEItemsValueArray[19][0] := OEInitQ.OEItemsValueArray[2][0] + OEInitQ.OEItemsValueArray[3][0] + OEInitQ.OEItemsValueArray[5][0]	;легкий верх + низ + ботинки мин
+let OEInitQ.OEItemsValueArray[19][1] := OEInitQ.OEItemsValueArray[2][1] + OEInitQ.OEItemsValueArray[3][1] + OEInitQ.OEItemsValueArray[5][1]	;легкий верх + низ + ботинки макс
+let OEInitQ.OEItemsValueArray[19][2] := OEInitQ.OEItemsValueArray[2][2] + OEInitQ.OEItemsValueArray[3][2] + OEInitQ.OEItemsValueArray[5][2]	;тяжелый верх + низ + ботинки мин
+let OEInitQ.OEItemsValueArray[19][3] := OEInitQ.OEItemsValueArray[2][3] + OEInitQ.OEItemsValueArray[3][3]	+ OEInitQ.OEItemsValueArray[5][3] ;тяжелый верх + низ + ботинки макс
+let OEInitQ.OEItemsValueArray[20] := ar_construct Array
+let OEInitQ.OEItemsValueArray[20][0] := OEInitQ.OEItemsValueArray[2][0] + OEInitQ.OEItemsValueArray[3][0] + OEInitQ.OEItemsValueArray[4][0] + OEInitQ.OEItemsValueArray[5][0]	;легкий верх + низ + перчатки + ботинки мин
+let OEInitQ.OEItemsValueArray[20][1] := OEInitQ.OEItemsValueArray[2][1] + OEInitQ.OEItemsValueArray[3][1] + OEInitQ.OEItemsValueArray[4][1] + OEInitQ.OEItemsValueArray[5][1]	;легкий верх + низ + перчатки + ботинки макс
+let OEInitQ.OEItemsValueArray[20][2] := OEInitQ.OEItemsValueArray[2][2] + OEInitQ.OEItemsValueArray[3][2] + OEInitQ.OEItemsValueArray[4][2] + OEInitQ.OEItemsValueArray[5][2]	;тяжелый верх + низ + перчатки + ботинки мин
+let OEInitQ.OEItemsValueArray[20][3] := OEInitQ.OEItemsValueArray[2][3] + OEInitQ.OEItemsValueArray[3][3]	+ OEInitQ.OEItemsValueArray[4][3] + OEInitQ.OEItemsValueArray[5][3] ;тяжелый верх + низ + перчатки + ботинки макс
+let OEInitQ.OEItemsValueArray[21] := ar_construct Array
+let OEInitQ.OEItemsValueArray[21][0] := OEInitQ.OEItemsValueArray[2][0] + OEInitQ.OEItemsValueArray[3][0] + OEInitQ.OEItemsValueArray[4][0]	;легкий верх + низ + перчатки мин
+let OEInitQ.OEItemsValueArray[21][1] := OEInitQ.OEItemsValueArray[2][1] + OEInitQ.OEItemsValueArray[3][1] + OEInitQ.OEItemsValueArray[4][1]	;легкий верх + низ + перчатки макс
+let OEInitQ.OEItemsValueArray[21][2] := OEInitQ.OEItemsValueArray[2][2] + OEInitQ.OEItemsValueArray[3][2] + OEInitQ.OEItemsValueArray[4][2]	;тяжелый верх + низ + перчатки мин
+let OEInitQ.OEItemsValueArray[21][3] := OEInitQ.OEItemsValueArray[2][3] + OEInitQ.OEItemsValueArray[3][3]	+ OEInitQ.OEItemsValueArray[4][3] ;тяжелый верх + низ + перчатки макс
+let OEInitQ.OEItemsValueArray[22] := ar_construct Array
+let OEInitQ.OEItemsValueArray[22][0] := OEInitQ.OEItemsValueArray[2][0] + OEInitQ.OEItemsValueArray[4][0]	;легкий верх + перчатки мин
+let OEInitQ.OEItemsValueArray[22][1] := OEInitQ.OEItemsValueArray[2][1] + OEInitQ.OEItemsValueArray[4][1]	;легкий верх + перчатки макс
+let OEInitQ.OEItemsValueArray[22][2] := OEInitQ.OEItemsValueArray[2][2] + OEInitQ.OEItemsValueArray[4][2]	;тяжелый верх + перчатки мин
+let OEInitQ.OEItemsValueArray[22][3] := OEInitQ.OEItemsValueArray[2][3] + OEInitQ.OEItemsValueArray[4][3]	;тяжелый верх + перчатки макс
+;enchant
+let OEInitQ.OEItemsValueArray[23] := ar_construct Array
+let OEInitQ.OEItemsValueArray[23][0] := 0		;свиток
+let ObjectChargeArray := ar_construct Array
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge StaffofDrainWillpowerLesser
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge StaffofDrainIntelligenceLesser
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge StaffofDamageMagickaLesser
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge StaffofDamageMagickaGreater
+ar_sort ObjectChargeArray
+let OEInitQ.OEItemsValueArray[23][1] := ObjectChargeArray[0]	;зачарование на посохе мин
+let ObjectChargeArray := ar_construct Array
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge StaffofFireDamageGreater
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge StaffofFireDamageAreaGreater
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge StaffofFrostDamageGreater
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge StaffofFrostDamageAreaGreater
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge StaffofShockDamageGreater
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge StaffofShockDamageAreaGreater
+ar_sort ObjectChargeArray 1
+let OEInitQ.OEItemsValueArray[23][2] := ObjectChargeArray[0]	;зачарование на посохе макс
+let ObjectChargeArray := ar_construct Array
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge DremoraMaceEnchFireDmg
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge DremoraClaymoreEnchAbsorbHealth
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge DremoraClaymoreEnchAbsorbMagicka
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge EnchIronShortswordSpark
+ar_sort ObjectChargeArray
+let OEInitQ.OEItemsValueArray[23][3] := ObjectChargeArray[0]	;зачарование на оружии мин
+let ObjectChargeArray := ar_construct Array
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge EnchDaedricDaggerScorch
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge EnchDaedricShortswordBlizzard
+let ObjectChargeArray[ar_size ObjectChargeArray] := GetObjectCharge EnchDaedricLongswordStorm
+ar_sort ObjectChargeArray 1
+let OEInitQ.OEItemsValueArray[23][4] := ObjectChargeArray[0]		;зачарование на оружии макс
+let OEInitQ.OEItemsValueArray[23][5] := 0.33		;постоянное зачарование мин
+let OEInitQ.OEItemsValueArray[23][6] := 1.00		;постоянное зачарование макс
+;неизвестные GetEquipmentSlot комбинации
+;lower + foot
+let OEInitQ.OEItemsValueArray[24] := ar_construct Array
+let OEInitQ.OEItemsValueArray[24][0] := OEInitQ.OEItemsValueArray[3][0] + OEInitQ.OEItemsValueArray[5][0]	;легкий низ + ботинки мин
+let OEInitQ.OEItemsValueArray[24][1] := OEInitQ.OEItemsValueArray[3][1] + OEInitQ.OEItemsValueArray[5][1]	;легкий низ + ботинки макс
+let OEInitQ.OEItemsValueArray[24][2] := OEInitQ.OEItemsValueArray[3][2] + OEInitQ.OEItemsValueArray[5][2]	;тяжелый низ + ботинки мин
+let OEInitQ.OEItemsValueArray[24][3] := OEInitQ.OEItemsValueArray[3][3] + OEInitQ.OEItemsValueArray[5][3]	;тяжелый низ + ботинки макс
+
+end

@@ -1,0 +1,120 @@
+﻿scn OESummonMonarchStormMasterMEScr
+
+ref CasterRef
+ref SummonRef
+ref SpellRef
+ref ActorRef
+
+short ArrSize
+short ArrSize2
+short EffectIndex
+short index
+short index2
+short SummonAdded
+short DurationTime
+float DistanceTimer
+
+Begin ScriptEffectStart
+
+let CasterRef := GetSelf
+
+;нельзя саммонить в воде!
+if CasterRef.IsSwimming == 1
+	let EffectIndex := GetScriptActiveEffectIndex
+	let SpellRef := CasterRef.GetNthActiveEffectMagicItem EffectIndex
+	CasterRef.Dispel SpellRef
+	message "Нельзя вызывать существ, находясь в воде."
+	return
+endif
+
+
+;;;реф саммона
+let SummonRef := CasterRef.PlaceAtMe OESummonMonarch5Storm, 1, 220, 0
+
+
+;саммон сопровождает вызвавшего, если вызвавший - игрок. Скриптовый пакет выдается рефу, не базе
+if CasterRef == PlayerRef
+	SummonRef.AddScriptPackage OESummonFollow
+endif
+
+;передача в OESummonersArray нового саммона, призвавшего его саммонера и времени действия эффекта призыва
+let ArrSize := ar_size OEGlobalWatchQ.OESummonersArray
+let index := 0
+let SummonAdded := 0
+while index < ArrSize && SummonAdded == 0
+	;саммонером может быть любой актер, не только из ячейки [0]
+	let index2 := 0
+	let ArrSize2 := ar_size OEGlobalWatchQ.OESummonersArray[index]
+	while index2 < ArrSize2
+		let ActorRef := OEGlobalWatchQ.OESummonersArray[index][index2][0]
+		if IsFormValid ActorRef == 1
+			if ActorRef == CasterRef
+				let OEGlobalWatchQ.OESummonersArray[index][ArrSize2] := ar_construct Array
+				let OEGlobalWatchQ.OESummonersArray[index][ArrSize2][0] := SummonRef
+				let OEGlobalWatchQ.OESummonersArray[index][ArrSize2][1] := CasterRef
+				let EffectIndex := GetScriptActiveEffectIndex
+				let DurationTime := CasterRef.GetNthActiveEffectDuration EffectIndex
+				let OEGlobalWatchQ.OESummonersArray[index][ArrSize2][2] := DurationTime
+				let OEGlobalWatchQ.OESummonersArray[index][ArrSize2][2] += 3
+				let SummonAdded := 1
+				break
+			endif
+		endif
+		let index2 := index2 + 1
+	loop
+	let index := index + 1
+loop
+if SummonAdded == 0
+	let OEGlobalWatchQ.OESummonersArray[ArrSize] := ar_construct Array
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][0] := ar_construct Array
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][1] := ar_construct Array
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][0][0] := CasterRef
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][1][0] := SummonRef
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][1][1] := CasterRef
+	let EffectIndex := GetScriptActiveEffectIndex
+	let DurationTime := CasterRef.GetNthActiveEffectDuration EffectIndex
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][1][2] := DurationTime
+	let OEGlobalWatchQ.OESummonersArray[ArrSize][1][2] += 3
+endif
+
+end
+
+Begin ScriptEffectUpdate
+
+if IsFormValid SummonRef == 0 || IsFormValid CasterRef == 0
+	return
+endif
+
+;саммон убивается, если он где-нибудь потерялся или убежал слишком далеко
+if SummonRef.GetDistance CasterRef >= 6000
+	let DistanceTimer := DistanceTimer + getsecondspassed
+	if DistanceTimer > 10
+		SummonRef.kill
+	endif
+else
+	let DistanceTimer := 0
+endif
+
+;если саммон мертв - развеять заклинание вызова
+if SummonRef.GetDead == 1
+	let EffectIndex := GetScriptActiveEffectIndex
+	let SpellRef := CasterRef.GetNthActiveEffectMagicItem EffectIndex
+	CasterRef.Dispel SpellRef
+	return
+endif
+
+end
+
+Begin ScriptEffectFinish
+
+if IsFormValid SummonRef == 0
+	return
+endif
+
+if SummonRef.GetDead == 0
+	if SummonRef.getitemcount OEDispelAllSpellsAndKillToken == 0
+		SummonRef.additem OEDispelAllSpellsAndKillToken 1
+	endif
+endif
+
+end

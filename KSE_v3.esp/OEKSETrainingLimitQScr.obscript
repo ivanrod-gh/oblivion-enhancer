@@ -1,0 +1,300 @@
+﻿ScriptName OEKSETrainingLimitQScr
+
+short Value1
+short Value2
+short Value3
+float fQuestDelayTime
+string_var skillstringname
+;string_var skillstringnamedefault
+;string_var skillstringnameicon_filename
+short maxV
+short playerHA
+
+short OETrainingMax
+short OETrainingCount
+short OETrainingCountMax
+short limitOn
+string_var warningstringnotmax
+
+string_var armorerstringnameicon_filename
+string_var athleticsstringnameicon_filename
+string_var bladestringnameicon_filename
+string_var blockstringnameicon_filename
+string_var bluntstringnameicon_filename
+string_var handtohandstringnameicon_filename
+string_var heavyarmorstringnameicon_filename
+string_var alchemystringnameicon_filename
+string_var alterationstringnameicon_filename
+string_var conjurationstringnameicon_filename
+string_var destructionstringnameicon_filename
+string_var illusionstringnameicon_filename
+string_var mysticismstringnameicon_filename
+string_var restorationstringnameicon_filename
+string_var acrobaticsstringnameicon_filename
+string_var lightarmorstringnameicon_filename
+string_var marksmanstringnameicon_filename
+string_var mercantilestringnameicon_filename
+string_var securitystringnameicon_filename
+string_var sneakstringnameicon_filename
+string_var speechcraftstringnameicon_filename
+
+short armorerpcvalue
+short athleticspcvalue
+short bladepcvalue
+short blockpcvalue
+short bluntpcvalue
+short handtohandpcvalue
+short heavyarmorpcvalue
+short alchemypcvalue
+short alterationpcvalue
+short conjurationpcvalue
+short destructionpcvalue
+short illusionpcvalue
+short mysticismpcvalue
+short restorationpcvalue
+short acrobaticspcvalue
+short lightarmorpcvalue
+short marksmanpcvalue
+short mercantilepcvalue
+short securitypcvalue
+short sneakpcvalue
+short speechcraftpcvalue
+
+Begin GameMode
+
+set fQuestDelayTime to 0.25
+
+if OEKSETrainingLimit == 0
+	set fQuestDelayTime to 5.00
+	return
+endif
+
+End
+
+
+Begin MenuMode 1009
+
+if OEKSETrainingLimit == 0
+	return
+endif
+
+set fQuestDelayTime to 0.01
+
+End
+
+Begin MenuMode 1028
+
+if OEKSETrainingLimit == 0
+	return
+endif
+
+set fQuestDelayTime to 0.01
+
+if player.getlevel <= 10
+	let OETrainingMax := 40 + player.getlevel
+endif
+if player.getlevel >= 11
+	let OETrainingMax := 30 + player.getlevel*2
+endif
+if	OETrainingMax > 100
+	let OETrainingMax := 100
+endif
+
+let skillstringname := sv_Construct "%e"
+let skillstringname := GetMenuStringValue "training_background\Skill_Picture\filename" 1028
+;let skillstringnameicon_filename := sv_Construct "%e"
+;let skillstringnameicon_filename := "Menus\Class\Attributes\load_image_heavy_armor.dds"
+
+let OETrainingCount := GetPCTrainingSessionsUsed
+let OETrainingCountMax := getgs itrainingskills
+let warningstringnotmax := sv_Construct "%e"
+let warningstringnotmax := "Вы не можете обучиться этому навыку еще больше на вашем текущем уровне"
+
+let armorerstringnameicon_filename := sv_Construct "%e"
+let armorerstringnameicon_filename := "Menus\Class\Attributes\load_image_armorer.dds"
+let athleticsstringnameicon_filename := sv_Construct "%e"
+let athleticsstringnameicon_filename := "Menus\Class\Attributes\load_image_athletics.dds"
+let bladestringnameicon_filename := sv_Construct "%e"
+let bladestringnameicon_filename := "Menus\Class\Attributes\load_image_blade.dds"
+let blockstringnameicon_filename := sv_Construct "%e"
+let blockstringnameicon_filename := "Menus\Class\Attributes\load_image_block.dds"
+let bluntstringnameicon_filename := sv_Construct "%e"
+let bluntstringnameicon_filename := "Menus\Class\Attributes\load_image_blunt.dds"
+let handtohandstringnameicon_filename := sv_Construct "%e"
+let handtohandstringnameicon_filename := "Menus\Class\Attributes\load_image_hand to hand.dds"
+let heavyarmorstringnameicon_filename := sv_Construct "%e"
+let heavyarmorstringnameicon_filename := "Menus\Class\Attributes\load_image_heavy_armor.dds"
+let alchemystringnameicon_filename := sv_Construct "%e"
+let alchemystringnameicon_filename := "Menus\Class\Attributes\load_image_alchemy.dds"
+let alterationstringnameicon_filename := sv_Construct "%e"
+let alterationstringnameicon_filename := "Menus\Class\Attributes\load_image_alteration.dds"
+let conjurationstringnameicon_filename := sv_Construct "%e"
+let conjurationstringnameicon_filename := "Menus\Class\Attributes\load_image_conjuration.dds"
+let destructionstringnameicon_filename := sv_Construct "%e"
+let destructionstringnameicon_filename := "Menus\Class\Attributes\load_image_destruction.dds"
+let illusionstringnameicon_filename := sv_Construct "%e"
+let illusionstringnameicon_filename := "Menus\Class\Attributes\load_image_illusion.dds"
+let mysticismstringnameicon_filename := sv_Construct "%e"
+let mysticismstringnameicon_filename := "Menus\Class\Attributes\load_image_mysticism.dds"
+let restorationstringnameicon_filename := sv_Construct "%e"
+let restorationstringnameicon_filename := "Menus\Class\Attributes\load_image_restoration.dds"
+let acrobaticsstringnameicon_filename := sv_Construct "%e"
+let acrobaticsstringnameicon_filename := "Menus\Class\Attributes\load_image_acrobatics.dds"
+let lightarmorstringnameicon_filename := sv_Construct "%e"
+let lightarmorstringnameicon_filename := "Menus\Class\Attributes\load_image_light_armor.dds"
+let marksmanstringnameicon_filename := sv_Construct "%e"
+let marksmanstringnameicon_filename := "Menus\Class\Attributes\load_image_marksman.dds"
+let mercantilestringnameicon_filename := sv_Construct "%e"
+let mercantilestringnameicon_filename := "Menus\Class\Attributes\load_image_mercantile.dds"
+let securitystringnameicon_filename := sv_Construct "%e"
+let securitystringnameicon_filename := "Menus\Class\Attributes\load_image_security.dds"
+let sneakstringnameicon_filename := sv_Construct "%e"
+let sneakstringnameicon_filename := "Menus\Class\Attributes\load_image_sneak.dds"
+let speechcraftstringnameicon_filename := sv_Construct "%e"
+let speechcraftstringnameicon_filename := "Menus\Class\Attributes\load_image_speechcraft.dds"
+
+let armorerpcvalue := player.getbaseav2 armorer
+let athleticspcvalue := player.getbaseav2 athletics
+let bladepcvalue := player.getbaseav2 blade
+let blockpcvalue := player.getbaseav2 block
+let bluntpcvalue := player.getbaseav2 blunt
+let handtohandpcvalue := player.getbaseav2 handtohand
+let heavyarmorpcvalue := player.getbaseav2 heavyarmor
+let alchemypcvalue := player.getbaseav2 alchemy
+let alterationpcvalue := player.getbaseav2 alteration
+let conjurationpcvalue := player.getbaseav2 conjuration
+let destructionpcvalue := player.getbaseav2 destruction
+let illusionpcvalue := player.getbaseav2 illusion
+let mysticismpcvalue := player.getbaseav2 mysticism
+let restorationpcvalue := player.getbaseav2 restoration
+let acrobaticspcvalue := player.getbaseav2 acrobatics
+let lightarmorpcvalue := player.getbaseav2 lightarmor
+let marksmanpcvalue := player.getbaseav2 marksman
+let mercantilepcvalue := player.getbaseav2 mercantile
+let securitypcvalue := player.getbaseav2 security
+let sneakpcvalue := player.getbaseav2 sneak
+let speechcraftpcvalue := player.getbaseav2 speechcraft
+
+
+
+
+if OETrainingCount < OETrainingCountMax
+	let limitOn := 0
+	if eval skillstringname == armorerstringnameicon_filename
+		if armorerpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == athleticsstringnameicon_filename
+		if athleticspcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == bladestringnameicon_filename
+		if bladepcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == blockstringnameicon_filename
+		if blockpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == bluntstringnameicon_filename
+		if bluntpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == handtohandstringnameicon_filename
+		if handtohandpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == heavyarmorstringnameicon_filename
+		if heavyarmorpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == alchemystringnameicon_filename
+		if alchemypcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == alterationstringnameicon_filename
+		if alterationpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == conjurationstringnameicon_filename
+		if conjurationpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == destructionstringnameicon_filename
+		if destructionpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == illusionstringnameicon_filename
+		if illusionpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == mysticismstringnameicon_filename
+		if mysticismpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == restorationstringnameicon_filename
+		if restorationpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == acrobaticsstringnameicon_filename
+		if acrobaticspcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == lightarmorstringnameicon_filename
+		if lightarmorpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == marksmanstringnameicon_filename
+		if marksmanpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == mercantilestringnameicon_filename
+		if mercantilepcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == securitystringnameicon_filename
+		if securitypcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == sneakstringnameicon_filename
+		if sneakpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	if eval skillstringname == speechcraftstringnameicon_filename
+		if speechcraftpcvalue >= OETrainingMax
+			let limitOn := 1
+		endif
+	endif
+	
+	if limitOn == 1
+		SetMenuFloatValue "training_background\train_button_train\visible" 1028 1
+		SetMenuStringValue "training_background\skill_warning_Text\string|%z" warningstringnotmax 1028
+		SetMenuFloatValue "training_background\skill_warning_Text\visible" 1028 2
+	endif
+
+endif
+
+
+
+
+end

@@ -1,0 +1,58 @@
+﻿scn OEWeaponBlockOScr
+
+short DoOnce
+short Counter
+float timer
+
+ref OwnerRef
+
+Begin OnEquip player
+
+message "Силы внешних планов разрывают вашу плоть!"
+player.kill
+
+end
+
+Begin OnUnequip player
+
+message "Силы внешних планов разрывают вашу плоть!"
+player.kill
+
+end
+
+Begin OnActivate ;player
+
+if GetActionRef == PlayerRef
+	Message "Вы не можете взять оружие призванного существа."
+endif
+
+end
+
+begin GameMode
+
+if DoOnce == 0
+	let timer := -2
+	let DoOnce := 1
+endif
+
+if timer < 0.25
+	let timer := timer + getsecondspassed
+endif
+
+if timer >= 0.25
+	if GetContainer == 0
+		if Counter == 1
+			;debugprint "Удаление выбитого оружия саммона"
+			DeleteReference
+			let Counter := 2
+		endif
+		if Counter == 0
+			;debugprint "Выключение выбитого оружия саммона"
+			Disable
+			let Counter := 1
+		endif
+	endif
+	let timer := 0
+endif
+
+end

@@ -1,0 +1,101 @@
+﻿scn OEAddShockResistValueFScr
+
+ref ScriptTarget
+
+short ActorHasShockImmune
+
+short ShockResistLowTokenCount
+short ShockResistMidTokenCount
+short ShockResistHighTokenCount
+short ShockImmuneTokenCount
+
+float ResistShockMagSum
+
+float ShockResistExisted
+float ShockResistMod
+float ShockResistNormal
+
+
+float ActorGlobalNormalResistLow
+float ActorGlobalNormalResistHigh
+
+float ResistShockNew
+
+begin function { ScriptTarget}
+
+set ResistShockMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSSH + ScriptTarget.GetTotalAEAbilityMagnitude WKSH + ScriptTarget.GetTotalAEAbilityMagnitude LISH + ScriptTarget.GetTotalAELesserPowerMagnitude RSSH + ScriptTarget.GetTotalAELesserPowerMagnitude WKSH + ScriptTarget.GetTotalAELesserPowerMagnitude LISH + ScriptTarget.GetTotalAEPowerMagnitude RSSH + ScriptTarget.GetTotalAEPowerMagnitude WKSH + ScriptTarget.GetTotalAEPowerMagnitude LISH
+
+
+;debugprint "Актер [%n], ResistFireMagSum = %g, ResistFrostMagSum = %g, ResistShockMagSum = %g" ScriptTarget ResistFireMagSum ResistFrostMagSum ResistShockMagSum
+
+set ShockImmuneTokenCount to ScriptTarget.getitemcount OEShockImmuneToken
+
+if ResistShockMagSum >= 100
+	;debugprint "У актера [%n] есть врожденный иммунитет к электричеству" ScriptTarget
+	set ActorHasShockImmune to 1
+elseif ShockImmuneTokenCount > 0
+	;debugprint "У актера [%n] есть токен иммунитета к электричеству" ScriptTarget
+	set ActorHasShockImmune to 1
+endif
+
+if ActorHasShockImmune == 1
+	set ShockResistMod to 200
+	;debugprint "Актер [%n], ShockResistMod = %g" ScriptTarget ShockResistMod
+elseif ActorHasShockImmune == 0
+	set ActorGlobalNormalResistLow to OEActorGlobalNormalResist - (OEActorResistElementalMax - OEActorGlobalNormalResist)*(sqrt OEAdditionalElementalResistDifference - 1)
+	set ActorGlobalNormalResistHigh to OEActorGlobalNormalResist + (OEActorResistElementalMax - OEActorGlobalNormalResist)*(1 - 1/sqrt OEAdditionalElementalResistDifference)
+	set ShockResistNormal to ScriptTarget.GetTotalActiveEffectMagnitude RSSH + ScriptTarget.GetTotalActiveEffectMagnitude LISH + ScriptTarget.GetTotalActiveEffectMagnitude WKSH + -(ScriptTarget.GetTotalAESpellMagnitude WKSH) + -(ScriptTarget.GetTotalAEEnchantmentMagnitude WKSH) + -(ScriptTarget.GetTotalAEAlchemyMagnitude WKSH)	;игнорирование уязвимости к электричеству, полученной посредством заклинаний, зачарований или алхимии
+	;debugprint "Актер [%n], ShockResistNormal до диминишинга = %g" ScriptTarget ShockResistNormal
+	
+	if ShockResistNormal <= 50
+		set ShockResistMod to ShockResistNormal
+	elseif ShockResistNormal > 50 && ShockResistNormal <= 100
+		set ShockResistMod to ( ShockResistNormal - 50  ) / 2 + 50
+	elseif ShockResistNormal > 100 && ShockResistNormal <= 200
+		set ShockResistMod to ( ShockResistNormal - 100 ) / 8 + 75
+	elseif ShockResistNormal > 200 && ShockResistNormal <= 600
+		set ShockResistMod to ( ShockResistNormal - 200 ) / 32 + 87.5
+	elseif ShockResistNormal > 600
+		set ShockResistMod to 100
+	endif
+	if ShockResistMod > OEActorResistElementalMax
+		set ShockResistMod to OEActorResistElementalMax
+	endif
+	
+	set ShockResistNormal to ShockResistMod					;теперь нормальным значением сопротивления является такое, которое прошло через диминишинг
+	
+	set ShockResistLowTokenCount to ScriptTarget.getitemcount OEShockResistLowToken
+	set ShockResistMidTokenCount to ScriptTarget.getitemcount OEShockResistMidToken
+	set ShockResistHighTokenCount to ScriptTarget.getitemcount OEShockResistHighToken
+	
+	if ShockResistLowTokenCount > 0
+		set ShockResistMod to ShockResistMod + (OEActorResistElementalMax - ShockResistMod) * ActorGlobalNormalResistLow / 100
+	elseif ShockResistMidTokenCount > 0
+		set ShockResistMod to ShockResistMod + (OEActorResistElementalMax - ShockResistMod) * OEActorGlobalNormalResist / 100
+	elseif 	ShockResistHighTokenCount > 0
+		set ShockResistMod to ShockResistMod + (OEActorResistElementalMax - ShockResistMod) * ActorGlobalNormalResistHigh / 100
+	endif
+
+	;debugprint "Актер [%n], ShockResistMod = %g, ShockResistNormal = %g" ScriptTarget ShockResistMod ShockResistNormal
+
+	;if ShockResistMod < ShockResistNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
+	;	set ShockResistMod to ShockResistNormal
+	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, ShockResistMod = %g" ScriptTarget ShockResistMod
+	;endif
+endif
+
+set ShockResistMod to ShockResistMod - ScriptTarget.getbaseav resistShock; - ScriptTarget.GetAVModC 61 script
+ScriptTarget.SetAVModC 68 max ShockResistMod
+set ShockResistExisted to ScriptTarget.getav resistShock
+
+;debugprint "Актер [%n], назначенный резист ShockResistMod = %g, ShockResistExisted = %g" ScriptTarget ShockResistMod ShockResistExisted
+
+
+set ResistShockNew to ShockResistExisted
+;debugprint "Вывод переменной ResistShockNew = %g из функции обратно в скрипт" ResistShockNew
+SetFunctionValue ResistShockNew
+
+;debugprint "конец функции"
+
+
+end

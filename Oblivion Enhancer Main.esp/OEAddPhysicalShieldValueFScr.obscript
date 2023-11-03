@@ -1,0 +1,103 @@
+﻿scn OEAddPhysicalShieldValueFScr
+
+ref ScriptTarget
+
+short PhysicalShield100TokenCount
+short MaximumPhysicalShieldTokenCount
+
+short PhysicalShieldLowTokenCount
+short PhysicalShieldMidTokenCount
+short PhysicalShieldHighTokenCount
+
+short ActorHasPhysicalShield100
+short ActorHasMaximumPhysicalShield
+
+float PhysicalShieldmagsum
+
+float PhysicalShieldMod
+float PhysicalShieldNormal
+float PhysicalShieldExisted
+
+float PhysicalShieldnew
+
+begin function { ScriptTarget }
+
+set PhysicalShieldmagsum to ScriptTarget.GetTotalAEAbilityMagnitude SHLD + ScriptTarget.GetTotalAEAbilityMagnitude FISH + ScriptTarget.GetTotalAEAbilityMagnitude FRSH + ScriptTarget.GetTotalAEAbilityMagnitude LISH
+set PhysicalShieldmagsum to PhysicalShieldmagsum + ScriptTarget.GetTotalAELesserPowerMagnitude SHLD + ScriptTarget.GetTotalAELesserPowerMagnitude FISH + ScriptTarget.GetTotalAELesserPowerMagnitude FRSH + ScriptTarget.GetTotalAELesserPowerMagnitude LISH
+set PhysicalShieldmagsum to PhysicalShieldmagsum + ScriptTarget.GetTotalAEPowerMagnitude SHLD + ScriptTarget.GetTotalAEPowerMagnitude FISH + ScriptTarget.GetTotalAEPowerMagnitude FRSH + ScriptTarget.GetTotalAEPowerMagnitude LISH
+
+set PhysicalShield100TokenCount to ScriptTarget.getitemcount OEPhysicalShield100Token
+set MaximumPhysicalShieldTokenCount to ScriptTarget.getitemcount OEPhysicalShieldMaximumToken
+if PhysicalShieldmagsum >= 100
+	;debugprint "У актера [%n] есть 100-процентный щит" ScriptTarget
+	set ActorHasPhysicalShield100 to 1
+elseif PhysicalShield100TokenCount > 0
+	;debugprint "У актера [%n] есть токен на 100-процентный щит" ScriptTarget
+	set ActorHasPhysicalShield100 to 1
+elseif MaximumPhysicalShieldTokenCount > 0
+	;debugprint "У актера [%n] есть токен на максимальный щит" ScriptTarget
+	set ActorHasMaximumPhysicalShield to 1
+endif
+
+if ActorHasMaximumPhysicalShield == 1
+	set PhysicalShieldMod to OEActorPhysicalShieldMax
+	;debugprint "Актер [%n], PhysicalShieldMod = %g" ScriptTarget PhysicalShieldMod
+elseif ActorHasPhysicalShield100 == 1
+	set PhysicalShieldMod to 200
+	;debugprint "Актер [%n], PhysicalShieldMod = %g" ScriptTarget PhysicalShieldMod
+elseif ActorHasPhysicalShield100 == 0 && ActorHasMaximumPhysicalShield == 0
+	set PhysicalShieldNormal to ScriptTarget.GetTotalActiveEffectMagnitude SHLD + ScriptTarget.GetTotalActiveEffectMagnitude FISH + ScriptTarget.GetTotalActiveEffectMagnitude FRSH + ScriptTarget.GetTotalActiveEffectMagnitude LISH
+	;debugprint "Актер [%n], PhysicalShieldNormal до диминишинга = %g" ScriptTarget PhysicalShieldNormal
+	
+	if PhysicalShieldNormal <= 50
+		set PhysicalShieldMod to PhysicalShieldNormal
+	elseif PhysicalShieldNormal > 50 && PhysicalShieldNormal <= 100
+		set PhysicalShieldMod to ( PhysicalShieldNormal - 50  ) / 2 + 50
+	elseif PhysicalShieldNormal > 100 && PhysicalShieldNormal <= 200
+		set PhysicalShieldMod to ( PhysicalShieldNormal - 100 ) / 8 + 75
+	elseif PhysicalShieldNormal > 200 && PhysicalShieldNormal <= 600
+		set PhysicalShieldMod to ( PhysicalShieldNormal - 200 ) / 32 + 87.5
+	elseif PhysicalShieldNormal > 600
+		set PhysicalShieldMod to 100
+	endif
+	if PhysicalShieldMod > OEActorPhysicalShieldMax
+		set PhysicalShieldMod to OEActorPhysicalShieldMax
+	endif
+	
+	set PhysicalShieldNormal to PhysicalShieldMod					;теперь нормальным значением сопротивления является такое, которое прошло через диминишинг
+	
+	set PhysicalShieldLowTokenCount to ScriptTarget.getitemcount OEPhysicalShieldLowToken
+	set PhysicalShieldMidTokenCount to ScriptTarget.getitemcount OEPhysicalShieldMidToken
+	set PhysicalShieldHighTokenCount to ScriptTarget.getitemcount OEPhysicalShieldHighToken
+	
+	if PhysicalShieldLowTokenCount > 0
+		set PhysicalShieldMod to PhysicalShieldMod + (OEActorPhysicalShieldMax - PhysicalShieldMod) / 3
+	elseif PhysicalShieldMidTokenCount > 0
+		set PhysicalShieldMod to PhysicalShieldMod + (OEActorPhysicalShieldMax - PhysicalShieldMod) / 4
+	elseif 	PhysicalShieldHighTokenCount > 0
+		set PhysicalShieldMod to PhysicalShieldMod + (OEActorPhysicalShieldMax - PhysicalShieldMod) / 2
+	endif
+
+	;debugprint "Актер [%n], PhysicalShieldMod = %g, PhysicalShieldNormal = %g" ScriptTarget PhysicalShieldMod PhysicalShieldNormal
+
+	;if PhysicalShieldMod < PhysicalShieldNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
+	;	set PhysicalShieldMod to PhysicalShieldNormal
+	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, PhysicalShieldMod = %g" ScriptTarget PhysicalShieldMod
+	;endif
+endif
+
+set PhysicalShieldMod to PhysicalShieldMod - ScriptTarget.getbaseav DefendBonus; - ScriptTarget.GetAVModC 61 script
+ScriptTarget.SetAVModC 43 max PhysicalShieldMod
+set PhysicalShieldExisted to ScriptTarget.getav DefendBonus
+
+;debugprint "Актер [%n], назначенное значение  PhysicalShieldMod = %g, PhysicalShieldExisted = %g" ScriptTarget PhysicalShieldMod PhysicalShieldExisted
+
+
+set PhysicalShieldnew to PhysicalShieldExisted
+;debugprint "Вывод переменной PhysicalShieldnew = %g из функции обратно в скрипт" PhysicalShieldnew
+SetFunctionValue PhysicalShieldnew
+
+;debugprint "конец функции"
+
+
+end

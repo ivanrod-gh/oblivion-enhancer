@@ -1,0 +1,31 @@
+﻿scn OECirculeCheckArraysFullnessFScr
+
+array_var CheckedArray
+
+short ArrSize1
+short ArrSize2
+short index1
+short index2
+short CheckCounter
+
+begin function { CheckedArray, index2, CheckCounter }
+
+let ArrSize1 := ar_size CheckedArray
+while index1 < ArrSize1
+	
+	let ArrSize2 := ar_size CheckedArray[index1][index2]
+	let CheckCounter := CheckCounter - ArrSize2
+	if CheckCounter <= 0
+		break
+	endif
+	
+	let index1 := index1 + 1
+loop
+
+if CheckCounter <= 0
+	SetFunctionValue 1
+else
+	SetFunctionValue -1
+endif
+
+end

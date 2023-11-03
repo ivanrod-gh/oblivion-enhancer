@@ -1,0 +1,24 @@
+﻿scn OEAutoRechargeFScr
+
+array_var PlayerAzuraArray
+
+short AzuraSoulLevel
+
+ref AzuraRef
+
+Begin Function { }
+
+if (OERechargeMode == 1 || OERechargeMode == 2) && Player.GetItemCount AzurasStar == 1
+
+	let PlayerAzuraArray := PlayerRef.GetInvRefsForItem AzurasStar
+	let AzuraRef := PlayerAzuraArray[0]
+	let AzuraSoulLevel := tnoSM.azuraLevel 
+
+	if AzuraSoulLevel > 0
+		Call OEAutoWeaponRechargeFunction AzuraRef, AzuraSoulLevel
+	endif
+
+endif
+
+
+End

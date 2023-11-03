@@ -1,0 +1,93 @@
+﻿scn OEAddSpellReflectChanceTokenFScr
+
+ref ScriptTarget
+
+short RandomDice
+
+short SpellReflectChanceStrength
+float SpellReflectChancemagsum
+short SpellReflectChance100TokenCount
+short MaximumSpellReflectChanceTokenCount
+short ActorHasSpellReflectChanceToken
+float SpellReflectChancetChance
+float MaximumSpellReflectChancetChance
+short IsSpellReflectChanceMaximum
+short SpellReflectChanceLowTokenCount
+short SpellReflectChanceMidTokenCount
+short SpellReflectChanceHighTokenCount
+short SpellReflectChanceNoneTokenCount
+
+begin function { ScriptTarget }
+
+set RandomDice to rand 1, 3.99
+
+if RandomDice == 1
+	set SpellReflectChanceStrength to -1
+elseif RandomDice == 2
+	set SpellReflectChanceStrength to 0
+elseif RandomDice == 3
+	set SpellReflectChanceStrength to 1
+endif
+
+set SpellReflectChancetChance to OEAdditionalSpellReflectChanceChance + 0.99
+set MaximumSpellReflectChancetChance to OEAdditionalMaximumSpellReflectChanceChance + 0.99
+
+set SpellReflectChancemagsum to ScriptTarget.GetTotalAEAbilityMagnitude RFLC + ScriptTarget.GetTotalAELesserPowerMagnitude RFLC + ScriptTarget.GetTotalAEPowerMagnitude RFLC
+
+;;debugprint "Актер [%n], SpellReflectChancemagsum = %g" ScriptTarget SpellReflectChancemagsum
+
+if SpellReflectChancemagsum >= 100
+	set SpellReflectChance100TokenCount to ScriptTarget.getitemcount OESpellReflect100Token
+	ScriptTarget.removeitem OESpellReflect100Token SpellReflectChance100TokenCount
+	ScriptTarget.additem OESpellReflect100Token 1
+	set ActorHasSpellReflectChanceToken to 1
+	;debugprint "Актеру [%n] выдан токен 100-процентного отражения заклинаний, т.к. у него есть врожденное 100-процентное отражение заклинаний" ScriptTarget
+endif
+if ActorHasSpellReflectChanceToken == 0
+	set RandomDice to rand 1, SpellReflectChancetChance
+	if RandomDice == 1
+		if (OEAdditionalMaximumSpellReflectChance == 1) && (OEAdditionalMaximumSpellReflectChanceLevel <= player.getlevel)
+			set RandomDice to rand 1, MaximumSpellReflectChancetChance
+			if RandomDice == 1
+				set IsSpellReflectChanceMaximum to 1
+				set MaximumSpellReflectChanceTokenCount to ScriptTarget.getitemcount OESpellReflectMaximumToken 
+				ScriptTarget.removeitem OESpellReflectMaximumToken MaximumSpellReflectChanceTokenCount
+				ScriptTarget.additem OESpellReflectMaximumToken 1
+				;debugprint "Актеру [%n] выдан токен максимального отражения заклинаний" ScriptTarget
+			endif
+		endif
+		if IsSpellReflectChanceMaximum != 1
+			if SpellReflectChanceStrength == -1
+				set SpellReflectChanceLowTokenCount to ScriptTarget.getitemcount OESpellReflectLowToken
+				ScriptTarget.removeitem OESpellReflectLowToken SpellReflectChanceLowTokenCount
+				ScriptTarget.additem OESpellReflectLowToken 1
+				;debugprint "Актеру [%n] выдан токен отражения заклинаний пониженного уровня" ScriptTarget
+			elseif SpellReflectChanceStrength == 0
+				set SpellReflectChanceMidTokenCount to ScriptTarget.getitemcount OESpellReflectMidToken
+				ScriptTarget.removeitem OESpellReflectMidToken SpellReflectChanceMidTokenCount
+				ScriptTarget.additem OESpellReflectMidToken 1
+				;debugprint "Актеру [%n] выдан токен отражения заклинаний среднего уровня" ScriptTarget
+			elseif SpellReflectChanceStrength == 1
+				set SpellReflectChanceHighTokenCount to ScriptTarget.getitemcount OESpellReflectHighToken
+				ScriptTarget.removeitem OESpellReflectHighToken SpellReflectChanceHighTokenCount
+				ScriptTarget.additem OESpellReflectHighToken 1
+				;debugprint "Актеру [%n] выдан токен отражения заклинаний повышенного уровня" ScriptTarget
+			endif
+		endif
+	else
+		set SpellReflectChanceNoneTokenCount to ScriptTarget.getitemcount OESpellReflectNoneToken
+		ScriptTarget.removeitem OESpellReflectNoneToken SpellReflectChanceNoneTokenCount
+		ScriptTarget.additem OESpellReflectNoneToken 1
+		;debugprint "Актеру [%n] выдан токен отсутствия отражения заклинаний" ScriptTarget
+	endif
+endif
+
+;debugprint "Актеру [%n] выдан токен отражения заклинаний" ScriptTarget
+ScriptTarget.additem OESpellReflectToken 1
+
+
+
+;debugprint "конец функции"
+
+
+end

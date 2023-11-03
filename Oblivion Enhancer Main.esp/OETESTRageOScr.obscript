@@ -1,0 +1,55 @@
+﻿scn OETESTRageOScr
+
+array_var ActorsArray
+short ArrSize
+short PrntNumber
+short NumRefs
+short index
+ref ActorRef
+ref Self
+float timer
+short Dead
+
+begin ondeath
+
+let Dead := 1
+
+end
+
+begin gamemode
+
+if Dead != 1
+	if timer > 0.2
+		let Self := GetSelf
+		if Self.GetCombatTarget == 0
+			let ActorsArray := ar_construct Array
+			let NumRefs := GetNumRefs 69 1
+			let ActorRef := GetFirstRef 69 1
+			printc "OERageOScr [%n] начинает поиск цели для атаки. Потенциальных жертв в округе - %g" Self NumRefs
+			if NumRefs > 0
+				printc "OERageOScr Начинается наполнение массива. Актер 0 в массиве ActorsArray = %n" ActorRef
+				let ActorsArray[0] := ActorRef
+				let index := 1
+				while index < NumRefs
+					let ActorsArray[index] := GetNextRef
+					printc "OERageOScr Актер %g в массиве ActorsArray = %n" index ActorRef
+					let index := index + 1
+				loop
+				let ArrSize := ar_size ActorsArray
+				let PrntNumber := ArrSize - 1
+				let index := rand 0.01, ArrSize -0.01
+				printc "OERageOScr Выбираем случайное число - rand [0...%g] = %g" PrntNumber index
+				let ActorRef := ActorsArray[index]
+				printc "OERageOScr Из массива актеров ActorsArray[%g] выбран актер [%n]" index ActorRef
+				Self.StartCombat ActorRef
+				printc "[%n] начинает бой с [%n]" Self ActorRef
+			else
+				printc "OERageOScr Рядом нет потенциальных жертв"
+			endif
+		endif
+		let timer := 0
+	endif
+	let timer := timer + getsecondspassed
+endif
+
+end

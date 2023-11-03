@@ -1,0 +1,787 @@
+﻿scn OETESTTransferQScr
+
+;array_var PCTimeArray
+;array_var ActorsArray
+;array_var LevCreaArray
+;
+;short ArrSize1
+;short index1
+;
+;short stage
+;short ScriptWorkType
+;short DoOnce1
+;short DoOnce2
+;short DebugType1
+;short DebugType2
+;short DebugType3
+;short DebugType4
+;float timer
+;
+;ref ActorRef
+;ref BaseRefId
+;
+;string_var PCGameHHMMSS
+;
+;begin gamemode
+;
+;if DoOnce1 == 0
+;	let ScriptWorkType := 1
+;	
+;	let DebugType1 := 1		;время
+;	let DebugType2 := 1		;вывод актеров вокруг игрока
+;	let DebugType3 := 1		;убийство и перемещение подходящих актеров перед телепортом
+;	let DebugType4 := 1		;вывод уровневых существ вокруг игрока
+;	
+;	if eval(ar_size PCTimeArray) < 0
+;		let PCTimeArray := ar_construct StringMap
+;	endif
+;	
+;	let timer := -5
+;	let DoOnce1 := 1
+;endif
+;
+;
+;
+;let timer := timer + getsecondspassed
+;
+;if ScriptWorkType == 1
+;	if timer >= 2
+;		
+;		if stage == 8
+;			
+;			debugprint "=============================================="
+;			debugprint "Телепорт прошел успешно"
+;			if DebugType2 == 1
+;				debugprint "Поиск актеров в текущей клетке:"
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "Найден актер [%n][%i][%i]" ActorRef ActorRef BaseRefId
+;					let ActorRef := GetNextRef
+;				loop
+;			endif
+;			if DebugType3 == 1
+;				debugprint "Убийство и перенос всех актеров в тестовую клетку:"
+;				let ActorsArray := ar_construct Array
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let ActorsArray[ar_size ActorsArray] := ActorRef
+;					let ActorRef := GetNextRef
+;				loop
+;				let index1 := 0
+;				let ArrSize1 := ar_size ActorsArray
+;				while index1 < ArrSize1
+;					let ActorRef := ActorsArray[index1]
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "[%n][%i][%i]>" ActorRef ActorRef BaseRefId
+;					if IsQuestItem ActorRef == 0 && ActorRef.IsRefEssential == 0 && GetSourceModIndex ActorRef == 255
+;						ActorRef.kill
+;						ActorRef.moveto TestPoint
+;						debugprint "Убит и перенесен"
+;					else
+;						debugprint "Проигнорировано - IsQuestItem/IsRefEssential/GetSourceModIndex"
+;					endif
+;					let index1 += 1
+;				loop
+;				debugprint "очистка тестовой клетки"
+;				resetinterior TESTcell
+;			endif
+;			if DebugType4 == 1
+;				debugprint "Найденные уровневые существа вокруг игрока:"
+;				let LevCreaArray := ar_construct Array
+;				let ActorRef := GetFirstRef 37 5
+;				while ActorRef
+;					let LevCreaArray[ar_size LevCreaArray] := ActorRef
+;					let ActorRef := GetNextRef
+;				loop
+;				let index1 := 0
+;				let ArrSize1 := ar_size LevCreaArray
+;				while index1 < ArrSize1
+;					let ActorRef := LevCreaArray[index1]
+;					debugprint "[%i]" ActorRef
+;					let index1 += 1
+;				loop
+;			endif
+;			debugprint "attempting to load game"
+;			if DebugType1 == 1
+;				let PCTimeArray := GetUserTime
+;				let PCGameHHMMSS := ""
+;				let PCGameHHMMSS := PCGameHHMMSS + $PCTimeArray["Hour"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Minute"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Second"]
+;				debugprint "PC time:[%z]" PCGameHHMMSS
+;			endif
+;			
+;			RunScriptLine "loadgame game001"
+;			let stage := 9
+;		endif
+;		
+;		if stage == 7
+;			
+;			debugprint "=============================================="
+;			debugprint "Телепорт прошел успешно"
+;			if DebugType2 == 1
+;				debugprint "Поиск актеров в текущей клетке:"
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "Найден актер [%n][%i][%i]" ActorRef ActorRef BaseRefId
+;					let ActorRef := GetNextRef
+;				loop
+;			endif
+;			if DebugType3 == 1
+;				debugprint "Убийство и перенос всех актеров в тестовую клетку:"
+;				let ActorsArray := ar_construct Array
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let ActorsArray[ar_size ActorsArray] := ActorRef
+;					let ActorRef := GetNextRef
+;				loop
+;				let index1 := 0
+;				let ArrSize1 := ar_size ActorsArray
+;				while index1 < ArrSize1
+;					let ActorRef := ActorsArray[index1]
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "[%n][%i][%i]>" ActorRef ActorRef BaseRefId
+;					if IsQuestItem ActorRef == 0 && ActorRef.IsRefEssential == 0 && GetSourceModIndex ActorRef == 255
+;						ActorRef.kill
+;						ActorRef.moveto TestPoint
+;						debugprint "Убит и перенесен"
+;					else
+;						debugprint "Проигнорировано - IsQuestItem/IsRefEssential/GetSourceModIndex"
+;					endif
+;					let index1 += 1
+;				loop
+;				debugprint "очистка тестовой клетки"
+;				resetinterior TESTcell
+;			endif
+;;			if DebugType4 == 1
+;;				debugprint "Найденные уровневые существа вокруг игрока:"
+;;				let LevCreaArray := ar_construct Array
+;;				let ActorRef := GetFirstRef 37 5
+;;				while ActorRef
+;;					let LevCreaArray[ar_size LevCreaArray] := ActorRef
+;;					let ActorRef := GetNextRef
+;;				loop
+;;				let index1 := 0
+;;				let ArrSize1 := ar_size LevCreaArray
+;;				while index1 < ArrSize1
+;;					let ActorRef := LevCreaArray[index1]
+;;					debugprint "[%i]" ActorRef
+;;					let index1 += 1
+;;				loop
+;;			endif
+;			debugprint "attempting to teleport [vindrasel]"
+;			if DebugType1 == 1
+;				let PCTimeArray := GetUserTime
+;				let PCGameHHMMSS := ""
+;				let PCGameHHMMSS := PCGameHHMMSS + $PCTimeArray["Hour"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Minute"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Second"]
+;				debugprint "PC time:[%z]" PCGameHHMMSS
+;			endif
+;			
+;			RunScriptLine "cow tamriel 0 7"
+;			let stage := 8
+;		endif
+;		if stage == 6
+;			
+;			debugprint "=============================================="
+;			debugprint "Телепорт прошел успешно"
+;			if DebugType2 == 1
+;				debugprint "Поиск актеров в текущей клетке:"
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "Найден актер [%n][%i][%i]" ActorRef ActorRef BaseRefId
+;					let ActorRef := GetNextRef
+;				loop
+;			endif
+;			if DebugType3 == 1
+;				debugprint "Убийство и перенос всех актеров в тестовую клетку:"
+;				let ActorsArray := ar_construct Array
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let ActorsArray[ar_size ActorsArray] := ActorRef
+;					let ActorRef := GetNextRef
+;				loop
+;				let index1 := 0
+;				let ArrSize1 := ar_size ActorsArray
+;				while index1 < ArrSize1
+;					let ActorRef := ActorsArray[index1]
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "[%n][%i][%i]>" ActorRef ActorRef BaseRefId
+;					if IsQuestItem ActorRef == 0 && ActorRef.IsRefEssential == 0 && GetSourceModIndex ActorRef == 255
+;						ActorRef.kill
+;						ActorRef.moveto TestPoint
+;						debugprint "Убит и перенесен"
+;					else
+;						debugprint "Проигнорировано - IsQuestItem/IsRefEssential/GetSourceModIndex"
+;					endif
+;					let index1 += 1
+;				loop
+;				debugprint "очистка тестовой клетки"
+;				resetinterior TESTcell
+;			endif
+;;			if DebugType4 == 1
+;;				debugprint "Найденные уровневые существа вокруг игрока:"
+;;				let LevCreaArray := ar_construct Array
+;;				let ActorRef := GetFirstRef 37 5
+;;				while ActorRef
+;;					let LevCreaArray[ar_size LevCreaArray] := ActorRef
+;;					let ActorRef := GetNextRef
+;;				loop
+;;				let index1 := 0
+;;				let ArrSize1 := ar_size LevCreaArray
+;;				while index1 < ArrSize1
+;;					let ActorRef := LevCreaArray[index1]
+;;					debugprint "[%i]" ActorRef
+;;					let index1 += 1
+;;				loop
+;;			endif
+;			debugprint "attempting to teleport [skala]"
+;			if DebugType1 == 1
+;				let PCTimeArray := GetUserTime
+;				let PCGameHHMMSS := ""
+;				let PCGameHHMMSS := PCGameHHMMSS + $PCTimeArray["Hour"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Minute"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Second"]
+;				debugprint "PC time:[%z]" PCGameHHMMSS
+;			endif
+;			
+;			RunScriptLine "cow tamriel -10 4"
+;			let stage := 7
+;		endif
+;		if stage == 5
+;			
+;			debugprint "=============================================="
+;			debugprint "Телепорт прошел успешно"
+;			if DebugType2 == 1
+;				debugprint "Поиск актеров в текущей клетке:"
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "Найден актер [%n][%i][%i]" ActorRef ActorRef BaseRefId
+;					let ActorRef := GetNextRef
+;				loop
+;			endif
+;			if DebugType3 == 1
+;				debugprint "Убийство и перенос всех актеров в тестовую клетку:"
+;				let ActorsArray := ar_construct Array
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let ActorsArray[ar_size ActorsArray] := ActorRef
+;					let ActorRef := GetNextRef
+;				loop
+;				let index1 := 0
+;				let ArrSize1 := ar_size ActorsArray
+;				while index1 < ArrSize1
+;					let ActorRef := ActorsArray[index1]
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "[%n][%i][%i]>" ActorRef ActorRef BaseRefId
+;					if IsQuestItem ActorRef == 0 && ActorRef.IsRefEssential == 0 && GetSourceModIndex ActorRef == 255
+;						ActorRef.kill
+;						ActorRef.moveto TestPoint
+;						debugprint "Убит и перенесен"
+;					else
+;						debugprint "Проигнорировано - IsQuestItem/IsRefEssential/GetSourceModIndex"
+;					endif
+;					let index1 += 1
+;				loop
+;				debugprint "очистка тестовой клетки"
+;				resetinterior TESTcell
+;			endif
+;;			if DebugType4 == 1
+;;				debugprint "Найденные уровневые существа вокруг игрока:"
+;;				let LevCreaArray := ar_construct Array
+;;				let ActorRef := GetFirstRef 37 5
+;;				while ActorRef
+;;					let LevCreaArray[ar_size LevCreaArray] := ActorRef
+;;					let ActorRef := GetNextRef
+;;				loop
+;;				let index1 := 0
+;;				let ArrSize1 := ar_size LevCreaArray
+;;				while index1 < ArrSize1
+;;					let ActorRef := LevCreaArray[index1]
+;;					debugprint "[%i]" ActorRef
+;;					let index1 += 1
+;;				loop
+;;			endif
+;			debugprint "attempting to teleport [talos1]"
+;			if DebugType1 == 1
+;				let PCTimeArray := GetUserTime
+;				let PCGameHHMMSS := ""
+;				let PCGameHHMMSS := PCGameHHMMSS + $PCTimeArray["Hour"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Minute"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Second"]
+;				debugprint "PC time:[%z]" PCGameHHMMSS
+;			endif
+;			
+;			RunScriptLine "cow tamriel 9 -2"
+;			let stage := 6
+;		endif
+;		if stage == 4
+;			
+;			debugprint "=============================================="
+;			debugprint "Телепорт прошел успешно"
+;			if DebugType2 == 1
+;				debugprint "Поиск актеров в текущей клетке:"
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "Найден актер [%n][%i][%i]" ActorRef ActorRef BaseRefId
+;					let ActorRef := GetNextRef
+;				loop
+;			endif
+;			if DebugType3 == 1
+;				debugprint "Убийство и перенос всех актеров в тестовую клетку:"
+;				let LevCreaArray := ar_construct Array
+;				let ActorsArray := ar_construct Array
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let ActorsArray[ar_size ActorsArray] := ActorRef
+;					let ActorRef := GetNextRef
+;				loop
+;				let index1 := 0
+;				let ArrSize1 := ar_size ActorsArray
+;				while index1 < ArrSize1
+;					let ActorRef := ActorsArray[index1]
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "[%n][%i][%i]>" ActorRef ActorRef BaseRefId
+;					if IsQuestItem ActorRef == 0 && ActorRef.IsRefEssential == 0 && GetSourceModIndex ActorRef == 255
+;						ActorRef.kill
+;						ActorRef.moveto TestPoint
+;						debugprint "Убит и перенесен"
+;					else
+;						debugprint "Проигнорировано - IsQuestItem/IsRefEssential/GetSourceModIndex"
+;					endif
+;					let index1 += 1
+;				loop
+;				debugprint "очистка тестовой клетки"
+;				resetinterior TESTcell
+;			endif
+;;			if DebugType4 == 1
+;;				debugprint "Найденные уровневые существа вокруг игрока:"
+;;				let LevCreaArray := ar_construct Array
+;;				let ActorRef := GetFirstRef 37 5
+;;				while ActorRef
+;;					let LevCreaArray[ar_size LevCreaArray] := ActorRef
+;;					let ActorRef := GetNextRef
+;;				loop
+;;				let index1 := 0
+;;				let ArrSize1 := ar_size LevCreaArray
+;;				while index1 < ArrSize1
+;;					let ActorRef := LevCreaArray[index1]
+;;					debugprint "[%i]" ActorRef
+;;					let index1 += 1
+;;				loop
+;;			endif
+;			debugprint "attempting to teleport [tavern1]"
+;			if DebugType1 == 1
+;				let PCTimeArray := GetUserTime
+;				let PCGameHHMMSS := ""
+;				let PCGameHHMMSS := PCGameHHMMSS + $PCTimeArray["Hour"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Minute"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Second"]
+;				debugprint "PC time:[%z]" PCGameHHMMSS
+;			endif
+;			
+;			RunScriptLine "cow tamriel 7 -1"
+;			let stage := 5
+;		endif
+;		if stage == 3
+;			
+;			debugprint "=============================================="
+;			debugprint "Телепорт прошел успешно"
+;			if DebugType2 == 1
+;				debugprint "Поиск актеров в текущей клетке:"
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "Найден актер [%n][%i][%i]" ActorRef ActorRef BaseRefId
+;					let ActorRef := GetNextRef
+;				loop
+;			endif
+;			if DebugType3 == 1
+;				debugprint "Убийство и перенос всех актеров в тестовую клетку:"
+;				let ActorsArray := ar_construct Array
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let ActorsArray[ar_size ActorsArray] := ActorRef
+;					let ActorRef := GetNextRef
+;				loop
+;				let index1 := 0
+;				let ArrSize1 := ar_size ActorsArray
+;				while index1 < ArrSize1
+;					let ActorRef := ActorsArray[index1]
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "[%n][%i][%i]>" ActorRef ActorRef BaseRefId
+;					if IsQuestItem ActorRef == 0 && ActorRef.IsRefEssential == 0 && GetSourceModIndex ActorRef == 255
+;						ActorRef.kill
+;						ActorRef.moveto TestPoint
+;						debugprint "Убит и перенесен"
+;					else
+;						debugprint "Проигнорировано - IsQuestItem/IsRefEssential/GetSourceModIndex"
+;					endif
+;					let index1 += 1
+;				loop
+;				debugprint "очистка тестовой клетки"
+;				resetinterior TESTcell
+;			endif
+;;			if DebugType4 == 1
+;;				debugprint "Найденные уровневые существа вокруг игрока:"
+;;				let LevCreaArray := ar_construct Array
+;;				let ActorRef := GetFirstRef 37 5
+;;				while ActorRef
+;;					let LevCreaArray[ar_size LevCreaArray] := ActorRef
+;;					let ActorRef := GetNextRef
+;;				loop
+;;				let index1 := 0
+;;				let ArrSize1 := ar_size LevCreaArray
+;;				while index1 < ArrSize1
+;;					let ActorRef := LevCreaArray[index1]
+;;					debugprint "[%i]" ActorRef
+;;					let index1 += 1
+;;				loop
+;;			endif
+;			debugprint "attempting to teleport [homsted]"
+;			if DebugType1 == 1
+;				let PCTimeArray := GetUserTime
+;				let PCGameHHMMSS := ""
+;				let PCGameHHMMSS := PCGameHHMMSS + $PCTimeArray["Hour"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Minute"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Second"]
+;				debugprint "PC time:[%z]" PCGameHHMMSS
+;			endif
+;			
+;			RunScriptLine "cow tamriel 5 7"
+;			let stage := 4
+;		endif
+;		if stage == 2
+;			
+;			debugprint "=============================================="
+;			debugprint "Телепорт прошел успешно"
+;			if DebugType2 == 1
+;				debugprint "Поиск актеров в текущей клетке:"
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "Найден актер [%n][%i][%i]" ActorRef ActorRef BaseRefId
+;					let ActorRef := GetNextRef
+;				loop
+;			endif
+;			if DebugType3 == 1
+;				debugprint "Убийство и перенос всех актеров в тестовую клетку:"
+;				let ActorsArray := ar_construct Array
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let ActorsArray[ar_size ActorsArray] := ActorRef
+;					let ActorRef := GetNextRef
+;				loop
+;				let index1 := 0
+;				let ArrSize1 := ar_size ActorsArray
+;				while index1 < ArrSize1
+;					let ActorRef := ActorsArray[index1]
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "[%n][%i][%i]>" ActorRef ActorRef BaseRefId
+;					if IsQuestItem ActorRef == 0 && ActorRef.IsRefEssential == 0 && GetSourceModIndex ActorRef == 255
+;						ActorRef.kill
+;						ActorRef.moveto TestPoint
+;						debugprint "Убит и перенесен"
+;					else
+;						debugprint "Проигнорировано - IsQuestItem/IsRefEssential/GetSourceModIndex"
+;					endif
+;					let index1 += 1
+;				loop
+;				debugprint "очистка тестовой клетки"
+;				resetinterior TESTcell
+;			endif
+;;			if DebugType4 == 1
+;;				debugprint "Найденные уровневые существа вокруг игрока:"
+;;				let LevCreaArray := ar_construct Array
+;;				let ActorRef := GetFirstRef 37 5
+;;				while ActorRef
+;;					let LevCreaArray[ar_size LevCreaArray] := ActorRef
+;;					let ActorRef := GetNextRef
+;;				loop
+;;				let index1 := 0
+;;				let ArrSize1 := ar_size LevCreaArray
+;;				while index1 < ArrSize1
+;;					let ActorRef := LevCreaArray[index1]
+;;					debugprint "[%i]" ActorRef
+;;					let index1 += 1
+;;				loop
+;;			endif
+;			debugprint "attempting to teleport [magia]"
+;			if DebugType1 == 1
+;				let PCTimeArray := GetUserTime
+;				let PCGameHHMMSS := ""
+;				let PCGameHHMMSS := PCGameHHMMSS + $PCTimeArray["Hour"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Minute"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Second"]
+;				debugprint "PC time:[%z]" PCGameHHMMSS
+;			endif
+;			
+;			RunScriptLine "cow tamriel 15 13"
+;			let stage := 3
+;		endif
+;		if stage == 1
+;			
+;			debugprint "=============================================="
+;			debugprint "Телепорт прошел успешно"
+;			if DebugType2 == 1
+;				debugprint "Поиск актеров в текущей клетке:"
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "Найден актер [%n][%i][%i]" ActorRef ActorRef BaseRefId
+;					let ActorRef := GetNextRef
+;				loop
+;			endif
+;			if DebugType3 == 1
+;				debugprint "Убийство и перенос всех актеров в тестовую клетку:"
+;				let ActorsArray := ar_construct Array
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let ActorsArray[ar_size ActorsArray] := ActorRef
+;					let ActorRef := GetNextRef
+;				loop
+;				let index1 := 0
+;				let ArrSize1 := ar_size ActorsArray
+;				while index1 < ArrSize1
+;					let ActorRef := ActorsArray[index1]
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "[%n][%i][%i]>" ActorRef ActorRef BaseRefId
+;					if IsQuestItem ActorRef == 0 && ActorRef.IsRefEssential == 0 && GetSourceModIndex ActorRef == 255
+;						ActorRef.kill
+;						ActorRef.moveto TestPoint
+;						debugprint "Убит и перенесен"
+;					else
+;						debugprint "Проигнорировано - IsQuestItem/IsRefEssential/GetSourceModIndex"
+;					endif
+;					let index1 += 1
+;				loop
+;				debugprint "очистка тестовой клетки"
+;				resetinterior TESTcell
+;			endif
+;;			if DebugType4 == 1
+;;				debugprint "Найденные уровневые существа вокруг игрока:"
+;;				let LevCreaArray := ar_construct Array
+;;				let ActorRef := GetFirstRef 37 5
+;;				while ActorRef
+;;					let LevCreaArray[ar_size LevCreaArray] := ActorRef
+;;					let ActorRef := GetNextRef
+;;				loop
+;;				let index1 := 0
+;;				let ArrSize1 := ar_size LevCreaArray
+;;				while index1 < ArrSize1
+;;					let ActorRef := LevCreaArray[index1]
+;;					debugprint "[%i]" ActorRef
+;;					let index1 += 1
+;;				loop
+;;			endif
+;			debugprint "attempting to teleport [urasek]"
+;			if DebugType1 == 1
+;				let PCTimeArray := GetUserTime
+;				let PCGameHHMMSS := ""
+;				let PCGameHHMMSS := PCGameHHMMSS + $PCTimeArray["Hour"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Minute"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Second"]
+;				debugprint "PC time:[%z]" PCGameHHMMSS
+;			endif
+;			
+;			RunScriptLine "cow tamriel 14 18"
+;			let stage := 2
+;		endif
+;		if stage == 0
+;			if GetGodMode == 0
+;				RunScriptLine "tgm"
+;			endif
+;			RunBatchScript "Data\1111.ini"
+;			
+;			if DebugType2 == 1
+;				debugprint "Поиск актеров в текущей клетке:"
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "Найден актер [%n][%i][%i]" ActorRef ActorRef BaseRefId
+;					let ActorRef := GetNextRef
+;				loop
+;			endif
+;			if DebugType3 == 1
+;				debugprint "Убийство и перенос всех актеров в тестовую клетку:"
+;				let ActorsArray := ar_construct Array
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let ActorsArray[ar_size ActorsArray] := ActorRef
+;					let ActorRef := GetNextRef
+;				loop
+;				let index1 := 0
+;				let ArrSize1 := ar_size ActorsArray
+;				while index1 < ArrSize1
+;					let ActorRef := ActorsArray[index1]
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "[%n][%i][%i]>" ActorRef ActorRef BaseRefId
+;					if IsQuestItem ActorRef == 0 && ActorRef.IsRefEssential == 0 && GetSourceModIndex ActorRef == 255
+;						ActorRef.kill
+;						ActorRef.moveto TestPoint
+;						debugprint "Убит и перенесен"
+;					else
+;						debugprint "Проигнорировано - IsQuestItem/IsRefEssential/GetSourceModIndex"
+;					endif
+;					let index1 += 1
+;				loop
+;				debugprint "очистка тестовой клетки"
+;				resetinterior TESTcell
+;			endif
+;;			if DebugType4 == 1
+;;				debugprint "Найденные уровневые существа вокруг игрока:"
+;;				let LevCreaArray := ar_construct Array
+;;				let ActorRef := GetFirstRef 37 5
+;;				while ActorRef
+;;					let LevCreaArray[ar_size LevCreaArray] := ActorRef
+;;					let ActorRef := GetNextRef
+;;				loop
+;;				let index1 := 0
+;;				let ArrSize1 := ar_size LevCreaArray
+;;				while index1 < ArrSize1
+;;					let ActorRef := LevCreaArray[index1]
+;;					debugprint "[%i]" ActorRef
+;;					let index1 += 1
+;;				loop
+;;			endif
+;			debugprint "attempting to teleport [vilverine]"
+;			if DebugType1 == 1
+;				let PCTimeArray := GetUserTime
+;				let PCGameHHMMSS := ""
+;				let PCGameHHMMSS := PCGameHHMMSS + $PCTimeArray["Hour"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Minute"]
+;				let PCGameHHMMSS := PCGameHHMMSS + ":" + $PCTimeArray["Second"]
+;				debugprint "PC time:[%z]" PCGameHHMMSS
+;			endif
+;			
+;			RunScriptLine "cow tamriel 12 21"
+;			let stage := 1
+;		endif
+;		
+;		if stage == 9
+;			let stage := 0
+;			let DoOnce1 := 0
+;		endif
+;		let timer := 0
+;	endif
+;elseif ScriptWorkType == 2
+;	if timer >= 2
+;		
+;		if stage == 1
+;			
+;			;RunScriptLine "player.placeatme 1e5ef 1" - это - работает!
+;			RunScriptLine "player.placeatme 0104088C 1"
+;;			RunScriptLine "player.placeatme 010417E9 1"
+;;			RunScriptLine "player.placeatme 010417EA 1"
+;;			RunScriptLine "player.placeatme 010417EB 1"
+;;			RunScriptLine "player.placeatme 010417EC 1"
+;;			RunScriptLine "player.placeatme 010417EF 1"
+;;			RunScriptLine "player.placeatme 0104389B 1"
+;;			RunScriptLine "player.placeatme 010438A6 1"
+;;			RunScriptLine "player.placeatme 010438A8 1"
+;;			RunScriptLine "player.placeatme 010438A9 1"
+;;			RunScriptLine "player.placeatme 010438AA 1"
+;;			RunScriptLine "player.placeatme 010438AF 1"
+;;			RunScriptLine "player.placeatme 010438B0 1"
+;;			RunScriptLine "player.placeatme 010438B1 1"
+;;			RunScriptLine "player.placeatme 010438B2 1"
+;;			RunScriptLine "player.placeatme 0104D52F 1"
+;;			RunScriptLine "player.placeatme 01051397 1"
+;;			RunScriptLine "player.placeatme 01051398 1"
+;;			RunScriptLine "player.placeatme 01051399 1"
+;;			RunScriptLine "player.placeatme 0105139A 1"
+;;			RunScriptLine "player.placeatme 0105139B 1"
+;;			RunScriptLine "player.placeatme 0105139C 1"
+;;			RunScriptLine "player.placeatme 0105139D 1"
+;;			RunScriptLine "player.placeatme 0105139E 1"
+;;			RunScriptLine "player.placeatme 0105139F 1"
+;			
+;			let stage := 2
+;		endif
+;		if stage == 0
+;			if GetGodMode == 0
+;				RunScriptLine "tgm"
+;			endif
+;			RunBatchScript "Data\1111.ini"
+;			RunScriptLine "coc testinghall"
+;			let stage := 1
+;		endif
+;		
+;		let timer := 0
+;	endif
+;elseif ScriptWorkType == 3
+;	if timer >= 2
+;		
+;		if stage == 1
+;			
+;			if DebugType3 == 1
+;				debugprint "Убийство и перенос всех актеров в тестовую клетку:"
+;				let ActorsArray := ar_construct Array
+;				let ActorRef := GetFirstRef 69 5
+;				while ActorRef
+;					let ActorsArray[ar_size ActorsArray] := ActorRef
+;					let ActorRef := GetNextRef
+;				loop
+;				let index1 := 0
+;				let ArrSize1 := ar_size ActorsArray
+;				while index1 < ArrSize1
+;					let ActorRef := ActorsArray[index1]
+;					let BaseRefId := ActorRef.getBaseObject
+;					debugprint "[%n][%i][%i]>" ActorRef ActorRef BaseRefId
+;					if IsQuestItem ActorRef == 0 && ActorRef.IsRefEssential == 0 && GetSourceModIndex ActorRef == 255
+;						ActorRef.kill
+;						ActorRef.moveto TestPoint
+;						debugprint "Убит и перенесен"
+;					else
+;						debugprint "Проигнорировано - IsQuestItem/IsRefEssential/GetSourceModIndex"
+;					endif
+;					let index1 += 1
+;				loop
+;				debugprint "очистка тестовой клетки"
+;				resetinterior TESTcell
+;			endif
+;			
+;			debugprint "attempting to load game"
+;			RunScriptLine "loadgame game001"
+;
+;			let stage := 2
+;		endif
+;		if stage == 0
+;			if GetGodMode == 0
+;				RunScriptLine "tgm"
+;			endif
+;			RunBatchScript "Data\1111.ini"
+;			
+;			debugprint "attempting to teleport [tavern1]"
+;			RunScriptLine "cow tamriel 7 -1"
+;			let stage := 1
+;		endif
+;		
+;		if stage == 2
+;			let stage := 0
+;			let DoOnce1 := 0
+;		endif
+;		let timer := 0
+;	endif
+;endif
+;
+;;sdt 31
+;;tdt
+;;loadgame
+;;cow
+;
+;end
+;
+;begin menumode
+;if DoOnce2 == 0
+;	RunBatchScript "Data\1111.ini"
+;	message "ini loaded"
+;	let DoOnce2 := 1
+;endif
+;end

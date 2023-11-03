@@ -1,0 +1,82 @@
+﻿scn OEAddMagicResistTokenFScr
+
+ref ScriptTarget
+
+short RandomDice
+
+short MagicResistStrength
+float ResistMagicMagSum
+short MagicImmuneTokenCount
+short MagicMaximumResistTokenCount
+short ActorHasResistMagicToken
+float MaximumResistChance
+short IsMagicResistMaximum
+short MagicResistLowTokenCount
+short MagicResistMidTokenCount
+short MagicResistHighTokenCount
+
+begin function { ScriptTarget }
+
+set RandomDice to rand 1, 3.99
+
+if RandomDice == 1
+	set MagicResistStrength to 0
+elseif RandomDice == 2
+	set MagicResistStrength to 1
+elseif RandomDice == 3
+	set MagicResistStrength to -1
+endif
+
+set MaximumResistChance to OEAdditionalMagicMaximumResistChance + 0.99
+
+set ResistMagicMagSum to ScriptTarget.GetTotalAEAbilityMagnitude RSMA + ScriptTarget.GetTotalAEAbilityMagnitude WKMA + ScriptTarget.GetTotalAELesserPowerMagnitude RSMA + ScriptTarget.GetTotalAELesserPowerMagnitude WKMA + ScriptTarget.GetTotalAEPowerMagnitude RSMA + ScriptTarget.GetTotalAEPowerMagnitude WKMA
+
+;;debugprint "Актер [%n], ResistMagicMagSum = %g" ScriptTarget ResistMagicMagSum
+
+if ResistMagicMagSum >= 100
+	set MagicImmuneTokenCount to ScriptTarget.getitemcount OEMagicImmuneToken
+	ScriptTarget.removeitem OEMagicImmuneToken MagicImmuneTokenCount
+	ScriptTarget.additem OEMagicImmuneToken 1
+	set ActorHasResistMagicToken to 1
+	;debugprint "Актеру [%n] выдан токен иммунитета от магии, т.к. у него есть врожденный иммунитет от магии" ScriptTarget
+endif
+if ActorHasResistMagicToken == 0
+	if (OEAdditionalMagicMaximumResist == 1) && (OEAdditionalMagicMaximumResistLevel <= player.getlevel)
+		set RandomDice to rand 1, MaximumResistChance
+		if RandomDice == 1
+			set IsMagicResistMaximum to 1
+			set MagicMaximumResistTokenCount to ScriptTarget.getitemcount OEMagicMaximumResistToken 
+			ScriptTarget.removeitem OEMagicMaximumResistToken MagicMaximumResistTokenCount
+			ScriptTarget.additem OEMagicMaximumResistToken 1
+			;debugprint "Актеру [%n] выдан токен максимальной защиты от магии" ScriptTarget
+		endif
+	endif
+	if IsMagicResistMaximum != 1
+		if MagicResistStrength == -1
+			set MagicResistLowTokenCount to ScriptTarget.getitemcount OEMagicResistLowToken
+			ScriptTarget.removeitem OEMagicResistLowToken MagicResistLowTokenCount
+			ScriptTarget.additem OEMagicResistLowToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от магии пониженного уровня" ScriptTarget
+		elseif MagicResistStrength == 0
+			set MagicResistMidTokenCount to ScriptTarget.getitemcount OEMagicResistMidToken
+			ScriptTarget.removeitem OEMagicResistMidToken MagicResistMidTokenCount
+			ScriptTarget.additem OEMagicResistMidToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от магии среднего уровня" ScriptTarget
+		elseif MagicResistStrength == 1
+			set MagicResistHighTokenCount to ScriptTarget.getitemcount OEMagicResistHighToken
+			ScriptTarget.removeitem OEMagicResistHighToken MagicResistHighTokenCount
+			ScriptTarget.additem OEMagicResistHighToken 1
+			;debugprint "Актеру [%n] выдан токен защиты от магии повышенного уровня" ScriptTarget
+		endif
+	endif
+endif
+
+;debugprint "Актеру [%n] выдан токен защиты магии" ScriptTarget
+ScriptTarget.additem OEMagicResistToken 1
+
+
+
+;debugprint "конец функции"
+
+
+end

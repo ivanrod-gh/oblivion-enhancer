@@ -1,0 +1,77 @@
+﻿scn OEKSECatchPCAbsorbedActorsFScr
+
+short ArrSize
+short index
+short EffectsCount
+short PCAbsorbAttributeSkillFound
+short SameSpellFound
+int EffectCode
+
+ref SpellRef
+ref SpellRef2
+ref CasterRef
+ref Self
+
+begin function {SpellRef, CasterRef}
+
+debugprint "Вызов функции OEKSECatchPCAbsorbedActorsFScr - поиск и учет всех актеров, на которых игрок скастовал поглощение атрибута или навыка"
+
+let EffectsCount := GetMagicItemEffectCount SpellRef
+let index := 0
+while index < EffectsCount
+	
+	let EffectCode := GetNthEffectItemCode SpellRef index
+	if eval(GetMagicEffectCharsC EffectCode == "ABAT") || eval(GetMagicEffectCharsC EffectCode == "ABSK")
+		let PCAbsorbAttributeSkillFound := 1
+		break
+	endif
+	let index := index + 1
+loop
+
+if PCAbsorbAttributeSkillFound == 0
+	debugprint "У жертвы нет действующих эффект заклинаний поглощения, скастованных игроком"
+	return
+endif
+
+let Self := GetSelf
+if Self.IsActor == 0
+	debugprint "Жертва не актер, возврат"
+	return
+elseif Self.GetDead == 1
+	debugprint "Жертва мертва, возврат"
+	return
+endif
+
+if eval(ar_HasKey OEKSERestrictFunctionsQ.OEKSEAbsorbedsArray GetRawFormIdString Self) == 0
+	
+	debugprint "Жертва заклинания поглощения [%n][%i] соответсвует всем требованиям. Передача жертвы и заклинания [%n][%i] в AbsorbedsArray" Self Self SpellRef SpellRef
+	let OEKSERestrictFunctionsQ.OEKSEAbsorbedsArray[GetRawFormIdString Self] := ar_construct Array
+	let OEKSERestrictFunctionsQ.OEKSEAbsorbedsArray[GetRawFormIdString Self][0] := Self
+	let OEKSERestrictFunctionsQ.OEKSEAbsorbedsArray[GetRawFormIdString Self][1] := SpellRef
+else
+	let ArrSize := ar_size OEKSERestrictFunctionsQ.OEKSEAbsorbedsArray[GetRawFormIdString Self]
+	let index := 0
+	let SameSpellFound := 0
+	while index < ArrSize
+		
+		let SpellRef2 := OEKSERestrictFunctionsQ.OEKSEAbsorbedsArray[GetRawFormIdString Self][index]
+		if SpellRef == SpellRef2
+			let SameSpellFound := 1
+			break
+		endif
+		
+		let index := index + 1
+	loop
+	
+	if SameSpellFound == 0
+		debugprint "Жертва заклинания поглощения [%n][%i] уже присутсвует в AbsorbedsArray, но не заклинание поглощения [%n][%i]. Передача заклинания в массив AbsorbedsArray в подмассив жертвы" Self Self SpellRef SpellRef
+		
+		let OEKSERestrictFunctionsQ.OEKSEAbsorbedsArray[GetRawFormIdString Self][ArrSize] := SpellRef
+		
+	else
+		debugprint "Жертва заклинания поглощения [%n][%i] и заклинание поглощения [%n][%i] уже присутсвуют в AbsorbedsArray" Self Self SpellRef SpellRef
+	endif
+
+endif
+
+end

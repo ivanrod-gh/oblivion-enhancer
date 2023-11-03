@@ -1,0 +1,27 @@
+﻿scn OEShowLeveledListByLevelFScr
+
+short index1
+short NumLevItems1
+short LevItemLevel
+short LevItemCount
+
+ref LevItemRef
+ref LeveledListRef
+
+begin function { LeveledListRef }
+
+debugprint "Вызов функции OEShowLeveledListByLevelFScr - тестовый вывод групп предметов и их уровня у уровневого списка"
+
+debugprint "Переданный штатный уровневый список [%i] состоит из:" LeveledListRef
+let NumLevItems1 := GetNumLevItems LeveledListRef
+let index1 := 0
+while index1 < NumLevItems1
+	let LevItemRef := GetNthLevItem index1 LeveledListRef
+	let LevItemLevel := GetNthLevItemLevel index1 LeveledListRef
+	let LevItemCount := GetNthLevItemCount index1 LeveledListRef
+	debugprint "[%g][%g] [%n][%i]" LevItemLevel LevItemCount LevItemRef LevItemRef
+	let index1 := index1 + 1
+loop
+
+
+end

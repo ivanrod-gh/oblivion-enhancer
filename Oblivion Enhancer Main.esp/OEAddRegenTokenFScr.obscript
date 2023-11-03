@@ -1,0 +1,81 @@
+﻿scn OEAddRegenTokenFScr
+
+ref ScriptTarget
+
+short RandomDice
+
+short RegenStrength
+short RegenVeryHighTokenCount
+float RegenChance
+float VeryHighRegenChance
+short IsRegenVeryHigh
+short RegenLowTokenCount
+short RegenMidTokenCount
+short RegenHighTokenCount
+short RegenNoneTokenCount
+
+begin function { ScriptTarget }
+
+set RandomDice to rand 1, 3.99
+
+if RandomDice == 1
+	set RegenStrength to -1
+elseif RandomDice == 2
+	set RegenStrength to 0
+elseif RandomDice == 3
+	set RegenStrength to 1
+endif
+
+set RegenChance to OEAdditionalRegenChance + 0.99
+set VeryHighRegenChance to OEAdditionalRegenVeryHighChance + 0.99
+
+
+
+set RandomDice to rand 1, RegenChance
+;debugprint "RandomDice = %g" RandomDice
+if RandomDice == 1
+	if (OEAdditionalRegenVeryHigh == 1) && (OEAdditionalRegenVeryHighLevel <= player.getlevel)
+		set RandomDice to rand 1, VeryHighRegenChance
+		if RandomDice == 1
+			set IsRegenVeryHigh to 1
+			set RegenVeryHighTokenCount to ScriptTarget.getitemcount OERegenVeryHighToken 
+			ScriptTarget.removeitem OERegenVeryHighToken RegenVeryHighTokenCount
+			ScriptTarget.additem OERegenVeryHighToken 1
+			;debugprint "Актеру [%n] выдан токен регенерации очень высокого уровня" ScriptTarget
+		endif
+	endif
+	if IsRegenVeryHigh != 1
+		if RegenStrength == -1
+			set RegenLowTokenCount to ScriptTarget.getitemcount OERegenLowToken
+			ScriptTarget.removeitem OERegenLowToken RegenLowTokenCount
+			ScriptTarget.additem OERegenLowToken 1
+			;debugprint "Актеру [%n] выдан токен регенерации пониженного уровня" ScriptTarget
+		elseif RegenStrength == 0
+			set RegenMidTokenCount to ScriptTarget.getitemcount OERegenMidToken
+			ScriptTarget.removeitem OERegenMidToken RegenMidTokenCount
+			ScriptTarget.additem OERegenMidToken 1
+			;debugprint "Актеру [%n] выдан токен регенерации среднего уровня" ScriptTarget
+		elseif RegenStrength == 1
+			set RegenHighTokenCount to ScriptTarget.getitemcount OERegenHighToken
+			ScriptTarget.removeitem OERegenHighToken RegenHighTokenCount
+			ScriptTarget.additem OERegenHighToken 1
+			;debugprint "Актеру [%n] выдан токен регенерации повышенного уровня" ScriptTarget
+		endif
+	endif
+else
+	set RegenNoneTokenCount to ScriptTarget.getitemcount OERegenNoneToken
+	ScriptTarget.removeitem OERegenNoneToken RegenNoneTokenCount
+	ScriptTarget.additem OERegenNoneToken 1
+	;debugprint "Актеру [%n] выдан токен отсутствия регенерации" ScriptTarget
+endif
+
+
+;debugprint "Актеру [%n] выдан токен регенерации" ScriptTarget
+ScriptTarget.additem OERegenToken 1
+
+
+
+;debugprint "конец функции"
+
+
+end

@@ -1,0 +1,7 @@
+﻿scn OEKSEManageEffectsPowerMenuMEScr
+
+Begin ScriptEffectStart
+
+startquest OEKSEManageEffectsPowerMenuQ
+
+End

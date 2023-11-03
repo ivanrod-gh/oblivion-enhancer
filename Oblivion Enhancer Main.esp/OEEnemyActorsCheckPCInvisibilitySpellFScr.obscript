@@ -1,0 +1,115 @@
+﻿scn OEEnemyActorsCheckPCInvisibilitySpellFScr
+
+array_var PCEffectCodesArray
+array_var PCInvizSpellsArray
+
+short ArrSize1
+short ArrSize2
+short index1
+short index2
+short PCInvizFound
+short Distance
+short PCShelterFound
+short ActorIsSenseSomething
+short DiceRoll
+int INVIEffectCode
+int EffectCode
+
+ref ActorRef
+ref CombatTarget
+ref EffectRef
+ref SpellRef
+
+begin function {}
+
+debugprint "Вызов функции OEActorsChechPCInvisibilitySpellFScr - поиск актерами игрока под инвизом"
+
+let PCEffectCodesArray := PlayerRef.GetActiveEffectCodes
+let ArrSize1 := ar_size PCEffectCodesArray
+let index1 := 0
+let INVIEffectCode := GetMagicEffectCode INVI
+let PCInvizFound := 0
+let PCInvizSpellsArray := ar_construct Array
+while index1 < ArrSize1
+	let EffectCode := PCEffectCodesArray[index1]
+	
+	if OEInitQ.OEGlobalWatchQScrDebugMode == 1
+		let EffectRef := MagicEffectFromCode EffectCode
+		debugprint "Рассматривается эффект [%n][%i]" EffectRef EffectRef
+	endif
+	
+	if EffectCode == INVIEffectCode
+		let SpellRef := PlayerRef.GetNthActiveEffectMagicItem index1
+		if eval(ar_find SpellRef PCInvizSpellsArray) < 0
+			debugprint "В массив действующих заклинаний невидимости игрока добавляется заклинание [%n][%i]" SpellRef SpellRef
+			let PCInvizSpellsArray[ar_size PCInvizSpellsArray] := SpellRef
+		endif
+		
+		if PCInvizFound == 0
+			let PCInvizFound := 1
+		endif
+	endif
+	let index1 := index1 + 1
+loop
+
+if PCInvizFound == 0
+	debugprint "У игрока не обнаружено эффектов невидимости, завершение выполнения функции"
+	return
+else
+	debugprint "У игрока есть действующий эффект невидимости. Роблизости ищутся актеры, которые могут раскрыть невидимость игрока"
+endif
+
+;let ArrSize1 := ar_size OEGlobalWatchQ.OECapturedActorsArray
+if OEGlobalWatchQ.OECapturedActorsArrayCount > 0
+	let index1 := 0
+	while index1 < OEGlobalWatchQ.OECapturedActorsArrayCount
+		
+		let ActorRef := OEGlobalWatchQ.OECapturedActorsArray[index1][0]
+		let ActorIsSenseSomething := 0
+		debugprint "Рассматривается актер [%n][%i]" ActorRef ActorRef
+		let CombatTarget := ActorRef.GetCombatTarget
+		if CombatTarget == PlayerRef
+			debugprint "Боевая цель - игрок. Выпонение расчета"
+			
+			let Distance := ActorRef.GetDistance PlayerRef
+			if Distance <= OEActorsCheckDistanceMin
+				debugprint "Враждебный актер находится на минимальной дистанции и раскрывает укрытие игрока!"
+				let PCShelterFound := 1
+			elseif Distance > OEActorsCheckDistanceMin && Distance < OEActorsCheckDistanceMax
+				
+				let DiceRoll := GetRandomPercent*((OEActorsCheckDistanceMax - OEActorsCheckDistanceMin)/100)
+				if DiceRoll > (Distance - OEActorsCheckDistanceMin)
+					debugprint "Враждебный актер выигрывает бросок кубика и раскрывает укрытие игрока!"
+					let PCShelterFound := 1
+				else
+					debugprint "Враждебный актер проигрывает бросок кубика и сообщает об этом при помощи messageex"
+					let ActorIsSenseSomething := 1
+				endif
+				
+			endif
+			
+			if PCShelterFound == 1
+				let ArrSize2 := ar_size PCInvizSpellsArray
+				let index2 := 0
+				while index2 < ArrSize2
+					let SpellRef := PCInvizSpellsArray[index2]
+					Player.Dispel SpellRef
+					let index2 := index2 + 1
+				loop
+				messageex "[%n] обнаружил игрока, укрытого невидимостью!" ActorRef 2
+				debugprint "С игрока снимаются все заклинания невидимости, завершение выполнения функции"
+				break
+			elseif ActorIsSenseSomething == 1
+				messageex "[%n] чувствует что-то рядом с собой" ActorRef 2
+			endif
+			
+		else
+			debugprint "Его боевая цель не игрок, уход на другую итерацию цикла"
+		endif
+		let index1 := index1 + 1
+	loop
+else
+	debugprint "Рядом с игроком нет актеров, завершение выполнения функции"
+endif
+
+end

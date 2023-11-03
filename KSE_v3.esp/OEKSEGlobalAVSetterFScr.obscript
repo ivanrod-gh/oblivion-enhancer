@@ -1,0 +1,36 @@
+﻿scn OEKSEGlobalAVSetterFScr
+
+float MagicPenalty
+float FAMagickaDrain
+float MagickaMod
+
+begin function {}
+
+
+if KeaSettingHMF == 1
+	let MagicPenalty := keaTimePenalties.MagicPenalty
+else
+	let MagicPenalty := 0
+endif
+if OEKSEFortificationAbility == 1
+	let FAMagickaDrain := OEKSEFortificationAbilityQ.OEKSEFAMagickaDrain
+else
+	let FAMagickaDrain := 0
+endif
+if KeaSettingHMF == 1 && OEKSEFortificationAbility == 1
+	if MagicPenalty < FAMagickaDrain
+		let MagicPenalty := 0
+	else
+		let FAMagickaDrain := 0
+	endif
+endif
+let MagickaMod := ( player.GetTotalAENonAbilityMagnitude FOSP Magicka ) + ( player.GetTotalAENonAbilityMagnitude DRSP Magicka ) - MagicPenalty - FAMagickaDrain
+if OEKSERestrictFunctions == 1
+	if MagickaMod > OEKSEMagickaModMax
+		let MagickaMod := OEKSEMagickaModMax
+	endif
+endif
+
+PlayerRef.SetAVModC 9 max MagickaMod
+
+end

@@ -1,0 +1,80 @@
+﻿scn OEFillLeveledListsToRestrictArray4FScr
+
+ref LevItemRef
+
+begin function {}
+
+let LevItemRef := LL2MarauderCamp100
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MarauderCamp25
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MarauderCamp50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MarauderCamp75
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicEnemyLair100
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicEnemyLair25
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicEnemyLair50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicEnemyLair75
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicNatureLairDry100
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicNatureLairDry25
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicNatureLairDry50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicNatureLairDry75
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicNatureLairWet100
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicNatureLairWet25
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicNatureLairWet50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2MythicNatureLairWet75
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2NecromancerLair100
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2NecromancerLair25
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2NecromancerLair50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2NecromancerLair75
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2Tomb100
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2Tomb25
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2Tomb50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2Tomb75
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2UndercroftUndead
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2VampireLair100
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2VampireLair25
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2VampireLair50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2VampireLair75
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2WildernessBanditCaves50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2WildernessConjurerLair50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2WildernessGoblinLair50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2WildernessMarauderCamp50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2WildernessMythicEnemyLair50
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2Dremora100OE
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+let LevItemRef := LL2DremoraBoss100OE
+let OEInitQ.OELeveledListsToRestrictArray[ar_size OEInitQ.OELeveledListsToRestrictArray] := LevItemRef
+
+end

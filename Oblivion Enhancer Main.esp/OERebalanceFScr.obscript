@@ -1,0 +1,348 @@
+﻿scn OERebalanceFScr
+
+array_var TransitArray
+
+short ArrSize1
+short index1
+short SlotId
+short SlotMaskId
+short ArmorType
+short WeaponType
+short ItemForRebalanceFlag
+short ReplacingShort
+short ObjectType
+short MinItemPrice
+short MaxItemPrice
+short OverrideIndex
+short BaseIndexMin
+short BaseIndexMax
+float WeaponReach
+float WeaponSpeed
+float WeaponDamage
+;float ArmorDefence
+;float ArmorHealth
+float SlotReach1
+float SlotReach2
+float SlotSpeed
+float SlotMin
+;float SlotMin2
+float SlotMax
+;float SlotMax2
+
+ref ItemRef
+
+begin function { OverrideIndex }
+
+if OEInitQ.OERebalanceFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Вызов функции OERebalanceFScr - перебалансировка вещей"
+
+let ArrSize1 := ar_size OEInitQ.OEItemsForRebalanceArray
+debugprint "Всего в массиве перебалансировки находится %g вещей" ArrSize1
+if ArrSize1 > 0
+	if OverrideIndex >= 0
+		let BaseIndexMin := OverrideIndex
+		let BaseIndexMax := OverrideIndex
+		debugprint "Функция была вызвана для перебалансировки одной вещи с индексом %g" OverrideIndex
+	else
+		let BaseIndexMin := 0
+		let BaseIndexMax := ArrSize1 - 1
+	endif
+	let index1 := BaseIndexMax
+	while index1 >= BaseIndexMin
+		let ItemForRebalanceFlag := 0
+		let ItemRef := OEInitQ.OEItemsForRebalanceArray[index1]
+		if IsFormValid ItemRef == 1
+			let ItemRef := OEInitQ.OEItemsForRebalanceArray[index1]
+			debugprint "Перебалансировка, рассматривается объект [%n][%i] с индексом [%g]" ItemRef ItemRef index1
+			let SlotId := GetEquipmentSlot ItemRef
+			debugprint "Согласно GetEquipmentSlot [%n] занимает слот [%g]" ItemRef SlotId
+			let ObjectType := GetObjectType ItemRef
+			
+			if SlotId == 0
+				if ObjectType == 33
+					debugprint "Функция GetEquipmentSlot не может правильно определить слот объекта! Он не будет обработан"
+					let ItemForRebalanceFlag := -2
+				endif
+				if ObjectType == 20
+					let SlotMaskId := GetBipedSlotMask ItemRef
+					if SlotMaskId == 1 || SlotMaskId == 2 || SlotMaskId == 3
+						let SlotId := 1
+						debugprint "Объекту [%n][%i] переназначен слот на [%g]" ItemRef ItemRef SlotId
+					endif
+				endif
+			endif
+			
+			if ItemForRebalanceFlag > -1
+				if OEArmorPriceRecalculate == 1 && GetEnchantment ItemRef == 0
+					if (SlotId >= 0 && SlotId <= 5) || SlotId == 13
+						debugprint "[%n] - броня" ItemRef
+						let ArmorType := GetArmorType ItemRef
+						let TransitArray := ar_construct Array
+						let TransitArray[0] := ItemRef
+						let TransitArray[1] := GetArmorAR ItemRef
+						let TransitArray[2] := GetObjectHealth ItemRef
+						if ArmorType == 0
+							debugprint "Тип [%n] - легкая броня" ItemRef
+							let TransitArray[3] := OEInitQ.OEItemsValueArray[SlotId][0]
+							let TransitArray[4] := OEInitQ.OEItemsValueArray[SlotId][1]
+							let TransitArray[5] := OEInitQ.OEItemsValueArray[SlotId][4]
+							let TransitArray[6] := OEInitQ.OEItemsValueArray[SlotId][5]
+							let TransitArray[7] := OEInitQ.OEItemsValueArray[SlotId][8]
+							let TransitArray[8] := OEInitQ.OEItemsValueArray[SlotId][9]
+							let TransitArray[9] := ItemForRebalanceFlag
+							let TransitArray[10] := ArmorType
+							let ItemForRebalanceFlag := call OECalcArmorPriceFScr TransitArray
+							if ItemForRebalanceFlag != 1
+								let ItemForRebalanceFlag := -1
+							endif
+						else
+							debugprint "Тип [%n] - тяжелая броня" ItemRef
+							let TransitArray[3] := OEInitQ.OEItemsValueArray[SlotId][2]
+							let TransitArray[4] := OEInitQ.OEItemsValueArray[SlotId][3]
+							let TransitArray[5] := OEInitQ.OEItemsValueArray[SlotId][6]
+							let TransitArray[6] := OEInitQ.OEItemsValueArray[SlotId][7]
+							let TransitArray[7] := OEInitQ.OEItemsValueArray[SlotId][10]
+							let TransitArray[8] := OEInitQ.OEItemsValueArray[SlotId][11]
+							let TransitArray[9] := ItemForRebalanceFlag
+							let TransitArray[10] := ArmorType
+							let ItemForRebalanceFlag := call OECalcArmorPriceFScr TransitArray
+							if ItemForRebalanceFlag != 1
+								let ItemForRebalanceFlag := -1
+							endif
+						endif
+					endif
+				endif
+				
+				if SlotId == 16
+					debugprint "[%n] - оружие" ItemRef
+					let WeaponType := GetWeaponType ItemRef
+					if OEWeaponExcessFix == 1
+						let WeaponReach := GetWeaponReach ItemRef
+						let WeaponSpeed := GetWeaponSpeed ItemRef
+						if WeaponType == 0
+							debugprint "Тип [%n] - одноручный клинок" ItemRef
+							let SlotReach1 := OEInitQ.OEItemsValueArray[SlotId][23]
+							let SlotSpeed := OEInitQ.OEItemsValueArray[SlotId][27]
+							if (WeaponReach - SlotReach1) > OEWeaponReachMaxExcess
+								let WeaponReach := SlotReach1 + OEWeaponReachMaxExcess
+								;отбрасывание сотых долей
+								let ReplacingShort := WeaponReach*100
+								let WeaponReach := ReplacingShort/100
+								SetWeaponReach WeaponReach ItemRef
+								let ItemForRebalanceFlag := 1
+								debugprint "Для [%n][%i] установлена новая дальность атаки - %f" ItemRef ItemRef WeaponReach
+							endif
+							if (WeaponSpeed - SlotSpeed) > OEWeaponSpeedMaxExcess
+								let WeaponSpeed := SlotSpeed + OEWeaponSpeedMaxExcess
+								let ReplacingShort := WeaponSpeed*100
+								let WeaponSpeed := ReplacingShort/100
+								SetWeaponSpeed WeaponSpeed ItemRef
+								let ItemForRebalanceFlag := 1
+								debugprint "Для [%n][%i] установлена новая скорость атаки - %f" ItemRef ItemRef WeaponSpeed
+							endif
+							if ItemForRebalanceFlag != 1
+								let ItemForRebalanceFlag := -1
+							endif
+						elseif WeaponType == 1
+							debugprint "Тип [%n] - двуручный клинок" ItemRef
+							let SlotReach1 := OEInitQ.OEItemsValueArray[SlotId][24]
+							let SlotSpeed := OEInitQ.OEItemsValueArray[SlotId][28]
+							if (WeaponReach - SlotReach1) > OEWeaponReachMaxExcess
+								let WeaponReach := SlotReach1 + OEWeaponReachMaxExcess
+								let ReplacingShort := WeaponReach*100
+								let WeaponReach := ReplacingShort/100
+								SetWeaponReach WeaponReach ItemRef
+								let ItemForRebalanceFlag := 1
+								debugprint "Для [%n][%i] установлена новая дальность атаки - %f" ItemRef ItemRef WeaponReach
+							endif
+							if (WeaponSpeed - SlotSpeed) > OEWeaponSpeedMaxExcess
+								let WeaponSpeed := SlotSpeed + OEWeaponSpeedMaxExcess
+								let ReplacingShort := WeaponSpeed*100
+								let WeaponSpeed := ReplacingShort/100
+								SetWeaponSpeed WeaponSpeed ItemRef
+								let ItemForRebalanceFlag := 1
+								debugprint "Для [%n][%i] установлена новая скорость атаки - %f" ItemRef ItemRef WeaponSpeed
+							endif
+							if ItemForRebalanceFlag != 1
+								let ItemForRebalanceFlag := -1
+							endif
+						elseif WeaponType == 2
+							debugprint "Тип [%n] - одноручное крушащее" ItemRef
+							let SlotReach1 := OEInitQ.OEItemsValueArray[SlotId][25]
+							let SlotSpeed := OEInitQ.OEItemsValueArray[SlotId][29]
+							if (WeaponReach - SlotReach1) > OEWeaponReachMaxExcess
+								let WeaponReach := SlotReach1 + OEWeaponReachMaxExcess
+								let ReplacingShort := WeaponReach*100
+								let WeaponReach := ReplacingShort/100
+								SetWeaponReach WeaponReach ItemRef
+								let ItemForRebalanceFlag := 1
+								debugprint "Для [%n][%i] установлена новая дальность атаки - %f" ItemRef ItemRef WeaponReach
+							endif
+							if (WeaponSpeed - SlotSpeed) > OEWeaponSpeedMaxExcess
+								let WeaponSpeed := SlotSpeed + OEWeaponSpeedMaxExcess
+								let ReplacingShort := WeaponSpeed*100
+								let WeaponSpeed := ReplacingShort/100
+								SetWeaponSpeed WeaponSpeed ItemRef
+								let ItemForRebalanceFlag := 1
+								debugprint "Для [%n][%i] установлена новая скорость атаки - %f" ItemRef ItemRef WeaponSpeed
+							endif
+							if ItemForRebalanceFlag != 1
+								let ItemForRebalanceFlag := -1
+							endif
+						elseif WeaponType == 3
+							debugprint "Тип [%n] - двуручное крушащее" ItemRef
+							let SlotReach1 := OEInitQ.OEItemsValueArray[SlotId][26]
+							let SlotSpeed := OEInitQ.OEItemsValueArray[SlotId][30]
+							if (WeaponReach - SlotReach1) > OEWeaponReachMaxExcess
+								let WeaponReach := SlotReach1 + OEWeaponReachMaxExcess
+								let ReplacingShort := WeaponReach*100
+								let WeaponReach := ReplacingShort/100
+								SetWeaponReach WeaponReach ItemRef
+								let ItemForRebalanceFlag := 1
+								debugprint "Для [%n][%i] установлена новая временная дальность (только в рамках этой игровой сессии) атаки - %f" ItemRef ItemRef WeaponReach
+							endif
+							if (WeaponSpeed - SlotSpeed) > OEWeaponSpeedMaxExcess
+								let WeaponSpeed := SlotSpeed + OEWeaponSpeedMaxExcess
+								let ReplacingShort := WeaponSpeed*100
+								let WeaponSpeed := ReplacingShort/100
+								SetWeaponSpeed WeaponSpeed ItemRef
+								let ItemForRebalanceFlag := 1
+								debugprint "Для [%n][%i] установлена новая временная скорость (только в рамках этой игровой сессии) атаки - %f" ItemRef ItemRef WeaponSpeed
+							endif
+							if ItemForRebalanceFlag != 1
+								let ItemForRebalanceFlag := -1
+							endif
+						endif
+					endif
+					
+					if OEWeaponPriceRecalculate == 1 && GetEnchantment ItemRef == 0
+						let WeaponDamage := GetAttackDamage ItemRef
+						let WeaponType := GetWeaponType ItemRef
+						let WeaponReach := GetWeaponReach ItemRef
+						if WeaponType == 0
+							let SlotReach1 := OEInitQ.OEItemsValueArray[SlotId][6]
+							let SlotReach2 := OEInitQ.OEItemsValueArray[SlotId][7]
+							if WeaponReach <= SlotReach1
+								debugprint "Тип [%n] - одноручный кинжал" ItemRef
+								let SlotMin := OEInitQ.OEItemsValueArray[SlotId][0]
+								let SlotMax := OEInitQ.OEItemsValueArray[SlotId][1]
+								let MinItemPrice := OEInitQ.OEItemsValueArray[SlotId][31]
+								let MaxItemPrice := OEInitQ.OEItemsValueArray[SlotId][32]
+								let ItemForRebalanceFlag := call OECalcWeaponPriceFScr ItemRef WeaponDamage SlotMin SlotMax MinItemPrice MaxItemPrice ItemForRebalanceFlag
+								if ItemForRebalanceFlag != 1
+									let ItemForRebalanceFlag := -1
+								endif
+							elseif WeaponReach >= SlotReach2
+								debugprint "Тип [%n] - одноручный длинный меч" ItemRef
+								let SlotMin := OEInitQ.OEItemsValueArray[SlotId][4]
+								let SlotMax := OEInitQ.OEItemsValueArray[SlotId][5]
+								let MinItemPrice := OEInitQ.OEItemsValueArray[SlotId][35]
+								let MaxItemPrice := OEInitQ.OEItemsValueArray[SlotId][36]
+								let ItemForRebalanceFlag := call OECalcWeaponPriceFScr ItemRef WeaponDamage SlotMin SlotMax MinItemPrice MaxItemPrice ItemForRebalanceFlag
+								if ItemForRebalanceFlag != 1
+									let ItemForRebalanceFlag := -1
+								endif
+							else
+								debugprint "Тип [%n] - одноручный короткий меч" ItemRef
+								let SlotMin := OEInitQ.OEItemsValueArray[SlotId][2]
+								let SlotMax := OEInitQ.OEItemsValueArray[SlotId][3]
+								let MinItemPrice := OEInitQ.OEItemsValueArray[SlotId][33]
+								let MaxItemPrice := OEInitQ.OEItemsValueArray[SlotId][34]
+								let ItemForRebalanceFlag := call OECalcWeaponPriceFScr ItemRef WeaponDamage SlotMin SlotMax MinItemPrice MaxItemPrice ItemForRebalanceFlag
+								if ItemForRebalanceFlag != 1
+									let ItemForRebalanceFlag := -1
+								endif
+							endif
+						elseif WeaponType == 1
+							debugprint "Тип [%n] - двуручный меч" ItemRef
+							let SlotMin := OEInitQ.OEItemsValueArray[SlotId][8]
+							let SlotMax := OEInitQ.OEItemsValueArray[SlotId][9]
+							let MinItemPrice := OEInitQ.OEItemsValueArray[SlotId][37]
+							let MaxItemPrice := OEInitQ.OEItemsValueArray[SlotId][38]
+							let ItemForRebalanceFlag := call OECalcWeaponPriceFScr ItemRef WeaponDamage SlotMin SlotMax MinItemPrice MaxItemPrice ItemForRebalanceFlag
+							if ItemForRebalanceFlag != 1
+								let ItemForRebalanceFlag := -1
+							endif
+						elseif WeaponType == 2
+							let SlotReach1 := OEInitQ.OEItemsValueArray[SlotId][14]
+							if WeaponReach <= SlotReach1
+								debugprint "Тип [%n] - одноручный топор" ItemRef
+								let SlotMin := OEInitQ.OEItemsValueArray[SlotId][10]
+								let SlotMax := OEInitQ.OEItemsValueArray[SlotId][11]
+								let MinItemPrice := OEInitQ.OEItemsValueArray[SlotId][39]
+								let MaxItemPrice := OEInitQ.OEItemsValueArray[SlotId][40]
+								let ItemForRebalanceFlag := call OECalcWeaponPriceFScr ItemRef WeaponDamage SlotMin SlotMax MinItemPrice MaxItemPrice ItemForRebalanceFlag
+								if ItemForRebalanceFlag != 1
+									let ItemForRebalanceFlag := -1
+								endif
+							else
+								debugprint "Тип [%n] - одноручная булава" ItemRef
+								let SlotMin := OEInitQ.OEItemsValueArray[SlotId][12]
+								let SlotMax := OEInitQ.OEItemsValueArray[SlotId][13]
+								let MinItemPrice := OEInitQ.OEItemsValueArray[SlotId][41]
+								let MaxItemPrice := OEInitQ.OEItemsValueArray[SlotId][42]
+								let ItemForRebalanceFlag := call OECalcWeaponPriceFScr ItemRef WeaponDamage SlotMin SlotMax MinItemPrice MaxItemPrice ItemForRebalanceFlag
+								if ItemForRebalanceFlag != 1
+									let ItemForRebalanceFlag := -1
+								endif
+							endif
+						elseif WeaponType == 3
+							let SlotReach1 := OEInitQ.OEItemsValueArray[SlotId][19]
+							if WeaponReach <= SlotReach1
+								debugprint "Тип [%n] - двуручная секира" ItemRef
+								let SlotMin := OEInitQ.OEItemsValueArray[SlotId][15]
+								let SlotMax := OEInitQ.OEItemsValueArray[SlotId][16]
+								let MinItemPrice := OEInitQ.OEItemsValueArray[SlotId][43]
+								let MaxItemPrice := OEInitQ.OEItemsValueArray[SlotId][44]
+								let ItemForRebalanceFlag := call OECalcWeaponPriceFScr ItemRef WeaponDamage SlotMin SlotMax MinItemPrice MaxItemPrice ItemForRebalanceFlag
+								if ItemForRebalanceFlag != 1
+									let ItemForRebalanceFlag := -1
+								endif
+							else
+								debugprint "Тип [%n] - двуручный молот" ItemRef
+								let SlotMin := OEInitQ.OEItemsValueArray[SlotId][17]
+								let SlotMax := OEInitQ.OEItemsValueArray[SlotId][18]
+								let MinItemPrice := OEInitQ.OEItemsValueArray[SlotId][45]
+								let MaxItemPrice := OEInitQ.OEItemsValueArray[SlotId][46]
+								let ItemForRebalanceFlag := call OECalcWeaponPriceFScr ItemRef WeaponDamage SlotMin SlotMax MinItemPrice MaxItemPrice ItemForRebalanceFlag
+								if ItemForRebalanceFlag != 1
+									let ItemForRebalanceFlag := -1
+								endif
+							endif
+						elseif WeaponType == 5
+							let SlotMin := OEInitQ.OEItemsValueArray[SlotId][21]
+							let SlotMax := OEInitQ.OEItemsValueArray[SlotId][22]
+							let MinItemPrice := OEInitQ.OEItemsValueArray[SlotId][47]
+							let MaxItemPrice := OEInitQ.OEItemsValueArray[SlotId][48]
+							let ItemForRebalanceFlag := call OECalcWeaponPriceFScr ItemRef WeaponDamage SlotMin SlotMax MinItemPrice MaxItemPrice ItemForRebalanceFlag
+							if ItemForRebalanceFlag != 1
+								let ItemForRebalanceFlag := -1
+							endif
+						endif
+					endif
+				endif
+			endif
+			if ItemForRebalanceFlag == -1
+				debugprint "[%n][%i] оставлен без изменений" ItemRef ItemRef
+			elseif ItemForRebalanceFlag == -2
+				debugprint "Обнаружен необрабатываемый объект, удаление его из массива"
+				ar_erase OEInitQ.OEItemsForRebalanceArray index1
+			elseif ItemForRebalanceFlag == 1
+				debugprint "[%n][%i] перебалансирован и остается в массиве для перебалансировки в новой игровой сессии" ItemRef ItemRef
+			endif
+		else
+			debugprint "Обнаружен невалидный реф, удаление его из массива"
+			ar_erase OEInitQ.OEItemsForRebalanceArray index1
+		endif
+		let index1 := index1 - 1
+	loop
+endif
+
+if OEInitQ.OERebalanceFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

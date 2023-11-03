@@ -1,0 +1,84 @@
+﻿scn OECalcWeaponPriceFScr
+
+
+short ReplacingShort
+short CalculatedPrice
+short CalculatedPriceNew
+short ItemPrice
+short MinItemPrice
+short MaxItemPrice
+short ItemForRebalanceFlag
+float WeaponDamage
+float SlotMin
+float SlotMax
+float TanCalc
+float PowCalc
+float AdaptiveLevel
+float TanArg
+
+ref ItemRef
+
+begin function {ItemRef, WeaponDamage, SlotMin, SlotMax, MinItemPrice, MaxItemPrice, ItemForRebalanceFlag}
+
+debugprint "Вызов функции OECalcWeaponPriceFScr - рассчет стоимости оружия (незачарованного)"
+
+debugprint "Урон - [%f], урон макс. - [%f]" WeaponDamage SlotMax
+if SlotMin != SlotMax
+	let AdaptiveLevel := 99*((WeaponDamage-SlotMin)/(SlotMax-SlotMin)) + 1
+else
+	let AdaptiveLevel := 1
+endif
+debugprint "Адаптивный уровень - [%g]" AdaptiveLevel
+if AdaptiveLevel < 1
+	let AdaptiveLevel := 1
+	debugprint "Адаптивный уровень меньше минимального и он заменяется на [%g]" AdaptiveLevel
+elseif AdaptiveLevel > 100
+	let AdaptiveLevel := 100
+	debugprint "Адаптивный уровень больше максимального и он заменяется на [%g]" AdaptiveLevel
+endif
+if AdaptiveLevel >= OECheapWeaponPriceRecalculateAdptLvl || AdaptiveLevel <= OEExpensiveWeaponPriceRecalculateAdptLvl
+	let TanArg := AdaptiveLevel*0.55
+	let TanCalc := Tan TanArg
+	let PowCalc := Pow TanCalc 2.0
+	let CalculatedPrice := (MaxItemPrice/2)*PowCalc + MinItemPrice
+endif
+if AdaptiveLevel >= OECheapWeaponPriceRecalculateAdptLvl
+	debugprint "Проверяется, не стоит ли оружие слишком мало"
+	let CalculatedPriceNew := CalculatedPrice*OECheapWeaponPriceRecalculateMod
+	;устанавливается, что новая цена будет кратна 5
+	let ReplacingShort := CalculatedPriceNew/5
+	let CalculatedPriceNew := ReplacingShort*5
+	let ItemPrice := GetGoldValue ItemRef
+	debugprint "Изначальная стоимость - [%g], расчетная стоимость - [%g]" ItemPrice CalculatedPriceNew
+	if ItemPrice < CalculatedPriceNew
+		SetGoldValue_T CalculatedPriceNew ItemRef
+		debugprint "[%n][%i] установлена новая временная стоимость оружия (только в рамках этой игровой сессии) - [%g]" ItemRef ItemRef CalculatedPriceNew
+		let ItemForRebalanceFlag := 1
+	else
+		debugprint "Цена [%n][%i] выше расчетной, перерасчет не требуеся" ItemRef ItemRef
+	endif
+else
+	debugprint "Адаптивный уровень [%n][%i] слишком мал. Цена дешевого оружия не пересчитана" ItemRef ItemRef
+endif
+if AdaptiveLevel <= OEExpensiveWeaponPriceRecalculateAdptLvl
+	debugprint "Проверяется, не стоит ли оружие слишком много"
+	let CalculatedPriceNew := CalculatedPrice*OEExpensiveWeaponPriceRecalculateMod
+	;устанавливается, что новая цена будет кратна 5
+	let ReplacingShort := CalculatedPriceNew/5
+	let CalculatedPriceNew := ReplacingShort*5
+	let ItemPrice := GetGoldValue ItemRef
+	debugprint "Изначальная стоимость - [%g], расчетная стоимость - [%g]" ItemPrice CalculatedPriceNew
+	if ItemPrice > CalculatedPriceNew
+		SetGoldValue_T CalculatedPriceNew ItemRef
+		debugprint "[%n][%i] установлена новая временная стоимость оружия (только в рамках этой игровой сессии) - [%g]" ItemRef ItemRef CalculatedPriceNew
+		let ItemForRebalanceFlag := 1
+	else
+		debugprint "Цена [%n][%i] ниже расчетной, перерасчет не требуеся" ItemRef ItemRef
+	endif
+else
+	debugprint "Адаптивный уровень [%n][%i] слишком высок. Цена дорогого оружия не пересчитана" ItemRef ItemRef
+endif
+
+SetFunctionValue ItemForRebalanceFlag
+
+end

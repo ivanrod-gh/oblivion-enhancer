@@ -1,0 +1,18 @@
+﻿scn OEKSEBattleMagicAbilityMEScr
+
+Begin ScriptEffectStart
+
+if OEKSEBattleMagicAbilityQ.OEKSEAbilityLevel > 0
+	if OEKSEBattleMagicAbilityQ.OEKSEAbilityActive == -1
+		let OEKSEBattleMagicAbilityQ.OEKSEMustRecalcStats := 1
+		let OEKSEBattleMagicAbilityQ.OEKSEAbilityActive := 1
+		let OEKSEFortificationAbilityQ.OEKSEAbilityActive := 0
+		let OEKSEArcaneArcherAbilityQ.OEKSEAbilityActive := 0
+	elseif OEKSEBattleMagicAbilityQ.OEKSEAbilityActive == 2
+		let OEKSEBattleMagicAbilityQ.OEKSEAbilityActive := 0
+	endif
+elseif OEKSEBattleMagicAbilityQ.OEKSEAbilityLevel == 0
+	Message "Боевая магия: ваши навыки разрушения или мистицизма недостаточно развиты"
+endif
+
+End

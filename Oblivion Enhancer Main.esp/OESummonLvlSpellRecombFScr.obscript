@@ -1,0 +1,24 @@
+﻿scn OESummonLvlSpellRecombFScr
+
+begin function {}
+
+if OEInitQ.OESummonLvlSpellRecombFScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Вызов функции OESummonLvlSpellRecombFScr - обновление уровней заклинаний в уровневых списках призываемых существ"
+
+call OEChangeLvlInLeveledSpellFScr StandardSummonClannfearExpert 50
+call OEChangeLvlInLeveledSpellFScr StandardSummonSkeletonApprentice 1
+call OEChangeLvlInLeveledSpellFScr StandardSummonSkeletonGuardianJourneyman 25
+call OEChangeLvlInLeveledSpellFScr StandardSummonSkeletonHeroExpert 50
+call OEChangeLvlInLeveledSpellFScr StandardSummonZombieApprentice 1
+call OEChangeLvlInLeveledSpellFScr StandardSummonZombieHeadlessJourneyman 25
+call OEChangeLvlInLeveledSpellFScr StandardSummonAtronachFlameJourneyman 75
+call OEChangeLvlInLeveledSpellFScr StandardSummonAtronachStormMaster 75
+
+if OEInitQ.OESummonLvlSpellRecombFScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end

@@ -1,0 +1,395 @@
+﻿scn	OEScriptSummonEffectOScr
+
+
+array_var SummonArray
+array_var ArrayElement
+array_var AttackersArray
+
+short Dead
+short ArrSize
+short ArrSize2
+short index
+short Disposition
+short Disposition1
+short Disposition2
+short ActorsCount
+short ActorsCountOld
+short ActorFound
+short ItemCount
+short OESummonIsLoaded
+short DeadSummonsArrSize
+short IsScaled
+short RandomDice
+long Distance
+long DistanceOld
+float Alpha
+float timer
+float StatVal
+;float Scale
+
+ref SummonRef
+ref ActorRef
+ref Actor2Ref
+ref SummonerRef
+ref CombatTarget
+ref AttackerRef
+
+
+;эффект висит НА саммоне
+;GetDisposition реально изменяется от -32767 до 32767 (?), но при запросе всегда показывает от 0 до 100.
+;Имеет странное поведение, менять с осторожностью.
+;Функция GetDisposition может не показывать никаких изменений после применения ModDisposition, но реально они есть!
+;Возможно, проблема в том, что после GetDisposition должен пройти минимум один кадр в некоторых случаях.
+
+begin onload
+
+if OEInitQ.OEScriptSummonEffectOScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+let Alpha := 1
+let Dead := 0
+let SummonRef := GetSelf
+
+debugprint "Начало работы объектного скрипта OEScriptSummonEffectOScr - обработка скриптового саммона [%n][%i]" SummonRef SummonRef
+
+if IsScaled == 0
+	set RandomDice to GetRandomPercent
+	set StatVal to (RandomDice / 5) - 10
+	ModAV strength StatVal
+	set StatVal to (RandomDice / 5) - 10
+	ModAV intelligence StatVal
+	set StatVal to (RandomDice / 5) - 10
+	ModAV willpower StatVal
+	set StatVal to (RandomDice / 5) - 10
+	ModAV agility StatVal
+	if randomdice < 50
+		let randomdice := randomdice / 2
+		let randomdice := randomdice + 25
+	endif
+	set StatVal to ((RandomDice / 100) - 0.5) * (GetAV health)
+	ModAV health StatVal
+	set StatVal to ((RandomDice / 100) - 0.5) * (GetAV fatigue)
+	ModAV fatigue StatVal
+	set StatVal to ((RandomDice / 100) - 0.5) * (GetAV magicka)
+	ModAV magicka StatVal
+
+	set IsScaled to 1
+endif
+
+let SummonArray := ar_construct Array
+SetIgnoreFriendlyHits 1
+StopCombat
+;SummonRef.PlayMagicShaderVisuals effectSummonMythicDawn 1
+
+let ItemCount := GetItemCount OEItemRandomizationRestrictToken
+if ItemCount == 0
+	additem OEItemRandomizationRestrictToken 1
+endif
+let ItemCount := GetItemCount OEIsSummonToken
+if ItemCount == 0
+	additem OEIsSummonToken 1
+endif
+
+let SummonerRef := call OEUpdateSummonsInSummonerGroupFScr SummonRef (-1)	;SummonerRef - хозяин всей группы
+
+let OESummonIsLoaded := 1
+
+debugprint "Выполнение блока OnLoad завершено, OESummonIsLoaded=%g" OESummonIsLoaded
+
+if OEInitQ.OEScriptSummonEffectOScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end
+
+begin ondeath		;здесь - работает
+
+let Dead := 1
+
+end
+
+begin gamemode
+
+if OEInitQ.OEScriptSummonEffectOScrDebugMode == 1
+	SetDebugMode 1 OEInitQ.OEModIndex
+endif
+
+debugprint "Итерация цикла OEScriptSummonEffectOScr, начало обработки в GameMode. Саммон [%n][%i], саммонер [%n][%i]" SummonRef SummonRef SummonerRef SummonerRef
+
+if Dead == 1
+	if ( Alpha > 0 )
+		set Alpha to ( Alpha - getsecondspassed )
+		saa Alpha
+		debugprint "Скриптовый саммон мертв, новое значение альфа канала - %f" Alpha
+	else
+		debugprint "Скриптовый саммон мертв, тело не отрисовывается, отправка его данных в массив мертвых саммонов"
+		;т.к. используются placeatme саммоны, то этот блок не нужен
+		;foreach ArrayElement <- SummonArray
+		;	let ActorRef := SummonArray[#ArrayElement["key"]]
+		;	if isformvalid ActorRef == 1
+		;		debugprint "OEAdditionalSummonEffects Возвращаем отношения между [%n] и [%n]" SummonRef ActorRef
+		;		let Disposition1 := SummonRef.GetDisposition ActorRef
+		;		let Disposition2 := ActorRef.GetDisposition SummonRef
+		;		debugprint "OEAdditionalSummonEffects Отношения текущие: %g, %g" Disposition1 Disposition2
+		;		let Disposition := (SummonRef.GetDisposition ActorRef) - 30
+		;		if Disposition != 0
+		;			let Disposition := -Disposition
+		;			debugprint "Disposition = %g" Disposition
+		;			SummonRef.ModDisposition ActorRef Disposition
+		;		else
+		;			debugprint "Отношение саммона к актеру не изменилось"
+		;		endif
+		;		let Disposition := (ActorRef.GetDisposition SummonRef) - 30
+		;		if Disposition != 0
+		;			let Disposition := -Disposition
+		;			ActorRef.ModDisposition SummonRef Disposition
+		;			debugprint "Disposition = %g" Disposition
+		;		else
+		;			debugprint "Отношение актера к саммону не изменилось"
+		;		endif
+		;		let Disposition1 := SummonRef.GetDisposition ActorRef
+		;		let Disposition2 := ActorRef.GetDisposition SummonRef
+		;		debugprint "OEAdditionalSummonEffects Отношения после спавна: %g, %g" Disposition1 Disposition2
+		;	endif
+		;loop
+		let SummonRef := GetSelf
+		let DeadSummonsArrSize := ar_size OEGlobalWatchQ.OEDeadSummonsArray
+		let OEGlobalWatchQ.OEDeadSummonsArray[DeadSummonsArrSize] := ar_construct Array
+		let OEGlobalWatchQ.OEDeadSummonsArray[DeadSummonsArrSize][0] := SummonRef
+		let OEGlobalWatchQ.OEDeadSummonsArray[DeadSummonsArrSize][1] := 2
+		;RemoveMe				;не удаляет реф актера
+		;DeleteReference		;не удаляет реф актера
+		let Dead := 2
+		
+		;выпавшее оружие саммона (оружие заспавнено стандартно при спавне самого саммона) зачищается resetinterior, но до этого будет валяться на земле, если принудительно не убрать
+		;disable+deletereference удаляет реф оружия
+		;скрипт на оружии может удалить оружие, на котором находится (и, соответственно, себя), если этот скрипт работает (рядом есть игрок)
+		
+	endif
+endif
+
+if Dead == 0 && SummonerRef != 0
+	let ActorsCount := ar_size OEGlobalWatchQ.OECapturedActorsArray
+	if ActorsCount != ActorsCountOld
+		let index := 0
+		while index < ActorsCount
+			let ActorRef := OEGlobalWatchQ.OECapturedActorsArray[index][0]
+			let ActorFound := 0
+			
+			foreach ArrayElement <- SummonArray
+				let Actor2Ref := SummonArray[#ArrayElement["key"]]
+				if ActorRef == Actor2Ref
+					let ActorFound := ActorFound + 1
+					break
+				endif
+			loop
+			;установка отношений между саммоном и окружающим миром - в зависимости от отношений призывающего.
+			;при устанавлении отношений саммона с актером из группы этого же саммона фактически происходит повтор
+			;функционала OEUpdateSummonsInSummonerGroupFScr, но это проще по тратам ЦП, чем делать перепроверки
+			;на совпадение актеров между SummonArray и OEGlobalWatch0025Quest.OESummonersArray
+			if ActorFound == 0 && ActorRef != SummonRef && ActorRef.GetDead == 0 && ActorRef.GetDisabled == 0 && IsFormValid ActorRef == 1
+				let SummonArray[ar_size SummonArray] := ActorRef
+				debugprint "Новый актер в массиве SummonArray - %n" ActorRef
+				let Disposition := SummonRef.GetDisposition ActorRef
+				debugprint "Отношение саммона [%n] к [%n] по умолчанию - %g" SummonRef ActorRef Disposition
+				let Disposition1 := SummonerRef.GetDisposition ActorRef
+				debugprint "Disposition1=%g" Disposition1
+				let Disposition2 := SummonRef.GetDisposition ActorRef
+				debugprint "Disposition2=%g" Disposition2
+				let Disposition := Disposition1 - Disposition2
+				if Disposition2 + Disposition == 100
+					let Disposition := Disposition - 1
+				elseif Disposition2 + Disposition == 0
+					let Disposition := Disposition + 1
+				endif
+				debugprint "Отношение вызывающего [%n] к [%n] и новое отношение [%n] к [%n] - %g" SummonerRef ActorRef SummonRef ActorRef Disposition1
+				SummonRef.ModDisposition ActorRef Disposition
+
+				
+				let Disposition := ActorRef.GetDisposition SummonRef
+				debugprint "Отношение [%n] к саммону [%n] по умолчанию - %g" ActorRef SummonRef Disposition
+				let Disposition1 := ActorRef.GetDisposition SummonerRef
+				debugprint "Disposition1=%g" Disposition1
+				let Disposition2 := ActorRef.GetDisposition SummonRef
+				debugprint "Disposition2=%g" Disposition2
+				let Disposition := Disposition1 - Disposition2
+				if Disposition2 + Disposition == 100
+					let Disposition := Disposition - 1
+				elseif Disposition2 + Disposition == 0
+					let Disposition := Disposition + 1
+				endif
+				debugprint "Отношение [%n] к вызывающему [%n] и новое отношение [%n] к [%n] - %g" ActorRef SummonerRef ActorRef SummonRef Disposition1
+				ActorRef.ModDisposition SummonRef Disposition
+
+				
+				debugprint "В массив SummonArray внесен актер [%n]" ActorRef
+			endif
+			
+			let index := index + 1
+		loop
+	endif
+	let ActorsCountOld := ActorsCount
+	let CombatTarget := SummonRef.GetCombatTarget
+	debugprint "Цель скриптового саммона - [%n][%i]" CombatTarget CombatTarget
+	if CombatTarget == 0
+		if timer >= 1
+			let ArrSize := ar_size SummonArray
+			let index := 0
+			let AttackersArray := ar_construct Array
+			while index < ArrSize
+				let ActorRef := SummonArray[index]
+				if isformvalid ActorRef == 1
+					if ActorRef != PlayerRef
+						let CombatTarget := ActorRef.GetCombatTarget
+						if CombatTarget == SummonerRef
+							debugprint "Актер [%n] атакует призывателя [%n]! Актер добавлен в список атакующих" ActorRef SummonerRef
+							let AttackersArray[ar_size AttackersArray] := ActorRef
+						endif
+					endif
+					;let CombatTarget := ActorRef.GetCombatTarget
+					;debugprint "ActorRef=%n, CombatTarget=%n" ActorRef CombatTarget
+					;if ActorRef == SummonerRef && ActorRef != PlayerRef
+					;
+					;	let Disposition := SummonRef.GetDisposition CombatTarget
+					;	let Disposition := -Disposition
+					;	SummonRef.ModDisposition CombatTarget Disposition
+					;	let Disposition := CombatTarget.GetDisposition SummonRef
+					;	let Disposition := -Disposition
+					;	CombatTarget.ModDisposition SummonRef Disposition
+					;
+					;	;let SummonArray[ar_size SummonArray] := CombatTarget
+					;elseif CombatTarget == SummonerRef
+					;
+					;	let Disposition := SummonRef.GetDisposition ActorRef
+					;	let Disposition := -Disposition
+					;	SummonRef.ModDisposition ActorRef Disposition
+					;	let Disposition := ActorRef.GetDisposition SummonRef
+					;	let Disposition := -Disposition
+					;	ActorRef.ModDisposition SummonRef Disposition
+					;	
+					;	;let SummonArray[ar_size SummonArray] := ActorRef
+					;elseif SummonRef.GetDisposition ActorRef < 100
+					;	debugprint "OEAdditionalSummonEffects Исправление ситуации, %n и %n теперь дружат!" SummonRef ActorRef
+					;	ActorRef.ModDisposition SummonRef 200
+					;	SummonRef.ModDisposition ActorRef 200
+					;endif
+				endif
+				let index := index + 1
+			loop
+			if SummonerRef != PlayerRef
+				let CombatTarget := SummonerRef.GetCombatTarget
+				debugprint "У призывателя [%n] есть цель атаки - [%n]" SummonerRef CombatTarget
+				if CombatTarget != 0
+					debugprint "Саммону [%n] выдана задача на атаку актера [%n]" SummonRef CombatTarget
+					SummonRef.StartCombat CombatTarget
+				endif
+			endif
+			let CombatTarget := SummonRef.GetCombatTarget
+			if CombatTarget == 0
+				let ArrSize2 := ar_size AttackersArray
+				debugprint "Количество атакующих призывателя [%n] - %g существ" SummonerRef ArrSize2
+				if eval(ar_size AttackersArray) > 0
+					let DistanceOld := 99999
+					foreach ArrayElement <- AttackersArray
+						let AttackerRef := AttackersArray[#ArrayElement["key"]]
+						let Distance := SummonerRef.GetDistance AttackerRef
+						debugprint "Дистанция между [%n] и атакующим [%n] - %g" SummonerRef AttackerRef Distance
+						if Distance < DistanceOld
+							let CombatTarget := AttackerRef
+							let DistanceOld := Distance
+						endif
+					loop
+					debugprint "Ближайших из них - [%n] на расстоянии [%g] от призывателя" CombatTarget DistanceOld
+					debugprint "Саммону [%n] выдана задача на атаку актера [%n]" SummonRef CombatTarget
+					SummonRef.StartCombat CombatTarget
+				endif
+			endif
+			let timer := 0
+		endif
+	endif
+	let timer := timer + getsecondspassed
+endif
+
+if Dead == 0
+	if GetDead == 0
+		if SummonerRef
+		else
+			kill
+		endif
+	endif
+	if GetDead == 1
+		let Dead := 1
+	endif
+endif
+
+debugprint "Итерация цикла OEScriptSummonEffectOScr, конец обработки в GameMode. Dead=%g" Dead
+
+if OEInitQ.OEScriptSummonEffectOScrDebugMode == 1
+	SetDebugMode 0 OEInitQ.OEModIndex
+endif
+
+end
+
+Begin OnActivate player
+
+Message "Вы не можете поговорить с призванным существом или обокрасть его."
+
+end
+
+Begin OnHit
+
+if isfemale && getrace == Dremora
+	if GetRandomPercent > 50
+		Say MOOTopicDremoraHit
+	endif
+endif
+
+End
+
+;скрипт для использования в боевой камере
+;scn	OEScriptSummonEffectOScr
+;
+;short ItemCount
+;ref self
+;short OESummonIsLoaded
+;
+;long PosX
+;long PosY
+;long PosZ
+;
+;begin onload
+;
+;printc "OEScriptSummonEffectOScr onload start"
+;
+;let self := Getself
+;
+;let OESummonIsLoaded := 1
+;additem OEIsSummonToken 1
+;SetIgnoreFriendlyHits 1
+;
+;let ItemCount := GetItemCount OEItemRandomizationRestrictToken
+;if ItemCount == 0
+;	additem OEItemRandomizationRestrictToken 1
+;endif
+;let ItemCount := GetItemCount OEIsSummonToken
+;if ItemCount == 0
+;	additem OEIsSummonToken 1
+;endif
+;
+;printc "OEScriptSummonEffectOScr onload finish self=%n %i" self self
+;
+;end
+;
+;begin ondeath
+;
+;Set PosX to GetPos x
+;Set PosY to GetPos y
+;Set PosZ to GetPos z
+;
+;printc "ondeath x[%g] y[%g] z[%g] self=[%n][%i]" PosX PosY PosZ self self
+;
+;moveto OESpawnChamberPoint
+;;self.call OETESTActorMoveToOESCFScr
+;
+;end

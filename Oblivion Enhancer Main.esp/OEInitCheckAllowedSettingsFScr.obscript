@@ -1,0 +1,669 @@
+﻿scn OEInitCheckAllowedSettingsFScr
+
+begin function {}
+
+;вне ini
+if OETokensQ.GLOBALKeaSettingMagicSystem == 1
+	if player.getlevel <= 10
+		set OEActorGlobalNormalResist to 0
+	endif
+	if player.getlevel > 10 && player.getlevel <= 20
+		set OEActorGlobalNormalResist to (player.getlevel - 10) * 5
+	endif
+	if player.getlevel > 20 && player.getlevel <= 30
+		set OEActorGlobalNormalResist to 50 + (player.getlevel - 20) * 1.6
+	endif
+	if player.getlevel > 30 
+		set OEActorGlobalNormalResist to 66.6
+	endif
+elseif OETokensQ.GLOBALKeaSettingMagicSystem == 0
+	let OEActorGlobalNormalResist := 0
+endif
+
+;ini
+if OEActorsAmplificationSystem < -1 || OEActorsAmplificationSystem > 1
+	set OEActorsAmplificationSystem to 1
+endif
+if OEAmpUnicActors < 0 || OEAmpUnicActors > 1
+	set OEAmpUnicActors to 1
+endif
+	
+if OEAdditionalElementalResist < 0 || OEAdditionalElementalResist > 1
+	set OEAdditionalElementalResist to 1
+endif
+if OEAdditionalElementalResistDifference < 0 || OEAdditionalElementalResistDifference > 1.5
+	set OEAdditionalElementalResistDifference to 1.3
+endif
+if OEAdditionalElementalImmune < 0 || OEAdditionalElementalImmune > 1
+	set OEAdditionalElementalImmune to 1
+endif
+if OEAdditionalElementalImmuneChance < 1 || OEAdditionalElementalImmuneChance > 100
+	set OEAdditionalElementalImmuneChance to 15
+endif
+if OEAdditionalElementalImmuneLevel < 1 || OEAdditionalElementalImmuneLevel > 100
+	set OEAdditionalElementalImmuneLevel to 5
+endif
+
+if OEAdditionalMagicResist < 0 || OEAdditionalMagicResist > 1
+	set OEAdditionalMagicResist to 1
+endif
+if OEAdditionalMagicResistDifference < 1 || OEAdditionalMagicResistDifference > 1.5
+	set OEAdditionalMagicResistDifference to 1.3
+endif
+if OEAdditionalMagicMaximumResist < 0 || OEAdditionalMagicMaximumResist > 1
+	set OEAdditionalMagicMaximumResist to 1
+endif
+if OEAdditionalMagicMaximumResistChance < 1 || OEAdditionalMagicMaximumResistChance > 100
+	set OEAdditionalMagicMaximumResistChance to 20
+endif
+if OEAdditionalMagicMaximumResistLevel < 1 || OEAdditionalMagicMaximumResistLevel > 100
+	set OEAdditionalMagicMaximumResistLevel to 5
+endif
+
+if OEAdditionalParalysisResist < 0 || OEAdditionalParalysisResist > 1
+	set OEAdditionalParalysisResist to 1
+endif
+if OEAdditionalParalysisResistDifference < 1 || OEAdditionalParalysisResistDifference > 1.5
+	set OEAdditionalParalysisResistDifference to 1.3
+endif
+if OEAdditionalParalysisImmune < 0 || OEAdditionalParalysisImmune > 1
+	set OEAdditionalParalysisImmune to 1
+endif
+if OEAdditionalParalysisImmuneChance < 1 || OEAdditionalParalysisImmuneChance > 100
+	set OEAdditionalParalysisImmuneChance to 4
+endif
+if OEAdditionalParalysisImmuneLevel < 1 || OEAdditionalParalysisImmuneLevel > 100
+	set OEAdditionalParalysisImmuneLevel to 5
+endif
+
+if OEAdditionalPhysicalShield < 0 || OEAdditionalPhysicalShield > 1
+	set OEAdditionalPhysicalShield to 1
+endif
+if OEAdditionalPhysicalShieldChance < 1 || OEAdditionalPhysicalShieldChance > 100
+	set OEAdditionalPhysicalShieldChance to 4
+endif
+if OEAdditionalPhysicalShieldLevel < 1 || OEAdditionalPhysicalShieldLevel > 100
+	set OEAdditionalPhysicalShieldLevel to 5
+endif
+if OEAdditionalMaximumPhysicalShield < 0 || OEAdditionalMaximumPhysicalShield > 1
+	set OEAdditionalMaximumPhysicalShield to 1
+endif
+if OEAdditionalMaximumPhysicalShieldChance < 1 || OEAdditionalMaximumPhysicalShieldChance > 100
+	set OEAdditionalMaximumPhysicalShieldChance to 2
+endif
+if OEAdditionalMaximumPhysicalShieldLevel < 1 || OEAdditionalMaximumPhysicalShieldLevel > 100
+	set OEAdditionalMaximumPhysicalShieldLevel to 8
+endif
+
+if OEAdditionalNormalWeaponsResist < 0 || OEAdditionalNormalWeaponsResist > 1
+	set OEAdditionalNormalWeaponsResist to 1
+endif
+if OEAdditionalNormalWeaponsResistChance < 1 || OEAdditionalNormalWeaponsResistChance > 100
+	set OEAdditionalNormalWeaponsResistChance to 10
+endif
+if OEAdditionalNormalWeaponsResistLevel < 1 || OEAdditionalNormalWeaponsResistLevel > 100
+	set OEAdditionalNormalWeaponsResistLevel to 5
+endif
+if OEAdditionalNormalWeaponsMaximumResist < 0 || OEAdditionalNormalWeaponsMaximumResist > 1
+	set OEAdditionalNormalWeaponsMaximumResist to 1
+endif
+if OEAdditionalNormalWeaponsMaximumResistChance < 1 || OEAdditionalNormalWeaponsMaximumResistChance > 100
+	set OEAdditionalNormalWeaponsMaximumResistChance to 5
+endif
+if OEAdditionalNormalWeaponsMaximumResistLevel < 1 || OEAdditionalNormalWeaponsMaximumResistLevel > 100
+	set OEAdditionalNormalWeaponsMaximumResistLevel to 10
+endif
+
+if OEAdditionalReflectDamage < 0 || OEAdditionalReflectDamage > 1
+	set OEAdditionalReflectDamage to 1
+endif
+if OEAdditionalReflectDamageChance < 1 || OEAdditionalReflectDamageChance > 100
+	set OEAdditionalReflectDamageChance to 15
+endif
+if OEAdditionalReflectDamageLevel < 1 || OEAdditionalReflectDamageLevel > 100
+	set OEAdditionalReflectDamageLevel to 5
+endif
+if OEAdditionalMaximumReflectDamage < 0 || OEAdditionalMaximumReflectDamage > 1
+	set OEAdditionalMaximumReflectDamage to 1
+endif
+if OEAdditionalMaximumReflectDamageChance < 1 || OEAdditionalMaximumReflectDamageChance > 100
+	set OEAdditionalMaximumReflectDamageChance to 5
+endif
+if OEAdditionalMaximumReflectDamageLevel < 1 || OEAdditionalMaximumReflectDamageLevel > 100
+	set OEAdditionalMaximumReflectDamageLevel to 10
+endif
+
+if OEAdditionalChameleon < 0 || OEAdditionalChameleon > 1
+	set OEAdditionalChameleon to 1
+endif
+if OEAdditionalChameleonChance < 1 || OEAdditionalChameleonChance > 100
+	set OEAdditionalChameleonChance to 20
+endif
+if OEAdditionalChameleonLevel < 1 || OEAdditionalChameleonLevel > 100
+	set OEAdditionalChameleonLevel to 3
+endif
+if OEAdditionalMaximumChameleon < 0 || OEAdditionalMaximumChameleon > 1
+	set OEAdditionalMaximumChameleon to 1
+endif
+if OEAdditionalMaximumChameleonChance < 1 || OEAdditionalMaximumChameleonChance > 100
+	set OEAdditionalMaximumChameleonChance to 2
+endif
+if OEAdditionalMaximumChameleonLevel < 1 || OEAdditionalMaximumChameleonLevel > 100
+	set OEAdditionalMaximumChameleonLevel to 7
+endif
+
+if OEAdditionalSpellAbsorbChance < 0 || OEAdditionalSpellAbsorbChance > 1
+	set OEAdditionalSpellAbsorbChance to 1
+endif
+if OEAdditionalSpellAbsorbChanceChance < 1 || OEAdditionalSpellAbsorbChanceChance > 100
+	set OEAdditionalSpellAbsorbChanceChance to 15
+endif
+if OEAdditionalSpellAbsorbChanceLevel < 1 || OEAdditionalSpellAbsorbChanceLevel > 100
+	set OEAdditionalSpellAbsorbChanceLevel to 5
+endif
+if OEAdditionalMaximumSpellAbsorbChance < 0 || OEAdditionalMaximumSpellAbsorbChance > 1
+	set OEAdditionalMaximumSpellAbsorbChance to 1
+endif
+if OEAdditionalMaximumSpellAbsorbChanceChance < 1 || OEAdditionalMaximumSpellAbsorbChanceChance > 100
+	set OEAdditionalMaximumSpellAbsorbChanceChance to 2
+endif
+if OEAdditionalMaximumSpellAbsorbChanceLevel < 1 || OEAdditionalMaximumSpellAbsorbChanceLevel > 100
+	set OEAdditionalMaximumSpellAbsorbChanceLevel to 10
+endif
+
+if OEAdditionalSpellReflectChance < 0 || OEAdditionalSpellReflectChance > 1
+	set OEAdditionalSpellReflectChance to 0
+endif
+if OEAdditionalSpellReflectChanceChance < 1 || OEAdditionalSpellReflectChanceChance > 100
+	set OEAdditionalSpellReflectChanceChance to 15
+endif
+if OEAdditionalSpellReflectChanceLevel < 1 || OEAdditionalSpellReflectChanceLevel > 100
+	set OEAdditionalSpellReflectChanceLevel to 5
+endif
+if OEAdditionalMaximumSpellReflectChance < 0 || OEAdditionalMaximumSpellReflectChance > 1
+	set OEAdditionalMaximumSpellReflectChance to 1
+endif
+if OEAdditionalMaximumSpellReflectChanceChance < 1 || OEAdditionalMaximumSpellReflectChanceChance > 100
+	set OEAdditionalMaximumSpellReflectChanceChance to 2
+endif
+if OEAdditionalMaximumSpellReflectChanceLevel < 1 || OEAdditionalMaximumSpellReflectChanceLevel > 100
+	set OEAdditionalMaximumSpellReflectChanceLevel to 10
+endif
+
+if OEAdditionalHealthBoost < 0 || OEAdditionalHealthBoost > 1
+	set OEAdditionalHealthBoost to 1
+endif
+if OEAdditionalHealthBoostValue < 1 || OEAdditionalHealthBoostValue > 5
+	set OEAdditionalHealthBoostValue to 2
+endif
+if OEAdditionalHealthBoostChance < 1 || OEAdditionalHealthBoostChance > 100
+	set OEAdditionalHealthBoostChance to 8
+endif
+if OEAdditionalHealthBoostLevel < 1 || OEAdditionalHealthBoostLevel > 100
+	set OEAdditionalHealthBoostLevel to 3
+endif
+
+if OEAdditionalHealthBoostVeryHigh < 0 || OEAdditionalHealthBoostVeryHigh > 1
+	set OEAdditionalHealthBoostVeryHigh to 1
+endif
+if OEAdditionalHealthBoostVeryHighValue < 1 || OEAdditionalHealthBoostVeryHighValue > 10
+	set OEAdditionalHealthBoostVeryHighValue to 3
+endif
+if OEAdditionalHealthBoostVeryHighChance < 1 || OEAdditionalHealthBoostVeryHighChance > 100
+	set OEAdditionalHealthBoostVeryHighChance to 3
+endif
+if OEAdditionalHealthBoostVeryHighLevel < 1 || OEAdditionalHealthBoostVeryHighLevel > 100
+	set OEAdditionalHealthBoostVeryHighLevel to 10
+endif
+
+if OEAdditionalMagickaBoost < 0 || OEAdditionalMagickaBoost > 1
+	set OEAdditionalMagickaBoost to 1
+endif
+if OEAdditionalMagickaBoostValue < 1 || OEAdditionalMagickaBoostValue > 5
+	set OEAdditionalMagickaBoostValue to 2
+endif
+if OEAdditionalMagickaBoostChance < 1 || OEAdditionalMagickaBoostChance > 100
+	set OEAdditionalMagickaBoostChance to 10
+endif
+if OEAdditionalMagickaBoostLevel < 1 || OEAdditionalMagickaBoostLevel > 100
+	set OEAdditionalMagickaBoostLevel to 5
+endif
+if OEAdditionalMagickaBoostVeryHigh < 0 || OEAdditionalMagickaBoostVeryHigh > 1
+	set OEAdditionalMagickaBoostVeryHigh to 1
+endif
+if OEAdditionalMagickaBoostVeryHighValue < 1 || OEAdditionalMagickaBoostVeryHighValue > 10
+	set OEAdditionalMagickaBoostVeryHighValue to 3
+endif
+if OEAdditionalMagickaBoostVeryHighChance < 1 || OEAdditionalMagickaBoostVeryHighChance > 100
+	set OEAdditionalMagickaBoostVeryHighChance to 3
+endif
+if OEAdditionalMagickaBoostVeryHighLevel < 1 || OEAdditionalMagickaBoostVeryHighLevel > 100
+	set OEAdditionalMagickaBoostVeryHighLevel to 10
+endif
+
+if OEAdditionalFatigueBoost < 0 || OEAdditionalFatigueBoost > 1
+	set OEAdditionalFatigueBoost to 1
+endif
+if OEAdditionalFatigueBoostValue < 1 || OEAdditionalFatigueBoostValue > 5
+	set OEAdditionalFatigueBoostValue to 2
+endif
+if OEAdditionalFatigueBoostChance < 1 || OEAdditionalFatigueBoostChance > 100
+	set OEAdditionalFatigueBoostChance to 8
+endif
+if OEAdditionalFatigueBoostLevel < 1 || OEAdditionalFatigueBoostLevel > 100
+	set OEAdditionalFatigueBoostLevel to 5
+endif
+if OEAdditionalFatigueBoostVeryHigh < 0 || OEAdditionalFatigueBoostVeryHigh > 1
+	set OEAdditionalFatigueBoostVeryHigh to 1
+endif
+if OEAdditionalFatigueBoostVeryHighValue < 1 || OEAdditionalFatigueBoostVeryHighValue > 10
+	set OEAdditionalFatigueBoostVeryHighValue to 3
+endif
+if OEAdditionalFatigueBoostVeryHighChance < 1 || OEAdditionalFatigueBoostVeryHighChance > 100
+	set OEAdditionalFatigueBoostVeryHighChance to 2
+endif
+if OEAdditionalFatigueBoostVeryHighLevel < 1 || OEAdditionalFatigueBoostVeryHighLevel > 100
+	set OEAdditionalFatigueBoostVeryHighLevel to 10
+endif
+
+if OEAdditionalRegen < 0 || OEAdditionalRegen > 1
+	set OEAdditionalRegen to 1
+endif
+if OEAdditionalRegenValue < 0.1 || OEAdditionalRegenValue > 5
+	set OEAdditionalRegenValue to 0.5
+endif
+if OEAdditionalRegenChance < 1 || OEAdditionalRegenChance > 100
+	set OEAdditionalRegenChance to 10
+endif
+if OEAdditionalRegenLevel < 1 || OEAdditionalRegenLevel > 100
+	set OEAdditionalRegenLevel to 8
+endif
+if OEAdditionalRegenVeryHigh < 0 || OEAdditionalRegenVeryHigh > 1
+	set OEAdditionalRegenVeryHigh to 1
+endif
+if OEAdditionalRegenVeryHighValue < 0.1 || OEAdditionalRegenVeryHighValue > 5
+	set OEAdditionalRegenVeryHighValue to 0.5
+endif
+if OEAdditionalRegenVeryHighChance < 1 || OEAdditionalRegenVeryHighChance > 100
+	set OEAdditionalRegenVeryHighChance to 3
+endif
+if OEAdditionalRegenVeryHighLevel < 1 || OEAdditionalRegenVeryHighLevel > 100
+	set OEAdditionalRegenVeryHighLevel to 12
+endif
+
+if OEAdditionalspeedBoost < 0 || OEAdditionalspeedBoost > 1
+	set OEAdditionalspeedBoost to 1
+endif
+if OEAdditionalspeedBoostChance < 1 || OEAdditionalspeedBoostChance > 100
+	set OEAdditionalspeedBoostChance to 12
+endif
+if OEAdditionalspeedBoostLevel < 1 || OEAdditionalspeedBoostLevel > 100
+	set OEAdditionalspeedBoostLevel to 5
+endif
+if OEAdditionalspeedBoostVeryHigh < 0 || OEAdditionalspeedBoostVeryHigh > 1
+	set OEAdditionalspeedBoostVeryHigh to 1
+endif
+if OEAdditionalspeedBoostVeryHighChance < 1 || OEAdditionalspeedBoostVeryHighChance > 100
+	set OEAdditionalspeedBoostVeryHighChance to 3
+endif
+if OEAdditionalspeedBoostVeryHighLevel < 1 || OEAdditionalspeedBoostVeryHighLevel > 100
+	set OEAdditionalspeedBoostVeryHighLevel to 10
+endif
+
+
+if OEActorResistElementalMax < 0 || OEActorResistElementalMax > 95
+	set OEActorResistElementalMax to 93.75
+endif
+if OEActorResistMagicMax < 0 || OEActorResistMagicMax > 90
+	set OEActorResistMagicMax to 80
+endif
+if OEActorResistParalysisMax < 0 || OEActorResistParalysisMax > 90
+	set OEActorResistParalysisMax to 90
+endif
+if OEActorPhysicalShieldMax < 0 || OEActorPhysicalShieldMax > 90
+	set OEActorPhysicalShieldMax to 90
+endif
+if OEActorResistNormalWeaponsMax < 0 || OEActorResistNormalWeaponsMax > 90
+	set OEActorResistNormalWeaponsMax to 80
+endif
+if OEActorReflectDamageMax < 0 || OEActorReflectDamageMax > 90
+	set OEActorReflectDamageMax to 30
+endif
+if OEActorChameleonMax < 0 || OEActorChameleonMax > 90
+	set OEActorChameleonMax to 80
+endif
+if OEActorSpellAbsorbChanceMax < 0 || OEActorSpellAbsorbChanceMax > 90
+	set OEActorSpellAbsorbChanceMax to 80
+endif
+if OEActorSpellReflectChanceMax < 0 || OEActorSpellReflectChanceMax > 90
+	set OEActorSpellReflectChanceMax to 30
+endif
+
+
+
+if OELeveledListRefactor < 0 || OELeveledListRefactor > 1
+	set OELeveledListRefactor to 1
+endif
+if OELeveledListTopGearLevel < 1 || OELeveledListTopGearLevel > 100
+	set OELeveledListTopGearLevel to 24
+endif
+if OELeveledListCommonToMagicRatio < 1 || OELeveledListCommonToMagicRatio > 20
+	set OELeveledListCommonToMagicRatio to 8
+endif
+if OELeveledListUseFiller1 < 0 || OELeveledListUseFiller1 > 1
+	set OELeveledListUseFiller1 to 1
+endif
+if OELeveledListLvlOffset1 < 0 || OELeveledListLvlOffset1 > 10
+	set OELeveledListLvlOffset1 to 1
+endif
+if OELeveledListLvlDeep1 < 1 || OELeveledListLvlDeep1 > 10
+	set OELeveledListLvlDeep1 to 3
+endif
+if OELeveledListLvlRepeat1 < 1 || OELeveledListLvlRepeat1 > 10
+	set OELeveledListLvlRepeat1 to 1
+endif
+if OELeveledListUseFiller2 < 0 || OELeveledListUseFiller2 > 1
+	set OELeveledListUseFiller2 to 1
+endif
+if OELeveledListLvlOffset2 < 0 || OELeveledListLvlOffset2 > 10
+	set OELeveledListLvlOffset2 to 2
+endif
+if OELeveledListLvlDeep2 < 1 || OELeveledListLvlDeep2 > 10
+	set OELeveledListLvlDeep2 to 3
+endif
+if OELeveledListLvlRepeat2 < 1 || OELeveledListLvlRepeat2 > 10
+	set OELeveledListLvlRepeat2 to 3
+endif
+if OELeveledListRefactorDelayTime < 0 || OELeveledListRefactorDelayTime > 100
+	set OELeveledListRefactorDelayTime to 0
+endif
+
+
+if OEWeaponExcessFix < 0 || OEWeaponExcessFix > 1
+	set OEWeaponExcessFix to 1
+endif
+if OEWeaponReachMaxExcess < 0 || OEWeaponReachMaxExcess > 1
+	set OEWeaponReachMaxExcess to 0.15
+endif
+if OEWeaponSpeedMaxExcess < 0 || OEWeaponSpeedMaxExcess > 1
+	set OEWeaponSpeedMaxExcess to 0.15
+endif
+if OEWeaponPriceRecalculate < 0 || OEWeaponPriceRecalculate > 1
+	set OEWeaponPriceRecalculate to 1
+endif
+if OECheapWeaponPriceRecalculateMod < 0.1 || OECheapWeaponPriceRecalculateMod > 5
+	set OECheapWeaponPriceRecalculateMod to 0.75
+endif
+if OECheapWeaponPriceRecalculateAdptLvl < 1 || OECheapWeaponPriceRecalculateAdptLvl > 100
+	set OECheapWeaponPriceRecalculateAdptLvl to 25
+endif
+if OEExpensiveWeaponPriceRecalculateMod < 0.5 || OEExpensiveWeaponPriceRecalculateMod > 50
+	set OEExpensiveWeaponPriceRecalculateMod to 3
+endif
+if OECheapWeaponPriceRecalculateMod > OEExpensiveWeaponPriceRecalculateMod
+	set OECheapWeaponPriceRecalculateMod to OEExpensiveWeaponPriceRecalculateMod
+endif
+if OEExpensiveWeaponPriceRecalculateAdptLvl < 1 || OEExpensiveWeaponPriceRecalculateAdptLvl > 100
+	set OEExpensiveWeaponPriceRecalculateAdptLvl to 50
+endif
+if OEAdditionalWeaponOnActorsCheck < 0 || OEAdditionalWeaponOnActorsCheck > 1
+	set OEAdditionalWeaponOnActorsCheck to 1
+endif
+if OEArmorPriceRecalculate < 0 || OEArmorPriceRecalculate > 1
+	set OEArmorPriceRecalculate to 1
+endif
+if OECheapArmorPriceRecalculateMod < 0.1 || OECheapArmorPriceRecalculateMod > 5
+	set OECheapArmorPriceRecalculateMod to 0.75
+endif
+if OECheapArmorPriceRecalculateAdptLvl < 1 || OECheapArmorPriceRecalculateAdptLvl > 100
+	set OECheapArmorPriceRecalculateAdptLvl to 25
+endif
+if OEExpensiveArmorPriceRecalculateMod < 0.5 || OEExpensiveArmorPriceRecalculateMod > 50
+	set OEExpensiveArmorPriceRecalculateMod to 3
+endif
+if OECheapArmorPriceRecalculateMod > OEExpensiveArmorPriceRecalculateMod
+	set OECheapArmorPriceRecalculateMod to OEExpensiveArmorPriceRecalculateMod
+endif
+if OEExpensiveArmorPriceRecalculateAdptLvl < 1 || OEExpensiveArmorPriceRecalculateAdptLvl > 100
+	set OEExpensiveArmorPriceRecalculateAdptLvl to 50
+endif
+
+if OELeveledCreatureMaxItemsToSpawn < 0 && OELeveledCreatureMaxItemsToSpawn > 99
+	set OELeveledCreatureMaxItemsToSpawn to 3
+endif
+if OELeveledCreatureMaxQuestItems < 0 && OELeveledCreatureMaxQuestItems > 1
+	set OELeveledCreatureMaxQuestItems to 1
+endif
+if OELeveledCreatureHandleSubLists < 0 && OELeveledCreatureHandleSubLists > 1
+	set OELeveledCreatureHandleSubLists to 1
+endif
+
+if OERechargeMode < 0 && OERechargeMode > 2
+	set OERechargeMode to 2
+endif
+if OEChargePercent < 0 || OEChargePercent > 0.99
+	set OEChargePercent to 0.8
+endif
+if OEWeaponSelfRecharge < 0 || OEWeaponSelfRecharge > 1
+	set OEWeaponSelfRecharge to 1
+endif
+if OENegativeFatigueFixActors < 0 || OENegativeFatigueFixActors > 1
+	set OENegativeFatigueFixActors to 1
+endif
+if OENegativeFatigueFixPC < 0 || OENegativeFatigueFixPC > 1
+	set OENegativeFatigueFixPC to 1
+endif
+
+if OELowToMidLvlDremoraDremoraArmorChanceNone < 0 || OELowToMidLvlDremoraDremoraArmorChanceNone > 100
+	set OELowToMidLvlDremoraDremoraArmorChanceNone to 60
+endif
+if OEDremoraAddEndlessRing < 0 || OEDremoraAddEndlessRing > 1
+	set OEDremoraAddEndlessRing to 1
+endif
+if OEHighLvlDremoraDaedricArmorChanceNone < 0 || OEHighLvlDremoraDaedricArmorChanceNone > 100
+	set OEHighLvlDremoraDaedricArmorChanceNone to 90
+endif
+if OEHighLvlDremoraDaedricWeaponChanceNone < 0 || OEHighLvlDremoraDaedricWeaponChanceNone > 100
+	set OEHighLvlDremoraDaedricWeaponChanceNone to 90
+endif
+if OEHighLvlDremoraShaderEffect < 0 || OEHighLvlDremoraShaderEffect > 1
+	set OEHighLvlDremoraShaderEffect to 1
+endif
+
+if OENoDeathDropWeapon < 0 || OENoDeathDropWeapon > 1
+	set OENoDeathDropWeapon to 1
+endif
+if OETrainingCost < 0 || OETrainingCost > 1
+	set OETrainingCost to 1
+endif
+if OETrainingCostMod < 0.1 || OETrainingCostMod > 10
+	set OETrainingCostMod to 1
+endif
+if OEDremoraAdditionalSpawn < 0 || OEDremoraAdditionalSpawn > 1
+	set OEDremoraAdditionalSpawn to 1
+endif
+if OEOWCAdditionalReward < 0 || OEOWCAdditionalReward > 1
+	set OEOWCAdditionalReward to 1
+endif
+
+if OERebalancedAndAdditionalSummons < 0 || OERebalancedAndAdditionalSummons > 1
+	set OERebalancedAndAdditionalSummons to 1
+endif
+
+if OEMaxPlayerSummonedCreaturesNovice < 1 || OEMaxPlayerSummonedCreaturesNovice > 10
+	set OEMaxPlayerSummonedCreaturesNovice to 1
+endif
+if OEMaxPlayerSummonedCreaturesApprentice < 1 || OEMaxPlayerSummonedCreaturesApprentice > 10
+	set OEMaxPlayerSummonedCreaturesApprentice to 1
+endif
+if OEMaxPlayerSummonedCreaturesJourneyman < 1 || OEMaxPlayerSummonedCreaturesJourneyman > 10
+	set OEMaxPlayerSummonedCreaturesJourneyman to 2
+endif
+if OEMaxPlayerSummonedCreaturesExpert < 1 || OEMaxPlayerSummonedCreaturesExpert > 10
+	set OEMaxPlayerSummonedCreaturesExpert to 2
+endif
+if OEMaxPlayerSummonedCreaturesMaster < 1 || OEMaxPlayerSummonedCreaturesMaster > 10
+	set OEMaxPlayerSummonedCreaturesMaster to 2
+endif
+
+if OETokensQ.OWCBossesAppearanceLevel < 1 || OETokensQ.OWCBossesAppearanceLevel > 100
+	set OETokensQ.OWCBossesAppearanceLevel to 12
+endif
+
+;внутренне отключено, т.к. SetEventHandler "OnMagicEffectHit" OEAddSummonerToSummonersArrayFScr _target::playerref_
+;вызов саммонами актеров дополнительный саммонов был отключен из-за проблем с агрессией актеров -
+;они начинают воевать с саммонами саммонов да и со скрипт-саммонами "первого поколения" тоже могут
+;if OEMaxActorSummonedCreaturesNovice < 1 || OEMaxActorSummonedCreaturesNovice > 10
+;	set OEMaxActorSummonedCreaturesNovice to 1
+;endif
+;if OEMaxActorSummonedCreaturesApprentice < 1 || OEMaxActorSummonedCreaturesApprentice > 10
+;	set OEMaxActorSummonedCreaturesApprentice to 1
+;endif
+;if OEMaxActorSummonedCreaturesJourneyman < 1 || OEMaxActorSummonedCreaturesJourneyman > 10
+;	set OEMaxActorSummonedCreaturesJourneyman to 1
+;endif
+;if OEMaxActorSummonedCreaturesExpert < 1 || OEMaxActorSummonedCreaturesExpert > 10
+;	set OEMaxActorSummonedCreaturesExpert to 1
+;endif
+;if OEMaxActorSummonedCreaturesMaster < 1 || OEMaxActorSummonedCreaturesMaster > 10
+;	set OEMaxActorSummonedCreaturesMaster to 1
+;endif
+;;То же, но для НПС и монстров
+;set OEMaxActorSummonedCreaturesNovice to 1		;не более такого количества призванных НПС/монстров может быть у НПС/монстра при его уровне колдовства "новичок"
+;;[1..10][short]
+;set OEMaxActorSummonedCreaturesApprentice to 1		;при "ученике"
+;;[1..10][short]
+;set OEMaxActorSummonedCreaturesJourneyman to 1		;при "специалисте"
+;;[1..10][short]
+;set OEMaxActorSummonedCreaturesExpert to 1		;при "эксперте"
+;;[1..10][short]
+;set OEMaxActorSummonedCreaturesMaster to 1		;при "мастере"
+;;[1..10][short]
+
+if OEStartMapMarkers < 0 || OEStartMapMarkers > 1
+	set OEStartMapMarkers to 1
+endif
+
+if OEMoreAlchemyIngridients < 0 || OEMoreAlchemyIngridients > 1
+	set OEMoreAlchemyIngridients to 1
+endif
+
+if OEActorsPCInvisibilityScouting < 0 || OEActorsPCInvisibilityScouting > 1
+	set OEActorsPCInvisibilityScouting to 1
+endif
+if OEActorsCheckDistanceMin < 0 || OEActorsCheckDistanceMin > 9999
+	set OEActorsCheckDistanceMin to 200
+endif
+if OEActorsCheckDistanceMax < 0 || OEActorsCheckDistanceMax > 9999
+	set OEActorsCheckDistanceMax to 1000
+endif
+if OEActorsCheckDistanceMin > OEActorsCheckDistanceMax
+	set OEActorsCheckDistanceMin to OEActorsCheckDistanceMax
+endif
+
+if OEActorsDrainedHealthRestoreWithSpells < 0 || OEActorsDrainedHealthRestoreWithSpells > 1
+	set OEActorsDrainedHealthRestoreWithSpells to 0
+endif
+
+if OEDeadPCLoadingAreaWipe < 0 || OEDeadPCLoadingAreaWipe > 1
+	set OEDeadPCLoadingAreaWipe to 1
+endif
+
+if OEManageSkillsUse < 0 || OEManageSkillsUse > 1
+	set OEManageSkillsUse to 1
+endif
+if OESkillArmorerUse0 < 0 || OESkillArmorerUse0 > 100
+	set OESkillArmorerUse0 to 1.5
+endif
+if OESkillAthleticsUse0 < 0 || OESkillAthleticsUse0 > 100
+	set OESkillAthleticsUse0 to 2.0
+endif
+if OESkillAthleticsUse1 < 0 || OESkillAthleticsUse1 > 100
+	set OESkillAthleticsUse1 to 2.0
+endif
+if OESkillBladeUse0 < 0 || OESkillBladeUse0 > 100
+	set OESkillBladeUse0 to 1.0
+endif
+if OESkillBlockUse0 < 0 || OESkillBlockUse0 > 100
+	set OESkillBlockUse0 to 3.0
+endif
+if OESkillBluntUse0 < 0 || OESkillBluntUse0 > 100
+	set OESkillBluntUse0 to 1.0
+endif
+if OESkillHandToHandUse0 < 0 || OESkillHandToHandUse0 > 100
+	set OESkillHandToHandUse0 to 1.0
+endif
+if OESkillHeavyArmorUse0 < 0 || OESkillHeavyArmorUse0 > 100
+	set OESkillHeavyArmorUse0 to 5.0
+endif
+if OESkillAlchemyUse0 < 0 || OESkillAlchemyUse0 > 100
+	set OESkillAlchemyUse0 to 1.0
+endif
+if OESkillAlchemyUse1 < 0 || OESkillAlchemyUse1 > 100
+	set OESkillAlchemyUse1 to 1.0
+endif
+if OESkillAlterationUse0 < 0 || OESkillAlterationUse0 > 100
+	set OESkillAlterationUse0 to 0.0
+endif
+if OESkillAlterationUse1 < 0 || OESkillAlterationUse1 > 100
+	set OESkillAlterationUse1 to 2.0
+endif
+if OESkillConjurationUse0 < 0 || OESkillConjurationUse0 > 100
+	set OESkillConjurationUse0 to 0.0
+endif
+if OESkillConjurationUse1 < 0 || OESkillConjurationUse1 > 100
+	set OESkillConjurationUse1 to 1.0
+endif
+if OESkillDestructionUse0 < 0 || OESkillDestructionUse0 > 100
+	set OESkillDestructionUse0 to 0.0
+endif
+if OESkillDestructionUse1 < 0 || OESkillDestructionUse1 > 100
+	set OESkillDestructionUse1 to 1.0
+endif
+if OESkillIllusionUse0 < 0 || OESkillIllusionUse0 > 100
+	set OESkillIllusionUse0 to 0.0
+endif
+if OESkillIllusionUse1 < 0 || OESkillIllusionUse1 > 100
+	set OESkillIllusionUse1 to 2.0
+endif
+if OESkillMysticismUse0 < 0 || OESkillMysticismUse0 > 100
+	set OESkillMysticismUse0 to 0.0
+endif
+if OESkillMysticismUse1 < 0 || OESkillMysticismUse1 > 100
+	set OESkillMysticismUse1 to 2.0
+endif
+if OESkillRestorationUse0 < 0 || OESkillRestorationUse0 > 100
+	set OESkillRestorationUse0 to 0.0
+endif
+if OESkillRestorationUse1 < 0 || OESkillRestorationUse1 > 100
+	set OESkillRestorationUse1 to 2.0
+endif
+if OESkillAcrobaticsUse0 < 0 || OESkillAcrobaticsUse0 > 100
+	set OESkillAcrobaticsUse0 to 3.0
+endif
+if OESkillAcrobaticsUse1 < 0 || OESkillAcrobaticsUse1 > 100
+	set OESkillAcrobaticsUse1 to 3.0
+endif
+if OESkillLightArmorUse0 < 0 || OESkillLightArmorUse0 > 100
+	set OESkillLightArmorUse0 to 5.0
+endif
+if OESkillMarksmanUse0 < 0 || OESkillMarksmanUse0 > 100
+	set OESkillMarksmanUse0 to 1.0
+endif
+if OESkillMercantileUse0 < 0 || OESkillMercantileUse0 > 100
+	set OESkillMercantileUse0 to 5.0
+endif
+if OESkillSecurityUse0 < 0 || OESkillSecurityUse0 > 100
+	set OESkillSecurityUse0 to 3.0
+endif
+if OESkillSneakUse0 < 0 || OESkillSneakUse0 > 100
+	set OESkillSneakUse0 to 2.0
+endif
+if OESkillSneakUse1 < 0 || OESkillSneakUse1 > 100
+	set OESkillSneakUse1 to 2.0
+endif
+if OESkillSpeechcraftUse0 < 0 || OESkillSpeechcraftUse0 > 100
+	set OESkillSpeechcraftUse0 to 5.0
+endif
+
+end

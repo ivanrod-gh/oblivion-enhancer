@@ -1,0 +1,15 @@
+﻿scn OEGetLoadedModsListFScr
+
+short NumMods
+short index
+
+begin function {}
+
+let NumMods := GetNumLoadedMods
+let OEInitQ.OELoadedModNamesWithExtensionsArray := ar_construct Array
+while index < NumMods
+	let OEInitQ.OELoadedModNamesWithExtensionsArray[ar_size OEInitQ.OELoadedModNamesWithExtensionsArray] := GetNthModName index
+	let index := index + 1
+loop
+
+end

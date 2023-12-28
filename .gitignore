@@ -1,0 +1,235 @@
+# Ignore irrelevant files
+/KSE_v3.esp/ANBDWSMainSct.obscript
+/KSE_v3.esp/ANBDWSMiscTokenSct.obscript
+/KSE_v3.esp/DASkullofCorruptionStaffScript.obscript
+/KSE_v3.esp/keaAIinvUpdater.obscript
+/KSE_v3.esp/keaBandDelQ.obscript
+/KSE_v3.esp/keaBandSC.obscript
+/KSE_v3.esp/KeaConjurationSystem.obscript
+/KSE_v3.esp/keaDamagesQ.obscript
+/KSE_v3.esp/KeaDamSKR1.obscript
+/KSE_v3.esp/KeaDamSKR10.obscript
+/KSE_v3.esp/KeaDamSKR11.obscript
+/KSE_v3.esp/KeaDamSKR12.obscript
+/KSE_v3.esp/KeaDamSKR14.obscript
+/KSE_v3.esp/KeaDamSKR15.obscript
+/KSE_v3.esp/KeaDamSKR2.obscript
+/KSE_v3.esp/KeaDamSKR3.obscript
+/KSE_v3.esp/KeaDamSKR4.obscript
+/KSE_v3.esp/KeaDamSKR5.obscript
+/KSE_v3.esp/KeaDamSKR6.obscript
+/KSE_v3.esp/KeaDamSKR7.obscript
+/KSE_v3.esp/KeaDamSKR7pen1.obscript
+/KSE_v3.esp/KeaDamSKR8.obscript
+/KSE_v3.esp/KeaDamSKR9.obscript
+/KSE_v3.esp/KEaDdamSCRAfterArm.obscript
+/KSE_v3.esp/keaDelme.obscript
+/KSE_v3.esp/keaDISEremover.obscript
+/KSE_v3.esp/KeaeffectAXE.obscript
+/KSE_v3.esp/KeaEffectBlunt.obscript
+/KSE_v3.esp/KeaEffectBow.obscript
+/KSE_v3.esp/KeaeffectKnife.obscript
+/KSE_v3.esp/KeaEffectLongBlade.obscript
+/KSE_v3.esp/KeaeffectlongBlade2.obscript
+/KSE_v3.esp/KeaEffectObjFIDG.obscript
+/KSE_v3.esp/KeaEffectObjFRDG.obscript
+/KSE_v3.esp/KeaEffectObjPARA.obscript
+/KSE_v3.esp/KeaEffectObjSHDG.obscript
+/KSE_v3.esp/KeaEffectShortBlade.obscript
+/KSE_v3.esp/keaEFFECTTABLE.obscript
+/KSE_v3.esp/KeaEnchantVisorQscr.obscript
+/KSE_v3.esp/KeaEVENTAttack.obscript
+/KSE_v3.esp/KeaEVENTHEALTHdmg.obscript
+/KSE_v3.esp/KeaEVENTHit.obscript
+/KSE_v3.esp/KeaEVENTHitWith.obscript
+/KSE_v3.esp/KeaEVENTMDrinkPlayer.obscript
+/KSE_v3.esp/KeaEVENTMEffectHitABXX.obscript
+/KSE_v3.esp/KeaEVENTMEffectHitDGXX.obscript
+/KSE_v3.esp/KeaEVENTMEffectHitFIDG.obscript
+/KSE_v3.esp/KeaEVENTMEffectHitFRDG.obscript
+/KSE_v3.esp/KeaEVENTMEffectHitPARA.obscript
+/KSE_v3.esp/KeaEVENTMEffectHitSHDG.obscript
+/KSE_v3.esp/KeaEVENTMSpellCast.obscript
+/KSE_v3.esp/KeaEVENTOnActivate.obscript
+/KSE_v3.esp/KeaEVENTOnPlayerEquip.obscript
+/KSE_v3.esp/KeaEVENTOnPlayerUNEquip.obscript
+/KSE_v3.esp/keaFActorsDMGMod.obscript
+/KSE_v3.esp/KeaFADDMagicEffect.obscript
+/KSE_v3.esp/KeaFArrowMiss.obscript
+/KSE_v3.esp/KeaFasttravelQ.obscript
+/KSE_v3.esp/keaFAxeEffect.obscript
+/KSE_v3.esp/keaFBluntAND2HandDMG.obscript
+/KSE_v3.esp/keaFCalcActorsDMG.obscript
+/KSE_v3.esp/KeaFCalcActorStealth.obscript
+/KSE_v3.esp/KeaFCalcArrowDamage.obscript
+/KSE_v3.esp/KeaFCalcKBonusLimit.obscript
+/KSE_v3.esp/KeaFCounterEffectsReturn.obscript
+/KSE_v3.esp/KeaFCurrentAnimAttack.obscript
+/KSE_v3.esp/KeaFDamageGenText.obscript
+/KSE_v3.esp/keaFDeleteActor.obscript
+/KSE_v3.esp/KeaFDelRef.obscript
+/KSE_v3.esp/KeaFEditKMEArray.obscript
+/KSE_v3.esp/KeaFGenCurrentBounus.obscript
+/KSE_v3.esp/KeaFGenerateSpellCost.obscript
+/KSE_v3.esp/KeaFGenerateSpellName.obscript
+/KSE_v3.esp/KeaFGetBodyMass.obscript
+/KSE_v3.esp/KeaFGetStatusActor.obscript
+/KSE_v3.esp/keaFGetTargetM.obscript
+/KSE_v3.esp/KeaFGetTEXTValue.obscript
+/KSE_v3.esp/keaFInfoObjectOUT.obscript
+/KSE_v3.esp/KeaFireBlumbAcSCR.obscript
+/KSE_v3.esp/KeaFireBlumbSCR.obscript
+/KSE_v3.esp/KeaFiteminfoInHUD.obscript
+/KSE_v3.esp/KeaFItemNOTmodify.obscript
+/KSE_v3.esp/KeaFLevelRNDObjectCalc.obscript
+/KSE_v3.esp/KeaFMagicEffectTweaks.obscript
+/KSE_v3.esp/keaFMakeHisFrends.obscript
+/KSE_v3.esp/KeaFModDescription.obscript
+/KSE_v3.esp/KeaFModifEffectName.obscript
+/KSE_v3.esp/keaFModKillStatus.obscript
+/KSE_v3.esp/KeaFModSpellPower.obscript
+/KSE_v3.esp/KeaFModSpellPowerALT.obscript
+/KSE_v3.esp/KeaFMWeaponHit.obscript
+/KSE_v3.esp/KeaFNPSDamage.obscript
+/KSE_v3.esp/keaFRandomItemGen.obscript
+/KSE_v3.esp/keaFReplaceItmWithClone.obscript
+/KSE_v3.esp/KeaFSpellsRebild.obscript
+/KSE_v3.esp/KeaFSpellWillModify.obscript
+/KSE_v3.esp/KeaFStepOfInertion.obscript
+/KSE_v3.esp/KeaFStopRotatingTime.obscript
+/KSE_v3.esp/keaFTEXTOUT.obscript
+/KSE_v3.esp/KeaFUnLevel.obscript
+/KSE_v3.esp/keaFWeaponClass.obscript
+/KSE_v3.esp/KeaFWeaponIgnoreNResist.obscript
+/KSE_v3.esp/keaFWeaponSpeedMod.obscript
+/KSE_v3.esp/KeaFWhoareYou.obscript
+/KSE_v3.esp/keaGlobalChestStatic.obscript
+/KSE_v3.esp/KeaGlobalEvents.obscript
+/KSE_v3.esp/KeaHITARDMG.obscript
+/KSE_v3.esp/keaHITKnifeWoundsPenSCR.obscript
+/KSE_v3.esp/keaHITShortBlade1SCR.obscript
+/KSE_v3.esp/keaHUDQuestScript.obscript
+/KSE_v3.esp/KeaInertionObjectSCR.obscript
+/KSE_v3.esp/KeaInventoryUpdateSQR.obscript
+/KSE_v3.esp/KeaInvisibilityMagicSQR.obscript
+/KSE_v3.esp/KeaItemRandomGenQScr.obscript
+/KSE_v3.esp/KeaLVLCalcPlayer.obscript
+/KSE_v3.esp/KEaMagCostPenQSCR.obscript
+/KSE_v3.esp/KeaMagicModifiSCRQ.obscript
+/KSE_v3.esp/KeaMagicPerkENtoMASCR.obscript
+/KSE_v3.esp/KeaMagicPerkHEtoMASCR.obscript
+/KSE_v3.esp/KeaMagicPerkHiMagicSCR.obscript
+/KSE_v3.esp/KeaMagicPerkPushSelf.obscript
+/KSE_v3.esp/KeaMagicPerkPushTarget.obscript
+/KSE_v3.esp/keaMarkerQ.obscript
+/KSE_v3.esp/keaMEffectSCR.obscript
+/KSE_v3.esp/KeaNecroActivatorSQR.obscript
+/KSE_v3.esp/KeaobjectDelMEFast.obscript
+/KSE_v3.esp/KeaobjectDelMEFastMAGIC.obscript
+/KSE_v3.esp/KeaObjectInvANIMDelMe.obscript
+/KSE_v3.esp/KeaObjectInvANIMFireDelMe.obscript
+/KSE_v3.esp/KeaObjectInvANIMShockDelMe.obscript
+/KSE_v3.esp/KeaobjectShortBlandShieldDelME.obscript
+/KSE_v3.esp/KeaOnAddEquip.obscript
+/KSE_v3.esp/KeaPCScript.obscript
+/KSE_v3.esp/KeaPenaltySK1.obscript
+/KSE_v3.esp/KeaPenaltySK2.obscript
+/KSE_v3.esp/KeaPenaltySK3.obscript
+/KSE_v3.esp/KeaPenaltySK5.obscript
+/KSE_v3.esp/KeaPenaltySK6.obscript
+/KSE_v3.esp/KeaPenaltySK7.obscript
+/KSE_v3.esp/KeaPentagramScript.obscript
+/KSE_v3.esp/KeaPOSTeffectFRDGscr.obscript
+/KSE_v3.esp/KeaQAtronarhBuff.obscript
+/KSE_v3.esp/KeaQNPSscript.obscript
+/KSE_v3.esp/KeaQUESTmessageSQR.obscript
+/KSE_v3.esp/KeaQuestSCRNecroMagic.obscript
+/KSE_v3.esp/keaRandomItemController.obscript
+/KSE_v3.esp/KeaRandomItemDoonceSCR.obscript
+/KSE_v3.esp/KeaSCReffectDam6Pen2.obscript
+/KSE_v3.esp/KeaShieldSC.obscript
+/KSE_v3.esp/KeaSoulScanSKR.obscript
+/KSE_v3.esp/keaSpeed100SCR.obscript
+/KSE_v3.esp/KeaSpellAttack.obscript
+/KSE_v3.esp/KeaSummonEffectSCR.obscript
+/KSE_v3.esp/keaTimePenaltiesQ.obscript
+/KSE_v3.esp/KeaTraderBildTackSQR.obscript
+/KSE_v3.esp/KeaTraderScrQ.obscript
+/KSE_v3.esp/KeaTraderScrQMASS.obscript
+/KSE_v3.esp/keaWeaponQ1.obscript
+/KSE_v3.esp/keaWeaponQ2.obscript
+/KSE_v3.esp/keaWeaponQ3.obscript
+/KSE_v3.esp/keaWeaponQ4.obscript
+/KSE_v3.esp/keaWeaponQ5.obscript
+/KSE_v3.esp/keaWeaponQ6.obscript
+/KSE_v3.esp/keaWeaponQIndexer.obscript
+/KSE_v3.esp/keaweaponSkills.obscript
+/KSE_v3.esp/KeaWeaponSpeedObj.obscript
+/KSE_v3.esp/keaWillMagicPenSCR.obscript
+/KSE_v3.esp/MG01Script.obscript
+/KSE_v3.esp/OEKSETESTModOverflowMoveOScr.obscript
+/KSE_v3.esp/OEKSETESTModOverflowQScr.obscript
+/KSE_v3.esp/OEKSETESTMoveToTestinghallF.obscript
+/KSE_v3.esp/OEKSETESTMoveToTestinghallQScr.obscript
+/KSE_v3.esp/OEKSETESTShowMEAll.obscript
+/KSE_v3.esp/OEKSETESTStaggerMScr.obscript
+
+/Oblivion Enhancer Main.esp/3JephreSummonEffects.obscript
+/Oblivion Enhancer Main.esp/CSSummon.obscript
+/Oblivion Enhancer Main.esp/OEAddNewSummonsToLvlListsFScr.obscript
+/Oblivion Enhancer Main.esp/OEDispelAllSpellsAndKillTokenFScr.obscript
+/Oblivion Enhancer Main.esp/OEGetNewSummonRefFScr.obscript
+/Oblivion Enhancer Main.esp/OEOWCRewardRecalcFSCR.obscript
+/Oblivion Enhancer Main.esp/OETESTActorMoveToOESCFScr.obscript
+/Oblivion Enhancer Main.esp/OETESTAddSpellsQScr.obscript
+/Oblivion Enhancer Main.esp/OETESTGetSummonMGEFActingActorsFScr.obscript
+/Oblivion Enhancer Main.esp/OETESTModOverflowMoveOScr.obscript
+/Oblivion Enhancer Main.esp/OETESTModOverflowQScr.obscript
+/Oblivion Enhancer Main.esp/OETESTPlayerMoveToOEBCFScr.obscript
+/Oblivion Enhancer Main.esp/OETESTSummonerActorCreatureScript.obscript
+/Oblivion Enhancer Main.esp/OETESTSummontSkeletonMEScr.obscript
+/Oblivion Enhancer Main.esp/OEWRCEffectCreatureCalibanMEScr.obscript
+/Oblivion Enhancer Main.esp/OEWRCEffectCreatureCalibanOScr.obscript
+/Oblivion Enhancer Main.esp/OEzzMMMOnLoadCSNPCDremoraFemale.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner01Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner02Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner03Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner04Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner05Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner06Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner07Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner08Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner09Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner10Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner11Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner12Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner13Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner14Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner15Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner16Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner17Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner18Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner19Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner20Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner21Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner22Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner23Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner24Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner25Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner26Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner27Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner28Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner29Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner30Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner31Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner32Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner33Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner34Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner35Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner36Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner37Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner38Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner39Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner40Script.obscript
+/Oblivion Enhancer Main.esp/OWCEndgegner42Script.obscript
+/Oblivion Enhancer Main.esp/SavlianMatiusScript.obscript

@@ -510,4 +510,9 @@ if OEKSERapidFireLev4NPCCounterDecrease < 1 || OEKSERapidFireLev4NPCCounterDecre
 	set OEKSERapidFireLev4NPCCounterDecrease to 3
 endif
 
+;v1.1.2
+if OEKSERapidFireCriticalChanceMod < 0.1 || OEKSERapidFireCriticalChanceMod > 10
+	set OEKSERapidFireCriticalChanceMod to 1
+endif
+
 End

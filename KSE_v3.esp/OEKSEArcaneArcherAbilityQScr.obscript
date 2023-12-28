@@ -247,7 +247,7 @@ if OEKSEAbilityActive == 2
 	if OEKSETargetRef
 		let OEKSETargetIsDodging := OEKSETargetRef.call OEKSECheckActorIsDodgingFScr
 	endif
-	if OEKSETargetRef && OEKSEHitWeaponRef && OEKSETargetRef.GetDead == 0 && OEKSETargetIsDodging == 0 && OEKSETargetRef.GetDisabled == 0
+	if OEKSETargetRef && OEKSEHitWeaponRef && OEKSETargetRef.GetDead == 0 && OEKSETargetIsDodging == 0 && OEKSETargetRef.GetDisabled == 0 && IsFormValid OEKSETargetRef == 1
 		if OEKSETargetRef.GetBaseAV Health < PlayerRef.GetLevel * 5 && OEKSEArcaneArcherIgnoreWeakActors == 1
 			; пропуск, если цель слишком слабая
 		else

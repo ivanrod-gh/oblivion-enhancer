@@ -18,6 +18,7 @@ SetBatchLines, -1
 	Patches[7] := "v1.1.0"
 	Patches[8] := "v1.1.1_pre1"
 	Patches[9] := "v1.1.1"
+	Patches[10] := "v1.1.2"
 	
 	PatchesCount := Patches.MaxIndex() + 1
 	PatchesMaxIndex := Patches.MaxIndex()
@@ -1919,6 +1920,55 @@ InstallPatch:
 		ChangeArr[2] := 1
 		ChangeArr[3] := "set MOO.ini_add_graverobbers to 1"
 		ChangeArr[4] := "set MOO.ini_add_graverobbers to 0			`;!"
+		Changes.Push(ChangeArr)
+		
+		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+		
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 10
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSERapidFireMaxCriticalChance"
+		ChangeArr[4] := "`nset OEKSERapidFireCriticalChanceMod to 1				`;float (1) Модификатор шанса нанести критический урон, умножается на (текущее значение счетчика серии атак - минимальное значение счетчика серии атак) и складывается с минимальным шансом нанести критический урон"
+		StringsArr := []
+		StringsArr.Push("`;[1.0..10.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 10
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSERapidFireLev1PCCounterDecrease"
+		ChangeArr[4] := "set OEKSERapidFireLev2PCCounterDecrease to 3			`;short (3) --||-- на 2 уровне способности"
+		StringsArr := []
+		StringsArr.Push("`;[1..10]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		;
+		ChangeArr := []
+		ChangeArr[0] := "Oblivion Enhancer.ini"
+		ChangeArr[1] := 10
+		ChangeArr[2] := 1
+		ChangeArr[3] := "set OESkillAthleticsUse0 to 2.0"
+		ChangeArr[4] := "set OESkillAthleticsUse0 to 4.0						`;(4.0) атлетика (секунда бега)"
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "Oblivion Enhancer.ini"
+		ChangeArr[1] := 10
+		ChangeArr[2] := 1
+		ChangeArr[3] := "set OESkillAthleticsUse1 to 2.0"
+		ChangeArr[4] := "set OESkillAthleticsUse1 to 4.0						`;(4.0) атлетика (секунда плавания)"
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "Oblivion Enhancer.ini"
+		ChangeArr[1] := 10
+		ChangeArr[2] := 1
+		ChangeArr[3] := "set OESkillMysticismUse1 to 2.0"
+		ChangeArr[4] := "set OESkillMysticismUse1 to 1.25					`;(1.25) мистицизм (ударить цель заклинанием мистицизма)"
 		Changes.Push(ChangeArr)
 		
 

@@ -291,6 +291,8 @@ if OEKSEAbilityActive == 0
 	PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost4
 	PlayerRef.setav attackbonus 0
 
+	let OEKSEAffectedActorsArray := ar_Construct StringMap
+
 	let OEKSEAbilityActive := -1
 	if OEKSEInitQ.OEKSEBattleMagicAbilityQScrDebugMode == 1
 		SetDebugMode 0 OEKSEInitQ.KSEModIndex
@@ -355,7 +357,7 @@ if OEKSEAbilityActive == 2
 			OEKSEActorRef.StopMagicShaderVisuals OEKSEBattleMagicBurnEffect
 			ar_erase OEKSEAffectedActorsArray $OEKSEEffectVictim["key"]
 			continue
-		elseif OEKSEActorRef.GetDisabled == 1
+		elseif OEKSEActorRef.GetDisabled == 1 || IsFormValid OEKSEActorRef == 0
 			ar_erase OEKSEAffectedActorsArray $OEKSEEffectVictim["key"]
 			continue
 		endif
@@ -366,7 +368,7 @@ if OEKSEAbilityActive == 2
 		endif
 		OEKSEActorRef.ModAVMod Health "damage" OEKSEDamageMagnitude
 		; criminal scum
-		if OEKSEActorRef.getdead == 1
+		if OEKSEActorRef.GetDead == 1
 			PlayerRef.call keaFModKillStatus OEKSEActorRef
 			continue
 		endif
@@ -398,7 +400,6 @@ if OEKSEAbilityActive == 2
 		endif
 		
 		let OEKSEEffectVictim["value"]["elapsed"] += 0.1
-		ar_dump OEKSEEffectVictim["value"]
 		if eval(OEKSEEffectVictim["value"]["elapsed"]) >= OEKSEBurnEffectDuration
 			ar_erase OEKSEAffectedActorsArray $OEKSEEffectVictim["key"]
 		endif
@@ -470,7 +471,7 @@ if OEKSEAbilityActive == 2
 	endif
 	
 	; назначение и обработка целей поджога
-	if OEKSETargetRef && OEKSEHitWeaponRef && OEKSETargetRef.GetDead == 0 && OEKSETargetRef.GetDisabled == 0
+	if OEKSETargetRef && OEKSEHitWeaponRef && OEKSETargetRef.GetDead == 0 && OEKSETargetRef.GetDisabled == 0 && IsFormValid OEKSETargetRef == 1
 		if OEKSEBurnHealthDamageValue > 0
 			if OEKSEMagicBurnCooldownTimer <= 0
 				; каст по одной или нескольким целям

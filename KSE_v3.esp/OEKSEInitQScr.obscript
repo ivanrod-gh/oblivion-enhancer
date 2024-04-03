@@ -15,8 +15,11 @@ short OEKSEOn
 short OEKSEInitializationCount
 short OEKSELvlUpIconXDefault
 short OEKSEStaminaBarAdpSize
-
+short OEKSEPCMeleeBestBaseSkillLevel
+short OEKSEPCMeleeBestBaseSkillValue
+short OEKSEPCRaceId
 float OEKSEfCreatureCalcDamageCalculated
+float OEKSEPCAttackersCountBase
 
 ;GS
 float GSDamageWeaponMult
@@ -24,6 +27,7 @@ float GSDamageSkillBase
 float GSDamageSkillMult
 float GSDamageStrengthBase
 float GSDamageStrengthMult
+float GSTrainingSkills
 
 ;дебаггинг
 short KSEModIndex
@@ -230,22 +234,26 @@ if KeaEffectExtender.KSEIsLoadedUpdateNeeded == 1
 		;блок инициализации и наполнения массивов
 		
 		;блок назначения переменных
-		let OEKSEInitializationCount := 6
+		let OEKSEInitializationCount := 9
 		;поддерживаемые квестовые скрипты:
-		;OEKSEArchersWatchQScr
-		;OEKSERestrictFunctionsQScr
-		;OEKSEFortificationAbilityQScr
-		;OEKSEArcaneArcherAbilityQScr
-		;OEKSEBattleMagicAbilityQ
-		;OEKSEGlobalVariablesUpdateQScr
-		;OEKSERapidFireQScr
+		;1 OEKSEArchersWatchQScr
+		;2 OEKSERestrictFunctionsQScr
+		;3 OEKSEFortificationAbilityQScr
+		;4 OEKSEArcaneArcherAbilityQScr
+		;5 OEKSEBattleMagicAbilityQ
+		;6 OEKSEGlobalAndPCVariablesUpdateQScr
+		;7 OEKSERapidFireQScr
+		;8 OEKSEMeleeCombatObserverQ
+		;9 OEKSEBattleEnvironmentObserverQ
 		let OEKSEArchersWatchQ.OEKSEQuestLocked := -1
 		let OEKSERestrictFunctionsQ.OEKSEQuestLocked := -1
 		let OEKSEFortificationAbilityQ.OEKSEQuestLocked := -1
 		let OEKSEArcaneArcherAbilityQ.OEKSEQuestLocked := -1
 		let OEKSEBattleMagicAbilityQ.OEKSEQuestLocked := -1
-		let OEKSEGlobalVariablesUpdateQ.OEKSEQuestLocked := -1
+		let OEKSEGlobalAndPCVariablesUpdateQ.OEKSEQuestLocked := -1
 		let OEKSERapidFireQ.OEKSEQuestLocked := -1
+		let OEKSEMeleeCombatObserverQ.OEKSEQuestLocked := -1
+		let OEKSEBattleEnvironmentObserverQ.OEKSEQuestLocked := -1
 		
 		let OEKSEEmergencyEmpowerWipeQ.fQuestDelayTime := 0.1
 		let OEKSEEmergencyEmpowerWipeQ.OEKSEEmergencyFlag := 0
@@ -284,6 +292,10 @@ if KeaEffectExtender.KSEIsLoadedUpdateNeeded == 1
 		if OEKSEFortificationAbility == 1
 			let OEKSEFortificationAbilityQ.OEKSEMustRecalcStats := 1
 		endif
+		
+		if OEKSEBladeGoverningSpeed == 1
+			SetSkillGoverningAttribute blade speed
+		endif
 		;блок наначения параметров
 		
 		;блок настройки переключателей
@@ -299,6 +311,8 @@ if KeaEffectExtender.KSEIsLoadedUpdateNeeded == 1
 		if OEKSECloneRetentionSystem == 1
 			SetEventHandler "OnMagicApply" OEKSECheckSpellCloneEventFScr
 		endif
+		SetEventHandler "OnMagicEffectHit" OEKSECatchPCUsesCommandSpells object::"COHU"
+		SetEventHandler "OnMagicEffectHit" OEKSECatchPCUsesCommandSpells object::"COCR"
 		;блок отслеживания событий (EventHandler)
 		
 		;маркер полной загрузки после нового входа в игру из операционной системы

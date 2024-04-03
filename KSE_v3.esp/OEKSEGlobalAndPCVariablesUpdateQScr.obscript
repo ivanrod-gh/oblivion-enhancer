@@ -1,0 +1,401 @@
+﻿scn OEKSEGlobalAndPCVariablesUpdateQScr
+
+float fQuestDelayTime
+
+short OEKSEQuestLocked
+short OEKSEGlobalVariablesCalculationStep ;Step0			уменьшение нагрузи на ЦП - размазывает вычисления на шаги
+short OEKSEGlobalVariablesCalculationStepMax ;Step12
+short OEKSEGlobalVariablesCalculationStepedMode
+short OEKSEPCMeleeCombatPhysicalSkillFullyRewardable
+short OEKSEPCMeleeCombatPhysicalSkillPartiallyRewardable
+short OEKSEPCMeleeCombatPhysicalAttributeFullyRewardable
+short OEKSEPCMeleeCombatPhysicalAttributePartiallyRewardable
+short OEKSEPCMeleeCombatMagicalSkillPunishable
+short OEKSEPCMeleeCombatMagicalAttributeFullyPunishable
+short OEKSEPCMeleeCombatMagicalAttributePartiallyPunishable
+float OEKSESecondsPassed
+float OEKSEMainTimer
+float OEKSESteppedTimer
+float OEKSEPCMeleeCombatRaceBase
+float OEKSEPCMeleeCombatPhysicalSkillReward
+float OEKSEPCMeleeCombatPhysicalAttributeReward
+float OEKSEPCMeleeCombatRacePenalty
+float OEKSEPCMeleeCombatBirthSignPenalty
+float OEKSEPCMeleeCombatMagicalSkillPenalty
+float OEKSEPCMeleeCombatMagicalAttributePenalty
+float OEKSEPCMeleeCombatEnhancedDamageRaceMod
+float OEKSEPCMeleeCombatEnhancedDamageMod
+float OEKSEPCMeleeCombatEnhancedDamageEnemy2DamMod
+float OEKSEPCMeleeCombatEnhancedDamageEnemy3DamMod
+float OEKSEPCMeleeCombatEnhancedDamageEnemy4DamMod
+float OEKSEPCMeleeCombatEnhancedDamageEnemy5DamMod
+float OEKSEPCMeleeCombatEnhancedDamageEnemy6DamMod
+float OEKSEPCMeleeCombatEnhancedDamageSkillsMod
+float OEKSEPCMeleeCombatEnhancedDamageAttributesMod
+float OEKSEPCMeleeCombatEnhancedDamageStatsMod
+float OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod
+
+begin gamemode
+
+let OEKSESecondsPassed := GetSecondsPassed
+let OEKSEMainTimer := OEKSEMainTimer + OEKSESecondsPassed
+let OEKSESteppedTimer := OEKSESteppedTimer + OEKSESecondsPassed
+
+if GetGameLoaded || GetGameRestarted
+	let fQuestDelayTime := 1
+	let OEKSEMainTimer := 0
+	let OEKSESteppedTimer := -5
+	let OEKSEGlobalVariablesCalculationStep := 0 ;Step0
+	let OEKSEGlobalVariablesCalculationStepMax := 12 ;Step12
+	let OEKSEGlobalVariablesCalculationStepedMode := 0
+	
+	set OEKSEQuestLocked to OEKSEQuestLocked - 1
+endif
+if OEKSEQuestLocked != 0
+	if OEKSEInitQ.OEKSEInitializationCount > 0
+		set OEKSEInitQ.OEKSEInitializationCount to OEKSEInitQ.OEKSEInitializationCount - 1
+		set OEKSEQuestLocked to 0
+	else
+		return
+	endif
+endif
+
+;срабатывает раз в 10 секунд, отслеживает параметры игры
+if OEKSEMainTimer > 10
+	;блок глобальных переменных игры (GMST)
+	let OEKSEInitQ.GSDamageWeaponMult := GetGS fDamageWeaponMult
+	if OEKSEInitQ.GSDamageWeaponMult == 0
+		let OEKSEInitQ.GSDamageWeaponMult := 1
+	endif
+	let OEKSEInitQ.GSDamageSkillBase := GetGS fDamageSkillBase
+	if OEKSEInitQ.GSDamageSkillBase == 0
+		let OEKSEInitQ.GSDamageSkillBase := 1
+	endif
+	let OEKSEInitQ.GSDamageSkillMult := GetGS fDamageSkillMult
+	if OEKSEInitQ.GSDamageSkillMult == 0
+		let OEKSEInitQ.GSDamageSkillMult := 1
+	endif
+	let OEKSEInitQ.GSDamageStrengthBase := GetGS fDamageStrengthBase
+	if OEKSEInitQ.GSDamageStrengthBase == 0
+		let OEKSEInitQ.GSDamageStrengthBase := 1
+	endif
+	let OEKSEInitQ.GSDamageStrengthMult := GetGS fDamageStrengthMult
+	if OEKSEInitQ.GSDamageStrengthMult == 0
+		let OEKSEInitQ.GSDamageStrengthMult := 1
+	endif
+	let OEKSEInitQ.GSTrainingSkills := GetGS iTrainingSkills
+	;блок глобальных переменных игры (GMST)
+
+	;блок основного таймера
+	let OEKSEMainTimer := 0
+	return		;задачи основного блока выполняются НЕ в тот же фрейм, что и ступенчатого блока
+	;блок основного таймера
+endif
+
+;блок ступенчатого расчета (расчет разнесен по времени для уменьшения нагрузки на ЦП)
+if OEKSESteppedTimer > 2
+	;блок переменных игрока
+	if OEKSEGlobalVariablesCalculationStep == 0 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step0
+		let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue := PlayerRef.GetBaseAV Blade
+		if OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < PlayerRef.GetBaseAV Blunt
+			let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue := PlayerRef.GetBaseAV Blunt
+		endif
+		if OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < PlayerRef.GetBaseAV HandToHand
+			let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue := PlayerRef.GetBaseAV HandToHand
+		endif
+		if KeaSettingWeaponPerks == 1
+			if OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < KeaSkillExtender.KskillLongBlade
+				let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue := KeaSkillExtender.KskillLongBlade
+			endif
+			if OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < KeaSkillExtender.KskillShortBlade
+				let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue := KeaSkillExtender.KskillShortBlade
+			endif
+			if OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < KeaSkillExtender.KskillBlunt
+				let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue := KeaSkillExtender.KskillBlunt
+			endif
+			if OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < KeaSkillExtender.KskillAxe
+				let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue := KeaSkillExtender.KskillAxe
+			endif
+		endif
+		if OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < 25
+			let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillLevel := 0
+		elseif OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < 50
+			let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillLevel := 1
+		elseif OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < 75
+			let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillLevel := 2
+		elseif OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < 100
+			let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillLevel := 3
+		else
+			let OEKSEInitQ.OEKSEPCMeleeBestBaseSkillLevel := 4
+		endif
+	endif
+	
+	if OEKSEGlobalVariablesCalculationStep == 1 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step1
+		if GetPCIsRace Imperial == 1
+			let OEKSEInitQ.OEKSEPCRaceId := 0
+		elseif GetPCIsRace Khajiit == 1
+			let OEKSEInitQ.OEKSEPCRaceId := 1
+		elseif GetPCIsRace WoodElf == 1
+			let OEKSEInitQ.OEKSEPCRaceId := 2
+		elseif GetPCIsRace Nord == 1
+			let OEKSEInitQ.OEKSEPCRaceId := 3
+		elseif GetPCIsRace Orc == 1
+			let OEKSEInitQ.OEKSEPCRaceId := 4
+		elseif GetPCIsRace Redguard == 1
+			let OEKSEInitQ.OEKSEPCRaceId := 5
+		elseif GetPCIsRace DarkElf == 1
+			let OEKSEInitQ.OEKSEPCRaceId := 6
+		elseif GetPCIsRace Argonian == 1
+			let OEKSEInitQ.OEKSEPCRaceId := 7
+		elseif GetPCIsRace Breton == 1
+			let OEKSEInitQ.OEKSEPCRaceId := 8
+		elseif GetPCIsRace HighElf == 1
+			let OEKSEInitQ.OEKSEPCRaceId := 9
+		endif
+	endif
+		
+	if OEKSEPCMeleeCombatRegulation == 1
+		if OEKSEGlobalVariablesCalculationStep == 2 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step2
+			if OEKSEInitQ.OEKSEPCRaceId == 0
+				let OEKSEPCMeleeCombatRaceBase := OEKSEPCMeleeCombatRegulationRaceImperial
+			elseif OEKSEInitQ.OEKSEPCRaceId == 1
+				let OEKSEPCMeleeCombatRaceBase := OEKSEPCMeleeCombatRegulationRaceKhajiit
+			elseif OEKSEInitQ.OEKSEPCRaceId == 2
+				let OEKSEPCMeleeCombatRaceBase := OEKSEPCMeleeCombatRegulationRaceWoodElf
+			elseif OEKSEInitQ.OEKSEPCRaceId == 3
+				let OEKSEPCMeleeCombatRaceBase := OEKSEPCMeleeCombatRegulationRaceNord
+			elseif OEKSEInitQ.OEKSEPCRaceId == 4
+				let OEKSEPCMeleeCombatRaceBase := OEKSEPCMeleeCombatRegulationRaceOrc
+			elseif OEKSEInitQ.OEKSEPCRaceId == 5
+				let OEKSEPCMeleeCombatRaceBase := OEKSEPCMeleeCombatRegulationRaceRedguard
+			elseif OEKSEInitQ.OEKSEPCRaceId == 6
+				let OEKSEPCMeleeCombatRaceBase := OEKSEPCMeleeCombatRegulationRaceDarkElf
+			elseif OEKSEInitQ.OEKSEPCRaceId == 7
+				let OEKSEPCMeleeCombatRaceBase := OEKSEPCMeleeCombatRegulationRaceArgonian
+			elseif OEKSEInitQ.OEKSEPCRaceId == 8
+				let OEKSEPCMeleeCombatRaceBase := OEKSEPCMeleeCombatRegulationRaceBreton
+			elseif OEKSEInitQ.OEKSEPCRaceId == 9
+				let OEKSEPCMeleeCombatRaceBase := OEKSEPCMeleeCombatRegulationRaceHighElf
+			else
+				let OEKSEPCMeleeCombatRaceBase := 2.5
+			endif
+		endif
+		if OEKSEPCMeleeCombatRegulationConsiderPhysics == 1
+			if OEKSEGlobalVariablesCalculationStep == 3 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step3
+				if PlayerRef.GetLevel <= 5
+					let OEKSEPCMeleeCombatPhysicalSkillFullyRewardable := 40
+				elseif PlayerRef.GetLevel > 30
+					let OEKSEPCMeleeCombatPhysicalSkillFullyRewardable := 90
+				else
+					let OEKSEPCMeleeCombatPhysicalSkillFullyRewardable := 30 + PlayerRef.GetLevel * 2
+				endif
+				
+				if PlayerRef.GetLevel <= 5
+					let OEKSEPCMeleeCombatPhysicalSkillPartiallyRewardable := 30
+				elseif PlayerRef.GetLevel > 30
+					let OEKSEPCMeleeCombatPhysicalSkillPartiallyRewardable := 70
+				else
+					let OEKSEPCMeleeCombatPhysicalSkillPartiallyRewardable := 23 + PlayerRef.GetLevel * 1.5
+				endif
+			endif
+			if OEKSEGlobalVariablesCalculationStep == 4 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step4
+				if OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue >= OEKSEPCMeleeCombatPhysicalSkillFullyRewardable
+					let OEKSEPCMeleeCombatPhysicalSkillReward := -0.25
+				elseif OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue >= OEKSEPCMeleeCombatPhysicalSkillPartiallyRewardable
+					let OEKSEPCMeleeCombatPhysicalSkillReward := -0.15
+				else
+					let OEKSEPCMeleeCombatPhysicalSkillReward := 0
+				endif
+			endif
+
+			if OEKSEGlobalVariablesCalculationStep == 5 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step5
+				let OEKSEPCMeleeCombatPhysicalAttributeFullyRewardable := 49 + PlayerRef.GetLevel * 1.66
+				if OEKSEPCMeleeCombatPhysicalAttributeFullyRewardable > 100
+					let OEKSEPCMeleeCombatPhysicalAttributeFullyRewardable := 100
+				endif
+				let OEKSEPCMeleeCombatPhysicalAttributePartiallyRewardable := 39 + PlayerRef.GetLevel * 1.33
+				if OEKSEPCMeleeCombatPhysicalAttributePartiallyRewardable > 80
+					let OEKSEPCMeleeCombatPhysicalAttributePartiallyRewardable := 80
+				endif
+				if PlayerRef.GetBaseAV Strength >= OEKSEPCMeleeCombatPhysicalAttributeFullyRewardable || PlayerRef.GetBaseAV Agility >= OEKSEPCMeleeCombatPhysicalAttributeFullyRewardable || PlayerRef.GetBaseAV Speed >= OEKSEPCMeleeCombatPhysicalAttributeFullyRewardable || PlayerRef.GetBaseAV Endurance >= OEKSEPCMeleeCombatPhysicalAttributeFullyRewardable
+					let OEKSEPCMeleeCombatPhysicalAttributeReward := -0.25
+				elseif PlayerRef.GetBaseAV Strength >= OEKSEPCMeleeCombatPhysicalAttributePartiallyRewardable || PlayerRef.GetBaseAV Agility >= OEKSEPCMeleeCombatPhysicalAttributePartiallyRewardable || PlayerRef.GetBaseAV Speed >= OEKSEPCMeleeCombatPhysicalAttributePartiallyRewardable || PlayerRef.GetBaseAV Endurance >= OEKSEPCMeleeCombatPhysicalAttributePartiallyRewardable
+					let OEKSEPCMeleeCombatPhysicalAttributeReward := -0.15
+				else
+					let OEKSEPCMeleeCombatPhysicalAttributeReward := 0
+				endif
+			endif
+		endif
+		if OEKSEPCMeleeCombatRegulationConsiderMagic == 1
+			if OEKSEGlobalVariablesCalculationStep == 6 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step6
+				if PlayerRef.IsSpellTarget AbRaceBretonFortifyMagic || PlayerRef.IsSpellTarget AbRaceHighElfFortifyMagic
+					let OEKSEPCMeleeCombatRacePenalty := 0.45
+				else
+					let OEKSEPCMeleeCombatRacePenalty := 0
+				endif
+				if PlayerRef.IsSpellTarget BSApprentice || PlayerRef.IsSpellTarget BSMage || PlayerRef.IsSpellTarget BSAtronach
+					let OEKSEPCMeleeCombatBirthSignPenalty := 0.3
+				else
+					let OEKSEPCMeleeCombatBirthSignPenalty := 0
+				endif
+			endif
+			
+			if OEKSEGlobalVariablesCalculationStep == 7 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step7
+				let OEKSEPCMeleeCombatMagicalSkillPunishable := 30 + PlayerRef.Getlevel
+				if OEKSEPCMeleeCombatMagicalSkillPunishable > 50
+					let OEKSEPCMeleeCombatMagicalSkillPunishable := 50
+				endif
+				if PlayerRef.GetBaseAV Destruction >= OEKSEPCMeleeCombatMagicalSkillPunishable || PlayerRef.GetBaseAV Conjuration >= OEKSEPCMeleeCombatMagicalSkillPunishable
+					let OEKSEPCMeleeCombatMagicalSkillPenalty := 0.3
+				elseif PlayerRef.GetBaseAV Mysticism >= OEKSEPCMeleeCombatMagicalSkillPunishable
+					let OEKSEPCMeleeCombatMagicalSkillPenalty := 0.15
+				else
+					let OEKSEPCMeleeCombatMagicalSkillPenalty := 0
+				endif
+			endif
+			
+			if OEKSEGlobalVariablesCalculationStep == 8 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step8
+				let OEKSEPCMeleeCombatMagicalAttributeFullyPunishable := 60 + PlayerRef.Getlevel * 1.5
+				let OEKSEPCMeleeCombatMagicalAttributePartiallyPunishable := 50 + PlayerRef.Getlevel
+				if PlayerRef.GetBaseAV Intelligence >= OEKSEPCMeleeCombatMagicalAttributeFullyPunishable || PlayerRef.GetBaseAV WillPower >= OEKSEPCMeleeCombatMagicalAttributeFullyPunishable
+					let OEKSEPCMeleeCombatMagicalAttributePenalty := 0.45
+				elseif PlayerRef.GetBaseAV Intelligence >= OEKSEPCMeleeCombatMagicalAttributePartiallyPunishable || PlayerRef.GetBaseAV WillPower >= OEKSEPCMeleeCombatMagicalAttributePartiallyPunishable
+					let OEKSEPCMeleeCombatMagicalAttributePenalty := 0.25
+				else
+					let OEKSEPCMeleeCombatMagicalAttributePenalty := 0
+				endif
+			endif
+		endif
+
+		if OEKSEGlobalVariablesCalculationStep == 9 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step9
+			if OEKSEPCMeleeCombatRegulationConsiderPhysics == 0
+				let OEKSEPCMeleeCombatPhysicalSkillReward := 0
+				let OEKSEPCMeleeCombatPhysicalAttributeReward := 0
+			endif
+			if OEKSEPCMeleeCombatRegulationConsiderMagic == 0
+				let OEKSEPCMeleeCombatBirthSignPenalty := 0
+				let OEKSEPCMeleeCombatMagicalSkillPenalty := 0
+				let OEKSEPCMeleeCombatMagicalAttributePenalty := 0
+			endif
+			let OEKSEInitQ.OEKSEPCAttackersCountBase :=  OEKSEPCMeleeCombatRaceBase + OEKSEPCMeleeCombatPhysicalSkillReward + OEKSEPCMeleeCombatPhysicalAttributeReward + OEKSEPCMeleeCombatRacePenalty + OEKSEPCMeleeCombatBirthSignPenalty + OEKSEPCMeleeCombatMagicalSkillPenalty + OEKSEPCMeleeCombatMagicalAttributePenalty
+			if OEKSEInitQ.OEKSEPCAttackersCountBase < 1
+				let OEKSEInitQ.OEKSEPCAttackersCountBase := 1
+			elseif OEKSEInitQ.OEKSEPCAttackersCountBase > 4
+				let OEKSEInitQ.OEKSEPCAttackersCountBase := 4
+			endif
+		endif
+	endif
+	
+	if OEKSEPCMeleeCombatEnhancedDamage == 1
+		if OEKSEGlobalVariablesCalculationStep == 10 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step10
+			if OEKSEInitQ.OEKSEPCRaceId == 0
+				let OEKSEPCMeleeCombatEnhancedDamageRaceMod := OEKSEPCMeleeCombatEnhancedDamageRaceImperial
+			elseif OEKSEInitQ.OEKSEPCRaceId == 1
+				let OEKSEPCMeleeCombatEnhancedDamageRaceMod := OEKSEPCMeleeCombatEnhancedDamageRaceKhajiit
+			elseif OEKSEInitQ.OEKSEPCRaceId == 2
+				let OEKSEPCMeleeCombatEnhancedDamageRaceMod := OEKSEPCMeleeCombatEnhancedDamageRaceWoodElf
+			elseif OEKSEInitQ.OEKSEPCRaceId == 3
+				let OEKSEPCMeleeCombatEnhancedDamageRaceMod := OEKSEPCMeleeCombatEnhancedDamageRaceNord
+			elseif OEKSEInitQ.OEKSEPCRaceId == 4
+				let OEKSEPCMeleeCombatEnhancedDamageRaceMod := OEKSEPCMeleeCombatEnhancedDamageRaceOrc
+			elseif OEKSEInitQ.OEKSEPCRaceId == 5
+				let OEKSEPCMeleeCombatEnhancedDamageRaceMod := OEKSEPCMeleeCombatEnhancedDamageRaceRedguard
+			elseif OEKSEInitQ.OEKSEPCRaceId == 6
+				let OEKSEPCMeleeCombatEnhancedDamageRaceMod := OEKSEPCMeleeCombatEnhancedDamageRaceDarkElf
+			elseif OEKSEInitQ.OEKSEPCRaceId == 7
+				let OEKSEPCMeleeCombatEnhancedDamageRaceMod := OEKSEPCMeleeCombatEnhancedDamageRaceArgonian
+			elseif OEKSEInitQ.OEKSEPCRaceId == 8
+				let OEKSEPCMeleeCombatEnhancedDamageRaceMod := OEKSEPCMeleeCombatEnhancedDamageRaceBreton
+			elseif OEKSEInitQ.OEKSEPCRaceId == 9
+				let OEKSEPCMeleeCombatEnhancedDamageRaceMod := OEKSEPCMeleeCombatEnhancedDamageRaceHighElf
+			else
+				let OEKSEPCMeleeCombatEnhancedDamageRaceMod := 1
+			endif
+		endif
+		
+		if OEKSEGlobalVariablesCalculationStep == 11 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step11
+			let OEKSEPCMeleeCombatEnhancedDamageSkillsMod := ((PlayerRef.GetBaseAV Blade + PlayerRef.GetBaseAV Blunt + PlayerRef.GetBaseAV HandToHand + PlayerRef.GetBaseAV Armorer + PlayerRef.GetBaseAV Athletics + PlayerRef.GetBaseAV Acrobatics + PlayerRef.GetBaseAV Block + PlayerRef.GetBaseAV HeavyArmor + PlayerRef.GetBaseAV LightArmor) / 9)
+			let OEKSEPCMeleeCombatEnhancedDamageSkillsMod := OEKSEPCMeleeCombatEnhancedDamageSkillsMod / ((PlayerRef.GetBaseAV Destruction + PlayerRef.GetBaseAV Conjuration + PlayerRef.GetBaseAV Mysticism + PlayerRef.GetBaseAV Alteration + PlayerRef.GetBaseAV Restoration + PlayerRef.GetBaseAV Illusion + PlayerRef.GetBaseAV Alchemy) / 7)
+			let OEKSEPCMeleeCombatEnhancedDamageAttributesMod := ((PlayerRef.GetBaseAV Strength + PlayerRef.GetBaseAV Agility + PlayerRef.GetBaseAV Speed) / 3) / ((PlayerRef.GetBaseAV Intelligence + PlayerRef.GetBaseAV WillPower) / 2)
+			let OEKSEPCMeleeCombatEnhancedDamageStatsMod := PlayerRef.GetBaseAV Health / PlayerRef.GetBaseAV Magicka
+			let OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod := OEKSEPCMeleeCombatEnhancedDamageSkillsMod * OEKSEPCMeleeCombatEnhancedDamageAttributesMod * OEKSEPCMeleeCombatEnhancedDamageStatsMod
+			let OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod := 1 + log10 OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod
+			if OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod < 0.5
+				let OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod := 0.5
+			elseif OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod > 1.5
+				let OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod := 1.5
+			endif
+		endif
+	
+		if OEKSEGlobalVariablesCalculationStep == 12 || OEKSEGlobalVariablesCalculationStepedMode == 0	;Step12
+			let OEKSEPCMeleeCombatEnhancedDamageMod := OEKSEPCMeleeCombatEnhancedDamageRaceMod * OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod
+			if OEKSEInitQ.OEKSEPCMeleeBestBaseSkillLevel == 1
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy2DamMod := 0.142 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy3DamMod := 0.284 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy4DamMod := OEKSEPCMeleeCombatEnhancedDamageEnemy3DamMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy5DamMod := OEKSEPCMeleeCombatEnhancedDamageEnemy3DamMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy6DamMod := OEKSEPCMeleeCombatEnhancedDamageEnemy3DamMod
+			elseif OEKSEInitQ.OEKSEPCMeleeBestBaseSkillLevel == 2
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy2DamMod := 0.177 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy3DamMod := 0.355 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy4DamMod := 0.444 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy5DamMod := OEKSEPCMeleeCombatEnhancedDamageEnemy4DamMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy6DamMod := OEKSEPCMeleeCombatEnhancedDamageEnemy4DamMod
+			elseif OEKSEInitQ.OEKSEPCMeleeBestBaseSkillLevel == 3
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy2DamMod := 0.222 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy3DamMod := 0.444 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy4DamMod := 0.555 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy5DamMod := 0.667 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy6DamMod := OEKSEPCMeleeCombatEnhancedDamageEnemy5DamMod
+			elseif OEKSEInitQ.OEKSEPCMeleeBestBaseSkillLevel == 4
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy2DamMod := 0.277 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy3DamMod := 0.555 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy4DamMod := 0.693 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy5DamMod := 0.833 * OEKSEPCMeleeCombatEnhancedDamageMod
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy6DamMod := 0.971 * OEKSEPCMeleeCombatEnhancedDamageMod
+			endif
+			if OEKSEPCMeleeCombatEnhancedDamageEnemy2DamMod < 0
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy2DamMod := 0
+			endif
+			if OEKSEPCMeleeCombatEnhancedDamageEnemy3DamMod < 0
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy3DamMod := 0
+			endif
+			if OEKSEPCMeleeCombatEnhancedDamageEnemy4DamMod < 0
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy4DamMod := 0
+			endif
+			if OEKSEPCMeleeCombatEnhancedDamageEnemy5DamMod < 0
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy5DamMod := 0
+			endif
+			if OEKSEPCMeleeCombatEnhancedDamageEnemy6DamMod < 0
+				let OEKSEPCMeleeCombatEnhancedDamageEnemy6DamMod := 0
+			endif
+		endif
+	endif
+	;блок переменных игрока
+	
+	;блок ступенчатого таймера
+	let OEKSEGlobalVariablesCalculationStep += 1
+	if OEKSEGlobalVariablesCalculationStep > OEKSEGlobalVariablesCalculationStepMax ;Step12
+		let OEKSEGlobalVariablesCalculationStep := 0
+	endif
+	let OEKSEGlobalVariablesCalculationStepedMode := 1
+	let OEKSESteppedTimer := 0
+	;блок ступенчатого таймера
+endif
+
+end
+
+begin menumode
+
+;	level up		change class		change bs		change race
+if menumode 1027 || menumode 1030 || menumode 1032 || menumode 1036
+	let OEKSESteppedTimer := 10
+	let OEKSEGlobalVariablesCalculationStepedMode := 0
+endif
+
+;	messag.				training
+if menumode 1001 || menumode 1028
+	let OEKSEGlobalVariablesCalculationStep := 0
+endif
+
+end

@@ -192,7 +192,7 @@ if OEActorsAmplificationSystem == 1
 				set OEReflectDamageTokenCount to ScriptTarget.getitemcount OEReflectDamageToken
 				if OEReflectDamageTokenCount > 0
 					debugprint "Старое (%g) и новое (%g) значение отражения урона не совпадают. Вызов функции назначения значений отражения урона"	OEReflectDamageOld OEReflectDamageNew
-					let OEReflectDamageNew := Call OEAddReflectDamageValueFScr ScriptTarget
+					let OEReflectDamageNew := Call OEAddReflectDamageValueFScr ScriptTarget 1
 					debugprint "Функция была вызвана. Новое записанное значение OEReflectDamageNew = %g" OEReflectDamageNew
 					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][9] := OEReflectDamageNew
 				elseif OEReflectDamageTokenCount == 0
@@ -429,7 +429,7 @@ if OEActorsAmplificationSystem == 1
 				set OEReflectDamageTokenCount to ScriptTarget.getitemcount OEReflectDamageToken
 				if OEReflectDamageTokenCount > 0
 					debugprint "Старое (%g) и новое (%g) значение отражения урона не совпадают. Вызов функции назначения значений отражения урона"	OEReflectDamageOld OEReflectDamageNew
-					let OEReflectDamageNew := Call OEAddReflectDamageValueFScr ScriptTarget
+					let OEReflectDamageNew := Call OEAddReflectDamageValueFScr ScriptTarget 1
 					debugprint "Функция была вызвана. Новое записанное значение OEReflectDamageNew = %g" OEReflectDamageNew
 					let OEGlobalWatchQ.OECapturedActorsArray[OEIndex4][9] := OEReflectDamageNew
 				elseif OEReflectDamageTokenCount == 0

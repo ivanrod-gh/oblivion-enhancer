@@ -12,7 +12,6 @@ short playerHA
 
 short OETrainingMax
 short OETrainingCount
-short OETrainingCountMax
 short limitOn
 string_var warningstringnotmax
 
@@ -106,7 +105,6 @@ let skillstringname := GetMenuStringValue "training_background\Skill_Picture\fil
 ;let skillstringnameicon_filename := "Menus\Class\Attributes\load_image_heavy_armor.dds"
 
 let OETrainingCount := GetPCTrainingSessionsUsed
-let OETrainingCountMax := getgs itrainingskills
 let warningstringnotmax := sv_Construct "%e"
 let warningstringnotmax := "Вы не можете обучиться этому навыку еще больше на вашем текущем уровне"
 
@@ -175,10 +173,7 @@ let securitypcvalue := player.getbaseav2 security
 let sneakpcvalue := player.getbaseav2 sneak
 let speechcraftpcvalue := player.getbaseav2 speechcraft
 
-
-
-
-if OETrainingCount < OETrainingCountMax
+if OETrainingCount < OEKSEInitQ.GSTrainingSkills
 	let limitOn := 0
 	if eval skillstringname == armorerstringnameicon_filename
 		if armorerpcvalue >= OETrainingMax
@@ -291,10 +286,6 @@ if OETrainingCount < OETrainingCountMax
 		SetMenuStringValue "training_background\skill_warning_Text\string|%z" warningstringnotmax 1028
 		SetMenuFloatValue "training_background\skill_warning_Text\visible" 1028 2
 	endif
-
 endif
-
-
-
 
 end

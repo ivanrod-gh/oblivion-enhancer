@@ -200,7 +200,7 @@ if OEAdditionalHealthBoostChance < 1 || OEAdditionalHealthBoostChance > 100
 	set OEAdditionalHealthBoostChance to 8
 endif
 if OEAdditionalHealthBoostLevel < 1 || OEAdditionalHealthBoostLevel > 100
-	set OEAdditionalHealthBoostLevel to 3
+	set OEAdditionalHealthBoostLevel to 5
 endif
 
 if OEAdditionalHealthBoostVeryHigh < 0 || OEAdditionalHealthBoostVeryHigh > 1
@@ -664,6 +664,11 @@ if OESkillSneakUse1 < 0 || OESkillSneakUse1 > 100
 endif
 if OESkillSpeechcraftUse0 < 0 || OESkillSpeechcraftUse0 > 100
 	set OESkillSpeechcraftUse0 to 5.0
+endif
+
+;v1.1.3
+if OEMitigatePCMeleeSneakAttackReflectDamage < 0 || OEMitigatePCMeleeSneakAttackReflectDamage > 1
+	set OEMitigatePCMeleeSneakAttackReflectDamage to 1
 endif
 
 end

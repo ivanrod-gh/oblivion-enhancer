@@ -27,6 +27,8 @@ short OEKSEPCMaxFatigue
 short OEKSEActorIsStronglyResisted
 short OEKSEBurnTargetsCounter
 short OEKSEPCAttackedByArrow
+short OEKSEPCUsingBowWarningMessageBoxShown
+short OEKSEPCUsingBowWarningMessageShown
 float OEKSETimer500msec
 float OEKSETimer250msec
 float OEKSETimer5sec
@@ -196,6 +198,15 @@ if OEKSEMustRecalcStats == 1
 			endif
 			let OEKSEWeaponHealthMod := ( PlayerRef.GetEquippedCurrentHealth 16 / GetObjectHealth OEKSEWeaponBase + 1 ) / 2
 			let OEKSEBurnHealthDamageValue := OEKSEBattleMagicBurnBaseDamage * OEKSEBurnWeaponMod * OEKSEBurnSkillMod * OEKSEWeaponHealthMod
+			let OEKSEPCUsingBowWarningMessageShown := 0
+		elseif GetWeaponType OEKSEWeaponBase == 5 && OEKSEAbilityActive == 2
+			if OEKSEPCUsingBowWarningMessageBoxShown == 0
+				messagebox "Лук не наносит урон, если используется способность Боевая магия!"
+				let OEKSEPCUsingBowWarningMessageBoxShown := 1
+			elseif OEKSEPCUsingBowWarningMessageShown == 0
+				message "Лук не наносит урон, если используется способность Боевая магия!" 4
+				let OEKSEPCUsingBowWarningMessageShown := 1
+			endif
 		endif
 	endif
 
@@ -212,6 +223,7 @@ if OEKSEMustRecalcStats == 1
 		PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost4
 		OEKSECaster.moveto PlayerRef 0 0 150
 		OEKSECaster.Cast OEKSEBattleMagicEffectRef PlayerRef
+		PlayerRef.PlaySound3D SPLAlterationHit
 		PlayerRef.AddSpellNS OEKSEBattleMagicBlockBoostRef
 		let OEKSEAttackBonusNew := ( PlayerRef.call OEKSECalcActorWeaponDamage 3 ) * -1.1 - 1
 		PlayerRef.setav attackbonus OEKSEAttackBonusNew
@@ -312,6 +324,7 @@ if OEKSEAbilityActive == 1
 	PlayerRef.RemoveSpellNS OEKSEAbBattleMagicBlockBoost4
 	OEKSECaster.moveto PlayerRef 0 0 150
 	OEKSECaster.Cast OEKSEBattleMagicEffectRef PlayerRef
+	PlayerRef.PlaySound3D SPLAlterationHit
 	PlayerRef.AddSpellNS OEKSEBattleMagicBlockBoostRef
 	let OEKSEAttackBonusNew := ( PlayerRef.call OEKSECalcActorWeaponDamage 3 ) * -1.1 - 1
 	PlayerRef.setav attackbonus OEKSEAttackBonusNew
@@ -564,6 +577,7 @@ if OEKSEAbilityActive == 2
 			PlayerRef.Dispel OEKSESpBattleMagicLevel4
 			OEKSECaster.moveto PlayerRef 0 0 150
 			OEKSECaster.Cast OEKSEBattleMagicEffectRef PlayerRef
+			PlayerRef.PlaySound3D SPLAlterationHit
 		endif
 		
 		let OEKSETimer500msec := 0

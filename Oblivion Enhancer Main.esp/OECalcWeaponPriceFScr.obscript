@@ -20,7 +20,7 @@ ref ItemRef
 
 begin function {ItemRef, WeaponDamage, SlotMin, SlotMax, MinItemPrice, MaxItemPrice, ItemForRebalanceFlag}
 
-debugprint "Вызов функции OECalcWeaponPriceFScr - рассчет стоимости оружия (незачарованного)"
+debugprint "Вызов функции OECalcWeaponPriceFScr - расчет стоимости оружия (незачарованного)"
 
 debugprint "Урон - [%f], урон макс. - [%f]" WeaponDamage SlotMax
 if SlotMin != SlotMax

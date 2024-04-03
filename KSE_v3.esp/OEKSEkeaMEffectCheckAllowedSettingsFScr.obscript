@@ -236,9 +236,6 @@ endif
 if KeaDMGPenStaggerBaseAgi < 1 || KeaDMGPenStaggerBaseAgi > 100
 	set KeaDMGPenStaggerBaseAgi to 50
 endif
-if KeaPCToughtness < 0 || KeaPCToughtness > 1
-	set KeaPCToughtness to 1
-endif
 if KeaWondsHealRestoreEfMod < 1 || KeaWondsHealRestoreEfMod > 100
 	set KeaWondsHealRestoreEfMod to 15
 endif

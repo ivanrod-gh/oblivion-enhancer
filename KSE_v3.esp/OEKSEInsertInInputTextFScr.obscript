@@ -32,10 +32,11 @@ endif
 
 InsertInInputText "<hr><FONT face=1><div align=center><FONT color=0000FF>Усиленые параметры игрока:</FONT><FONT face=3><div align=left>"
 if OEKSERestrictFunctions == 1	
-		InsertInInputText "<br>[текущее (<FONT color=00FF00>усиленное</FONT><FONT face=3>) (<FONT color=FFFF00>временно отнятое</FONT><FONT face=3>) (<FONT color=FF0000>поврежденное</FONT><FONT face=3>) (теоретическое) (<FONT color=acacac>максимальное</FONT><FONT face=3>) значения]<br>"
+		InsertInInputText "<br>[текущие значения: <FONT color=00FF00>усиленные</FONT><FONT face=3>, <FONT color=FFFF00>временно отнятые</FONT><FONT face=3>, <FONT color=FF0000>поврежденные</FONT><FONT face=3>, теоретические, <FONT color=acacac>максимальные</FONT><FONT face=3>]"
 	else
-		InsertInInputText "<br>[текущее (<FONT color=00FF00>усиленное</FONT><FONT face=3>) (<FONT color=FFFF00>временно отнятое</FONT><FONT face=3>) (<FONT color=FF0000>поврежденное</FONT><FONT face=3>) значения]<br>"
+		InsertInInputText "<br>[текущие значения: <FONT color=00FF00>усиленные</FONT><FONT face=3>, <FONT color=FFFF00>временно отнятые</FONT><FONT face=3>, <FONT color=FF0000>поврежденные</FONT><FONT face=3>]"
 endif
+InsertInInputText "<br>"
 
 if player.GetAVModC 8 max != 0 || KeaHPenalty != 0
 	let mpowup := player.GetTotalAENonAbilityMagnitude FOHE Health

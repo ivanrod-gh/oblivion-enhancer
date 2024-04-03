@@ -1,0 +1,28 @@
+﻿scn OEKSEGetMeleeAttackAnimGroup
+
+short AnimGroup
+
+ref ActorRef
+
+begin function { ActorRef }
+
+let AnimGroup := 0
+if ActorRef.IsAnimGroupPlaying AttackLeft
+	let AnimGroup := 20
+elseif ActorRef.IsAnimGroupPlaying AttackRight
+	let AnimGroup := 21
+elseif ActorRef.IsAnimGroupPlaying AttackPower
+	let AnimGroup := 22
+elseif ActorRef.IsAnimGroupPlaying AttackForwardPower
+	let AnimGroup := 23
+elseif ActorRef.IsAnimGroupPlaying AttackBackPower
+	let AnimGroup := 24
+elseif ActorRef.IsAnimGroupPlaying AttackLeftPower
+	let AnimGroup := 25
+elseif ActorRef.IsAnimGroupPlaying AttackRightPower
+	let AnimGroup := 26
+endif
+
+SetFunctionValue AnimGroup
+
+end

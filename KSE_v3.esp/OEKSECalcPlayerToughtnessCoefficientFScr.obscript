@@ -6,7 +6,6 @@ short CurrentWeaponType
 short PlayerIsEquippedWithLightArmor
 short PlayerIsEquippedWithHeavyArmor
 short PlayerIsEquippedWithNoneArmor
-short EnemiesAroundPCCount
 float ActorsCoef
 float ToughtnessCoefficient
 
@@ -15,7 +14,7 @@ ref ActorRef
 
 begin function {}
 
-if KeaPCToughtness == 1 && GetSelf == PlayerRef
+if OEKSEPCToughness == 1 && GetSelf == PlayerRef
 else
 	SetFunctionValue 1
 	return
@@ -157,27 +156,14 @@ if PlayerRef.GetAV Marksman > SkillsVal && ( PlayerRef.GetWeaponAnimType == 3) &
 	let SkillsVal := PlayerRef.GetAV Marksman
 endif
 
-let EnemiesAroundPCCount := 0
-let ActorRef := GetFirstRef 69 2
-while ActorRef
-	if ActorRef.GetDead == 1 || ActorRef.GetDisabled == 1
-		let ActorRef := GetNextRef
-		continue
-	endif
-	if ActorRef.GetDistance PlayerRef < 250 && ( ActorRef.GetShouldAttack PlayerRef == 1 || ActorRef.GetCombatTarget == PlayerRef)
-		let EnemiesAroundPCCount += 1
-	endif
-	let ActorRef := GetNextRef
-loop
-
 let ActorsCoef := 1
-if EnemiesAroundPCCount == 2
+if OEKSEBattleEnvironmentObserverQ.OEKSEEnemiesAtDistance500Count == 2
 	let ActorsCoef := 1.25
-elseif EnemiesAroundPCCount == 3
+elseif OEKSEBattleEnvironmentObserverQ.OEKSEEnemiesAtDistance500Count == 3
 	let ActorsCoef := 1.5
-elseif EnemiesAroundPCCount == 4
+elseif OEKSEBattleEnvironmentObserverQ.OEKSEEnemiesAtDistance500Count == 4
 	let ActorsCoef := 2
-elseif EnemiesAroundPCCount >= 5
+elseif OEKSEBattleEnvironmentObserverQ.OEKSEEnemiesAtDistance500Count >= 5
 	let ActorsCoef := 3
 endif
 

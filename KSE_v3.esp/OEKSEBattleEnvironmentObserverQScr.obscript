@@ -1,0 +1,141 @@
+﻿scn OEKSEBattleEnvironmentObserverQScr
+
+float fQuestDelayTime
+
+array_var OEKSEEnemiesArray
+array_var OEKSENeutralsOrAliesArray
+array_var OEKSEFollowersArray
+
+short OEKSEQuestLocked
+short OEKSEEnemiesAtDistance500Count
+short OEKSENeutralsOrAliesAtDistance500OrFollowersCount
+short OEKSEIsNotInCombatCounter
+short OEKSEArrSize
+short OEKSEIndex
+short OEKSECommandSpellWasCasted
+short OEKSEEffectsCount
+int EffectCode
+
+ref OEKSEActorRef
+ref OEKSECasterRef
+
+begin gamemode
+
+if GetGameLoaded || GetGameRestarted
+	let fQuestDelayTime := 0.5
+	
+	set OEKSEQuestLocked to OEKSEQuestLocked - 1
+endif
+if OEKSEQuestLocked != 0
+	if OEKSEInitQ.OEKSEInitializationCount > 0
+		set OEKSEInitQ.OEKSEInitializationCount to OEKSEInitQ.OEKSEInitializationCount - 1
+		set OEKSEQuestLocked to 0
+	else
+		return
+	endif
+endif
+
+;расчет вне боя - раз в 5 секунд
+if PlayerRef.IsInCombat == 0
+	if OEKSECommandSpellWasCasted == 1
+		let OEKSECommandSpellWasCasted := 0
+	endif
+	
+	let OEKSEIsNotInCombatCounter -= 1
+	if OEKSEIsNotInCombatCounter < 0
+		let OEKSEIsNotInCombatCounter := 10
+	else
+		return
+	endif
+endif
+
+let OEKSEEnemiesAtDistance500Count := 0
+let OEKSENeutralsOrAliesAtDistance500OrFollowersCount := 0
+let OEKSEEnemiesArray := ar_Construct StringMap
+let OEKSENeutralsOrAliesArray := ar_Construct StringMap
+
+;все напарники и призванные существа учитываются как нейтралы/союзники
+let OEKSEFollowersArray := PlayerRef.GetFollowers
+let OEKSEIndex := 0
+let OEKSEArrSize := ar_size OEKSEFollowersArray
+while OEKSEIndex < OEKSEArrSize
+	let OEKSEActorRef := OEKSEFollowersArray[OEKSEIndex]
+	if IsFormValid OEKSEActorRef == 1 && OEKSEActorRef.GetDead == 0 && OEKSEActorRef.GetDisabled == 0
+		let OEKSENeutralsOrAliesArray[GetRawFormIdString OEKSEActorRef] := 1
+	endif
+	let OEKSEIndex += 1
+loop
+
+;больше проверок актеров, если было произнесено заклинание типа "приказ"
+;актеры под управлением игрока считаются нейтралами/союзниками
+if OEKSECommandSpellWasCasted == 1
+	let OEKSEActorRef := GetFirstRef 69 1
+	while OEKSEActorRef
+		if OEKSEActorRef.GetDead == 1 || OEKSEActorRef.GetDisabled == 1
+			let OEKSEActorRef := GetNextRef
+			continue
+		endif
+		if OEKSEActorRef.GetBaseAV Health > PlayerRef.GetLevel * 5
+			if OEKSEActorRef.GetDistance PlayerRef < 500
+				if OEKSEActorRef.GetObjectType == 35 && OEKSEActorRef.HasMagicEffect "COHU" == 1
+					let OEKSEEffectsCount := OEKSEActorRef.GetActiveEffectCount
+					let OEKSEIndex := 0
+					if OEKSEEffectsCount > 0
+						while OEKSEIndex < OEKSEEffectsCount
+							let EffectCode := OEKSEActorRef.GetNthActiveEffectCode OEKSEIndex
+							if eval(GetMagicEffectCharsC EffectCode == "COHU")
+								let OEKSECasterRef := OEKSEActorRef.GetNthActiveEffectCaster OEKSEIndex
+								if OEKSECasterRef == PlayerRef
+									let OEKSENeutralsOrAliesArray[GetRawFormIdString OEKSEActorRef] := 1
+									break
+								endif
+							endif
+							let OEKSEIndex += 1
+						loop
+					endif
+				elseif OEKSEActorRef.GetObjectType == 36 && OEKSEActorRef.HasMagicEffect "COCR" == 1
+					let OEKSEEffectsCount := OEKSEActorRef.GetActiveEffectCount
+					let OEKSEIndex := 0
+					if OEKSEEffectsCount > 0
+						while OEKSEIndex < OEKSEEffectsCount
+							let EffectCode := OEKSEActorRef.GetNthActiveEffectCode OEKSEIndex
+							if eval(GetMagicEffectCharsC EffectCode == "COCR")
+								let OEKSECasterRef := OEKSEActorRef.GetNthActiveEffectCaster OEKSEIndex
+								if OEKSECasterRef == PlayerRef
+									let OEKSENeutralsOrAliesArray[GetRawFormIdString OEKSEActorRef] := 1
+									break
+								endif
+							endif
+							let OEKSEIndex += 1
+						loop
+					endif
+				endif
+			endif
+		endif
+		let OEKSEActorRef := GetNextRef
+	loop
+endif
+
+;обработка актеров поблизости
+let OEKSEActorRef := GetFirstRef 69 1
+while OEKSEActorRef
+	if OEKSEActorRef.GetDead == 1 || OEKSEActorRef.GetDisabled == 1
+		let OEKSEActorRef := GetNextRef
+		continue
+	endif
+	if OEKSEActorRef.GetBaseAV Health > PlayerRef.GetLevel * 5
+		if OEKSEActorRef.GetDistance PlayerRef < 500
+			if OEKSEActorRef.GetShouldAttack PlayerRef > 0 || OEKSEActorRef.GetDisposition PlayerRef < 30 || OEKSEActorRef.GetCombatTarget == PlayerRef
+				let OEKSEEnemiesArray[GetRawFormIdString OEKSEActorRef] := 1
+			else
+				let OEKSENeutralsOrAliesArray[GetRawFormIdString OEKSEActorRef] := 1
+			endif
+		endif
+	endif
+	let OEKSEActorRef := GetNextRef
+loop
+
+let OEKSEEnemiesAtDistance500Count := ar_size OEKSEEnemiesArray
+let OEKSENeutralsOrAliesAtDistance500OrFollowersCount := ar_size OEKSENeutralsOrAliesArray
+
+end

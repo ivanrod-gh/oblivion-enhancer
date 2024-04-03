@@ -1,0 +1,73 @@
+﻿scn OEKSEInsertInInputText4FScr
+
+float PhysicalDamageMult
+
+begin function {}
+
+InsertInInputText "<hr><FONT face=1><div align=center><FONT color=0000FF>Способность атаковать в ближнем бою:</FONT>"
+InsertInInputText "<br>"
+InsertInInputText "<br><FONT face=3>Базовое значение расы = %.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageRaceMod
+
+InsertInInputText "<br><FONT face=1><FONT color=7C7C7C>----------<FONT face=3>Бонус/штраф</FONT><FONT face=1><FONT color=7C7C7C>----------</FONT>"
+if OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod < 1
+	InsertInInputText "<br><FONT face=3>Развитие персонажа (бой/магия) = <FONT color=FF0000>%.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod
+elseif OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod > 1 && OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod < 1.5
+	InsertInInputText "<br><FONT face=3>Развитие персонажа (бой/магия) = <FONT color=00FF00>%.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod
+elseif OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod >= 1.5
+	InsertInInputText "<br><FONT face=3>Развитие персонажа (бой/магия) = <FONT color=005b04>%.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod
+else
+	InsertInInputText "<br><FONT face=3>Развитие персонажа (бой/магия) = %.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageProgressBalanceMod
+endif
+
+InsertInInputText "<br><FONT face=1><FONT color=7C7C7C>------------<FONT face=3>Штраф</FONT><FONT face=1><FONT color=7C7C7C>------------</FONT>"
+if OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount == 0
+	InsertInInputText "<br><FONT face=3>Нейтралов/союзников рядом или напарников/призванных существ на любом расстоянии = %g</FONT>" OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount
+else
+	InsertInInputText "<br><FONT face=3>Нейтралов/союзников рядом или напарников/призванных существ на любом расстоянии = <FONT color=FF0000>%g</FONT>" OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount
+endif
+
+InsertInInputText "<br><FONT face=1><FONT color=7C7C7C>----------------------------</FONT>"
+InsertInInputText "<br><FONT face=3>Количество врагов рядом и множители физического урона:</FONT>"
+InsertInInputText "<br><FONT face=3>1 враг = <FONT color=0000FF>x1.00</FONT>"
+let PhysicalDamageMult := OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageEnemy2DamMod
+if OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount == 1
+	let PhysicalDamageMult := PhysicalDamageMult * 0.5
+elseif OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount > 1
+	let PhysicalDamageMult := 0
+endif
+let PhysicalDamageMult := PhysicalDamageMult + 1
+InsertInInputText "<br><FONT face=3>2 врага = <FONT color=0000FF>x%.2f</FONT>" PhysicalDamageMult
+let PhysicalDamageMult := OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageEnemy3DamMod
+if OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount == 1
+	let PhysicalDamageMult := PhysicalDamageMult * 0.5
+elseif OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount > 1
+	let PhysicalDamageMult := 0
+endif
+let PhysicalDamageMult := PhysicalDamageMult + 1
+InsertInInputText "<br><FONT face=3>3 врага = <FONT color=0000FF>x%.2f</FONT>" PhysicalDamageMult
+let PhysicalDamageMult := OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageEnemy4DamMod
+if OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount == 1
+	let PhysicalDamageMult := PhysicalDamageMult * 0.5
+elseif OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount > 1
+	let PhysicalDamageMult := 0
+endif
+let PhysicalDamageMult := PhysicalDamageMult + 1
+InsertInInputText "<br><FONT face=3>4 врага = <FONT color=0000FF>x%.2f</FONT>" PhysicalDamageMult
+let PhysicalDamageMult := OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageEnemy5DamMod
+if OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount == 1
+	let PhysicalDamageMult := PhysicalDamageMult * 0.5
+elseif OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount > 1
+	let PhysicalDamageMult := 0
+endif
+let PhysicalDamageMult := PhysicalDamageMult + 1
+InsertInInputText "<br><FONT face=3>5 врагов = <FONT color=0000FF>x%.2f</FONT>" PhysicalDamageMult
+let PhysicalDamageMult := OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatEnhancedDamageEnemy6DamMod
+if OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount == 1
+	let PhysicalDamageMult := PhysicalDamageMult * 0.5
+elseif OEKSEBattleEnvironmentObserverQ.OEKSENeutralsOrAliesAtDistance500OrFollowersCount > 1
+	let PhysicalDamageMult := 0
+endif
+let PhysicalDamageMult := PhysicalDamageMult + 1
+InsertInInputText "<br><FONT face=3>6+ врагов = <FONT color=0000FF>x%.2f</FONT>" PhysicalDamageMult
+
+end

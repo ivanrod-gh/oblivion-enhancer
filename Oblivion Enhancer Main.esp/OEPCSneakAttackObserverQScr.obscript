@@ -1,0 +1,65 @@
+﻿scn OEPCSneakAttackObserverQScr
+
+float fQuestDelayTime
+
+array_var OEActorsUnderSneakAttackArray
+array_var OEArrayElement
+
+short OEQuestLocked
+short OEPCCriticalMod
+short OEArraySize1
+short OEIndex1
+float OEReflectDamageNew
+
+ref OEActorRef
+
+begin gamemode
+
+if GetGameLoaded || GetGameRestarted
+	if eval(ar_size OEActorsUnderSneakAttackArray) == -1
+		let OEActorsUnderSneakAttackArray := ar_Construct StringMap
+	endif
+	
+	let OEQuestLocked := -1
+endif
+
+if OEQuestLocked != 0
+	if OEInitQ.OEInitializationCount > 0
+		set OEInitQ.OEInitializationCount to OEInitQ.OEInitializationCount - 1
+		set OEQuestLocked to 0
+	else
+		return
+	endif
+endif
+
+if OEMitigatePCMeleeSneakAttackReflectDamage == 0
+	let fQuestDelayTime := 5
+	return
+endif
+
+if eval(ar_size OEActorsUnderSneakAttackArray) > 0
+	let fQuestDelayTime := 0.01
+else
+	let fQuestDelayTime := 0.25
+endif
+
+foreach OEArrayElement <- OEActorsUnderSneakAttackArray
+	let OEActorRef := OEArrayElement["value"]["ref"]
+	
+	if IsFormValid OEActorRef == 0
+		ar_erase OEActorsUnderSneakAttackArray GetRawFormIDString OEActorRef
+		continue
+	elseif OEActorRef.GetDead == 1 || OEActorRef.GetDisabled == 1
+		ar_erase OEActorsUnderSneakAttackArray GetRawFormIDString OEActorRef
+		continue
+	endif
+	
+	let OEArrayElement["value"]["counter"] -= 1
+	if eval(OEArrayElement["value"]["counter"]) == 0
+		Call OEManageReflectDamageReductionFScr OEActorRef 1
+		ar_erase OEActorsUnderSneakAttackArray GetRawFormIDString OEActorRef
+		continue
+	endif
+loop
+
+end

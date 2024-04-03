@@ -19,6 +19,8 @@ SetBatchLines, -1
 	Patches[8] := "v1.1.1_pre1"
 	Patches[9] := "v1.1.1"
 	Patches[10] := "v1.1.2"
+	Patches[11] := "v1.1.3_pre1"
+	Patches[12] := "v1.1.3"
 	
 	PatchesCount := Patches.MaxIndex() + 1
 	PatchesMaxIndex := Patches.MaxIndex()
@@ -1969,6 +1971,452 @@ InstallPatch:
 		ChangeArr[2] := 1
 		ChangeArr[3] := "set OESkillMysticismUse1 to 2.0"
 		ChangeArr[4] := "set OESkillMysticismUse1 to 1.25					`;(1.25) мистицизм (ударить цель заклинанием мистицизма)"
+		Changes.Push(ChangeArr)
+		
+		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+		
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 11
+		ChangeArr[2] := 2
+		ChangeArr[3] := "set KeaPCToughtness to 1"
+		ChangeArr[4] := "set OEKSEPCToughness to 1										`;short (1) С развитием навыков персонаж игрока начинает лучше понимать, как вести бой. Это дает ему возможность противостоять противникам и оставаться на ногах даже в самых жарких схватках. Чем больше знает и умеет игрок, тем реже он оказывается на земле, а если игрока окружили враги, то способность возрастает еще сильнее! Только для тех, кто развивает воинское ремесло"
+		Changes.Push(ChangeArr)
+		
+		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+		
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 1
+		ChangeArr[3] := "set KeaSKILLWisdomMAX to 100"
+		ChangeArr[4] := "set KeaSKILLWisdomMAX to 200				`;short (100) - максимум развития навыка ""Мудрость"""
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 1
+		ChangeArr[3] := "set KeaSKILLMedicMAX to 100"
+		ChangeArr[4] := "set KeaSKILLMedicMAX to 200					`;short (100) - тоже самое - но для ""Медицина"""
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 2
+		ChangeArr[3] := "set KeaRandomWeaponPowerMod to 1.0"
+		ChangeArr[4] := "set KeaRandomWeaponPowerMod to 1.0			`;float (1.0) Модификатор усиления оружия, умножается на значение максимального усиления оружия, при этом минимальное усиление оружия будет равно 0.5 от максимального (например, на 0 уровне игрока и при KeaRandomWeaponPowerMod = 1.5 максимальное усиление оружия будет 25*1.5= +37.5%, а минимальное будет 37.5*0.5= +18.75%)"
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 2
+		ChangeArr[3] := "set KeaRandomArmorPowerMod to 1.0"
+		ChangeArr[4] := "set KeaRandomArmorPowerMod to 1.0			`;float (1.0) Модификатор усиления брони. Минимальное усиление = 0.5 от максимального"
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 2
+		ChangeArr[3] := "set KeaRandomEnchantPowerMod to 1.0"
+		ChangeArr[4] := "set KeaRandomEnchantPowerMod to 1.0			`;float (1.0) Модификатор усиления зачарований (оружия/броня). Минимальное усиление = 0.75 от максимального"
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 2
+		ChangeArr[3] := "set KeaRandomStaffPowerMod to 1.0"
+		ChangeArr[4] := "set KeaRandomStaffPowerMod to 1.0			`;float (1.0) Модификатор усиления посохов. Минимальное усиление = 0.75 от максимального"
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set KeaSettingRedBlink"
+		ChangeArr[4] := "set OEKSEBladeGoverningSpeed to 0 			`;short (0) Позволяет изменить привязку навыка ""клинки"" к атрибуту, который будет увеличиваться при повышении уровня (если игрок до повышения уровня повысил владение навыком ""клинки""). При 0 будет расти сила, при 1 - скорость"
+		StringsArr := []
+		StringsArr.Push("`;[0,1]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 1
+		ChangeArr[3] := "setGS fDamagePowerAttackForwardBonus 4.0"
+		ChangeArr[4] := "setGS fDamagePowerAttackForwardBonus 2.5	`;float (v:3,KSE:5) во сколько раз сильнее ""мощная атака"" при движении вперед (удар с шагом вперед)"
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 2
+		ChangeArr[3] := "set OEKSEAddDamagePowCritChancePC"
+		ChangeArr[4] := "set OEKSEAddDamagePowCritChancePC to 50		`;short (50) Шанс того, что удар, наносящий минимальный физический урон по игроку, будет усиленным критическим (х2.0), а не обычным критическим. Шанс усиленного критического удара перемножается с шансом обычного критического удара, т.е. общий шанс получить усиленный критический удар равен 0.2*0.5=0.1=10%"
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set KeaDMGPenStaggerBaseAgi"
+		ChangeArr[4] := "`nset OEKSEPCHealthPenaltyRestriction to 1						`;short (1) Ограничивает дополнительный урон КСЕ по игроку (от ударов в спину, во время атаки, во время произнесения заклинания и т.п.). Не ограничивает стандартный игровой урон (например, силовой удар от бандита с двуручным оружием в руках все еще причиняет существенный урон) или урон от магии"
+		StringsArr := []
+		StringsArr.Push("`;[0,1]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set KeaDMGPenStaggerBaseAgi"
+		ChangeArr[4] := "`nset OEKSEPCHealthPenaltyRestrictionBaseAttack to 0.15			`;float (0.15) Если игрок получает обычный удар ближнего боя или урон от стрелы и суммарный урон превышает это значение (0.15=15% от базового значения жизни), то любой дополнительный урон выше этого значения для этого удара отменяется"
+		StringsArr := []
+		StringsArr.Push("`;[0.0..1.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set KeaDMGPenStaggerBaseAgi"
+		ChangeArr[4] := "set OEKSEPCHealthPenaltyRestrictionPowerAttack to 0.25			`;float (0.25) То же самое, но для силовых атак ближнего боя"
+		StringsArr := []
+		StringsArr.Push("`;[0.0..1.0]`n")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "`n`nset OEKSEPCMeleeCombatRegulation to 1							`;short (1) Дает игроку пассивную способность обороняться в ближнем бою. Фактически - включает систему регулирования количества НПС и монстров, атакующих игрока в ближнем бою. Количество атакующих зависит от расы, боевых и магических навыков и атрибутов игрока. Хорошо подходит для бойцов ближнего боя, для магов почти бесполезна. Количество атакующих незначительно изменяется каждые несколько секунд (условно, в течение 2 секунд игрока могут атаковать не более 2 врагов, затем в течение 4 секунд не более 3 врагов и т.д.). Не влияет на битвы 1 на 1. Не влияет на вражеские выстрелы из лука и произнесение заклинаний врагами. Влияет на НПС и монстров только тогда, когда их цель - игрок, но не на их бои между собой. Совсем слабые существа (крысы, крабы и т.п.) не учитываются. Работает только при KeaSettingWSpeed = 1"
+		StringsArr := []
+		StringsArr.Push("`;[0,1]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "`nset OEKSEPCMeleeCombatRegulationConsiderCreatures to 1			`;short (1) Учитывать монстров, атакующих игрока. При 0 будут учитываться только НПС (бандиты и т.п.), а монстры (зомби, гоблины, кланфиры и т.п.) не будут никак ограничены"
+		StringsArr := []
+		StringsArr.Push("`;[0,1]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "`nset OEKSEPCMeleeCombatRegulationRaceImperial to 2.65			`;float (2.65) Базовое количество атакующих, если персонаж игрока имеет расу ""имперец"". От 1 до 4. Например, 2.65, если не учитывать развитие персонажа, означает не более 2.65 атакующих одновременно (среднее значение) и это значение будет меняться в диапазоне от 2.15 до 3.15 каждые несколько секунд. В итоге игрока в ближнем бою будут атаковать 35% времени не более 2 врагов и 65% не более 3 врагов"
+		StringsArr := []
+		StringsArr.Push("`;[1.0..4.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatRegulationRaceKhajiit to 2.2				`;float (2.2) Каджит"
+		StringsArr := []
+		StringsArr.Push("`;[1.0..4.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatRegulationRaceWoodElf to 2.35				`;float (2.35) Лесной эльф"
+		StringsArr := []
+		StringsArr.Push("`;[1.0..4.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatRegulationRaceNord to 2.5					`;float (2.5) Норд"
+		StringsArr := []
+		StringsArr.Push("`;[1.0..4.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatRegulationRaceOrc to 2.5					`;float (2.5) Орк"
+		StringsArr := []
+		StringsArr.Push("`;[1.0..4.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatRegulationRaceRedguard to 2.5				`;float (2.5) Редгард"
+		StringsArr := []
+		StringsArr.Push("`;[1.0..4.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatRegulationRaceDarkElf to 2.65				`;float (2.65) Тёмный эльф"
+		StringsArr := []
+		StringsArr.Push("`;[1.0..4.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatRegulationRaceArgonian to 2.2				`;float (2.2) Аргонианин"
+		StringsArr := []
+		StringsArr.Push("`;[1.0..4.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatRegulationRaceBreton to 2.8				`;float (2.8) Бретонец"
+		StringsArr := []
+		StringsArr.Push("`;[1.0..4.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatRegulationRaceHighElf to 2.95				`;float (2.95) Высокий эльф"
+		StringsArr := []
+		StringsArr.Push("`;[1.0..4.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "`nset OEKSEPCMeleeCombatRegulationConsiderPhysics to 1			`;short (1) Учитывать развитие боевых навыков (клинки, дробящее оружие и рукопашный бой) и атрибутов (сила, ловкость, скорость и выносливость) при расчете модификатора количества атакующих. Если развивать боевые навыки и атрибуты, то количество атакующих игрока врагов в ближнем бою снизится (игрок выбрал путь развития бойца ближнего боя)"
+		StringsArr := []
+		StringsArr.Push("`;[0,1]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "`nset OEKSEPCMeleeCombatRegulationConsiderMagic to 1				`;short (1) Учитывать выбор магической расы, магического знака рождения, развитие магических навыков и атрибутов. Если выбрать магическую расу (высокий эльф, бретонец - имеют расовый бонус увеличения магии), взять магический знак рождения (маг, ученик, атронах), развивать боевые магические навыки (разрушение и колдовство, менее строго - мистицизм) и магические атрибуты (интеллект и силу волу), то количество атакующих игрока врагов в ближнем бою увеличится (игрок выбрал путь развития мага)"
+		StringsArr := []
+		StringsArr.Push("`;[0,1]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "`nset OEKSEPCMeleeCombatRegulationInfo to 1						`;short (1) Добавляет информацию по способности в книгу дополнительной статистики KSE. Эта способность учитывает только базовые (не измененные магией) значения навыков/атрибутов"
+		StringsArr := []
+		StringsArr.Push("`;[0,1]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "`n`nset OEKSEPCMeleeCombatEnhancedDamage to 1						`;short (1) Дает игроку пассивную способность, позволяющую использовать численное приемущество врага против них самих. Противники в бою не координируют атаки друг с другом и это дает возможность подготовленным бойцам проводить против них более умелые атаки, тем самым увеличивая свой физический урон в ближнем бою. При этом любые нейтралы (или союзники, напарники, призванные существа), которые ""путаются под ногами"" в бою и ведут собственную войну, мешают игроку сконцентрироваться на противнике - даже один такой ""помощник"" значительно снижает эффективность способности, а 2 и более полностью обнуляют эффект способности! Физически более крепкие расы (например - норды) используют способность более эффективно по сравнению с расами, которые предпочитают магию боевой подготовке (например - высокие эльфы). Чем больше развиты боевые навыки и атрибуты по сравнению с магическими, тем выше эффективность способности и наоборот. Совсем слабые существа (крысы, крабы и т.п.) не учитываются"
+		StringsArr := []
+		StringsArr.Push("`;[0,1]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "`nset OEKSEPCMeleeCombatEnhancedDamageRaceImperial to 1.1			`;float (1.1) Модификатор эффективности способности для расы ""имперец"". Влияет на дополнительный физический урон в ближнем бою с несколькими противниками - если >1, то увеличивает его, если < 1, то уменьшает"
+		StringsArr := []
+		StringsArr.Push("`;[0.5..2.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatEnhancedDamageRaceKhajiit to 0.95			`;float (0.95) Каджит"
+		StringsArr := []
+		StringsArr.Push("`;[0.5..2.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatEnhancedDamageRaceWoodElf to 1.0			`;float (1.0) Лесной эльф"
+		StringsArr := []
+		StringsArr.Push("`;[0.5..2.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatEnhancedDamageRaceNord to 1.25			`;float (1.25) Норд"
+		StringsArr := []
+		StringsArr.Push("`;[0.5..2.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatEnhancedDamageRaceOrc to 1.3				`;float (1.3) Орк"
+		StringsArr := []
+		StringsArr.Push("`;[0.5..2.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatEnhancedDamageRaceRedguard to 1.2			`;float (1.2) Редгард"
+		StringsArr := []
+		StringsArr.Push("`;[0.5..2.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatEnhancedDamageRaceDarkElf to 1.1			`;float (1.1) Тёмный эльф"
+		StringsArr := []
+		StringsArr.Push("`;[0.5..2.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatEnhancedDamageRaceArgonian to 0.95		`;float (0.95) Аргонианин"
+		StringsArr := []
+		StringsArr.Push("`;[0.5..2.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatEnhancedDamageRaceBreton to 0.85			`;float (0.85) Бретонец"
+		StringsArr := []
+		StringsArr.Push("`;[0.5..2.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "set OEKSEPCMeleeCombatEnhancedDamageRaceHighElf to 0.75			`;float (0.75) Высокий эльф"
+		StringsArr := []
+		StringsArr.Push("`;[0.5..2.0]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "KeaSkillExtender.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEKSEPCToughness"
+		ChangeArr[4] := "`nset OEKSEPCMeleeCombatEnhancedDamageInfo to 1					`;short (1) Добавляет информацию по способности в книгу дополнительной статистики KSE. Эта способность учитывает только базовые (не измененные магией) значения навыков/атрибутов/параметров"
+		StringsArr := []
+		StringsArr.Push("`;[0,1]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		;
+		ChangeArr := []
+		ChangeArr[0] := "Oblivion Enhancer.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 4
+		ChangeArr[3] := "set OEWeaponSelfRecharge"
+		ChangeArr[4] := "`nset OEMitigatePCMeleeSneakAttackReflectDamage to 1	`;(1) ограничивает отраженный урон, который получает игрок при проведении скрытой атаки ближнего боя по НПС и существам. По умолчанию, чем выше множитель критического удара, тем больше игрок получает отраженного урона и, при определенных условиях, убивает сам себя с одного удара. При 1 в расчете отраженного урона по игроку не будет применяться множитель критического удара. Исключения: НПС и существа со 100% отражением урона"
+		StringsArr := []
+		StringsArr.Push("`;[0,1][short]")
+		ChangeArr[5] := StringsSum(StringsArr, ChangeArr[2])
+		Changes.Push(ChangeArr)
+		;
+		ChangeArr := []
+		ChangeArr[0] := "Oblivion Enhancer.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 1
+		ChangeArr[3] := "set OEAdditionalHealthBoostLevel"
+		ChangeArr[4] := "set OEAdditionalHealthBoostLevel to 5				`;(5) начиная с какого уровня будут встречаться НПС и существа с дополнительным значением жизни"
+		Changes.Push(ChangeArr)
+		;
+		;
+		ChangeArr := []
+		ChangeArr[0] := "SupremeMagicka.ini"
+		ChangeArr[1] := 12
+		ChangeArr[2] := 1
+		ChangeArr[3] := "set SMNewSpells to 0"
+		ChangeArr[4] := "set SMNewSpells to 0						`;(0) при 1 добавляет в игру новые заклинания от SupremeMagicka, ломающие баланс, при 0 - убирает их из игры. Заклинания, добавляемые настройками SMNewSpells и SMNewSuitableSpells - это два разных набора заклинаний"
 		Changes.Push(ChangeArr)
 		
 

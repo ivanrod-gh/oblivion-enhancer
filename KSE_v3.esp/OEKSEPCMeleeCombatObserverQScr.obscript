@@ -1,0 +1,85 @@
+﻿scn OEKSEPCMeleeCombatObserverQScr
+
+float fQuestDelayTime
+
+array_var OEKSEPCMeleeAttackersArray
+array_var OEKSEPCMeleeAttacker
+
+short OEKSEQuestLocked
+short OEKSEPCAttackersCount
+short OEKSEPCAttackersCountMax
+float OEKSEPCAttackersCountRandMin
+float OEKSEPCAttackersCountRandMax
+float OEKSEPCAttackersCountRandResult
+float OEKSERandTimer
+float OEKSEFloat
+
+ref ActorRef
+
+begin gamemode
+
+if GetGameLoaded || GetGameRestarted
+	if eval(ar_size OEKSEPCMeleeAttackersArray) < 0
+		let OEKSEPCMeleeAttackersArray := ar_Construct StringMap
+	endif
+	let OEKSEPCAttackersCountMax := 99
+	let OEKSERandTimer := 0
+	let fQuestDelayTime := 0.25
+	
+	set OEKSEQuestLocked to OEKSEQuestLocked - 1
+endif
+if OEKSEQuestLocked != 0
+	if OEKSEInitQ.OEKSEInitializationCount > 0
+		set OEKSEInitQ.OEKSEInitializationCount to OEKSEInitQ.OEKSEInitializationCount - 1
+		set OEKSEQuestLocked to 0
+	else
+		return
+	endif
+endif
+
+if OEKSEPCMeleeCombatRegulation == 0 || KeaSettingWSpeed == 0
+	return
+endif
+
+if PlayerRef.IsInCombat == 1 || eval(ar_size OEKSEPCMeleeAttackersArray) > 0
+	let fQuestDelayTime := 0.1
+else
+	let fQuestDelayTime := 0.25
+endif
+
+;расчет количества актеров, одновременно атакующих игрока в ближнем бою
+;количество атакующих: от 1 до 4
+let OEKSERandTimer := OEKSERandTimer - GetSecondsPassed
+if OEKSERandTimer < 0
+	let OEKSEPCAttackersCountRandMin := OEKSEInitQ.OEKSEPCAttackersCountBase - 0.5
+	if OEKSEPCAttackersCountRandMin < 1
+		let OEKSEPCAttackersCountRandMin := 1
+	endif
+	let OEKSEPCAttackersCountRandMax := OEKSEInitQ.OEKSEPCAttackersCountBase + 0.5
+	if OEKSEPCAttackersCountRandMax > 4
+		let OEKSEPCAttackersCountRandMax := 4
+	endif
+	let OEKSEPCAttackersCountRandResult := rand OEKSEPCAttackersCountRandMin OEKSEPCAttackersCountRandMax
+
+	;изобретение формулы округления чисел
+	if eval(OEKSEPCAttackersCountRandResult - Floor OEKSEPCAttackersCountRandResult) < 0.5
+		let OEKSEPCAttackersCountMax := Floor OEKSEPCAttackersCountRandResult
+	else
+		let OEKSEPCAttackersCountMax := Ceil OEKSEPCAttackersCountRandResult
+	endif
+	let OEKSERandTimer := rand 2 4
+endif
+
+foreach OEKSEPCMeleeAttacker <- OEKSEPCMeleeAttackersArray
+	let ActorRef := OEKSEPCMeleeAttacker["value"]
+	if IsFormValid ActorRef == 0 || ActorRef.GetDisabled == 1 || ActorRef.GetDead == 1
+		ar_erase OEKSEPCMeleeAttackersArray GetRawFormIDString ActorRef
+		continue
+	endif
+	
+	if eval(Call OEKSEGetMeleeAttackAnimGroup ActorRef) == 0
+		ar_erase OEKSEPCMeleeAttackersArray GetRawFormIDString ActorRef
+	endif
+loop
+
+end

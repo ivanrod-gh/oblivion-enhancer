@@ -1,0 +1,40 @@
+﻿scn OEActorReduceReflectDamageFScr
+
+short CriticalMult
+
+ref TargetRef
+ref AttackerRef
+ref WeaponRef
+
+begin function { TargetRef AttackerRef }
+
+debugprint "Вызов функции OEActorReduceReflectDamageFScr - уменьшение отраженного урона по игроку от скрытой атаки, сделанной игроком"
+
+if TargetRef.IsActor == 0
+	return
+elseif TargetRef.GetDead || TargetRef.GetDisabled
+	return
+elseif PlayerRef.IsSneaking == 0 || PlayerRef.IsAttacking == 0 || PlayerRef.IsCasting == 1 || TargetRef.GetAV ReflectDamage == 0 || TargetRef.GetDetectionLevel PlayerRef == 3
+	return
+elseif (TargetRef.GetTotalAEAbilityMagnitude REDG  + TargetRef.GetTotalAELesserPowerMagnitude REDG + TargetRef.GetTotalAEPowerMagnitude REDG) >= 100
+	return
+endif
+
+let WeaponRef := PlayerRef.GetEquippedObject 16
+if WeaponRef && (GetWeaponType WeaponRef == 1 || GetWeaponType WeaponRef > 2)
+	return
+endif
+
+let CriticalMult := Call OECalcPCMeleeCriticalMultFScr
+if CriticalMult <= 1
+	return
+endif
+
+if eval(ar_HasKey OEPCSneakAttackObserverQ.OEActorsUnderSneakAttackArray GetRawFormIDString TargetRef) == 0
+	Call OEManageReflectDamageReductionFScr TargetRef CriticalMult
+	let OEPCSneakAttackObserverQ.OEActorsUnderSneakAttackArray[GetRawFormIDString TargetRef] := ar_Construct StringMap
+	let OEPCSneakAttackObserverQ.OEActorsUnderSneakAttackArray[GetRawFormIDString TargetRef]["ref"] := TargetRef
+	let OEPCSneakAttackObserverQ.OEActorsUnderSneakAttackArray[GetRawFormIDString TargetRef]["counter"] := 2
+endif
+
+end

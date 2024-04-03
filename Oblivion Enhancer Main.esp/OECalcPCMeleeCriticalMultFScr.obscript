@@ -1,0 +1,25 @@
+﻿scn OECalcPCMeleeCriticalMultFScr
+
+short CriticalMult
+short PCSneakBaseAV
+
+begin function {}
+
+debugprint "Вызов функции OECalcPCMeleeCriticalMultFScr - расчет множителя критического удара (скрытая атака) для атаки ближнего боя"
+
+let PCSneakBaseAV := PlayerRef.GetBaseAV Sneak
+if PCSneakBaseAV < 25
+	let CriticalMult := GetGS fPerkSneakAttackMeleeNoviceMult
+elseif PCSneakBaseAV < 50
+	let CriticalMult := GetGS fPerkSneakAttackMeleeApprenticeMult
+elseif PCSneakBaseAV < 75
+	let CriticalMult := GetGS fPerkSneakAttackMeleeJourneymanMult
+elseif PCSneakBaseAV < 100
+	let CriticalMult := GetGS fPerkSneakAttackMeleeExpertMult
+else
+	let CriticalMult := GetGS fPerkSneakAttackMeleeMasterMult
+endif
+
+SetFunctionValue CriticalMult
+
+end

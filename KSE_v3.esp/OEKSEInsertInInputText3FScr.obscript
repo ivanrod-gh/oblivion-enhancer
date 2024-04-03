@@ -1,0 +1,91 @@
+﻿scn OEKSEInsertInInputText3FScr
+
+begin function {}
+
+InsertInInputText "<hr><FONT face=1><div align=center><FONT color=0000FF>Способность обороняться в ближнем бою:</FONT>"
+InsertInInputText "<br>"
+InsertInInputText "<br><FONT face=3>Базовое значение расы = %.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatRaceBase
+
+if OEKSEPCMeleeCombatRegulationConsiderPhysics == 1
+	InsertInInputText "<br><FONT face=1><FONT color=7C7C7C>------------<FONT face=3>Бонусы</FONT><FONT face=1><FONT color=7C7C7C>------------</FONT>"
+	if OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalSkillReward <= -0.25
+		InsertInInputText "<br><FONT face=3>Клинки/Дроб. ор./Рук. бой (%g+/<FONT color=005b04>%g+</FONT><FONT face=3>) = <FONT color=005b04>%.3f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalSkillPartiallyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalSkillFullyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalSkillReward
+	elseif OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalSkillReward < 0
+		InsertInInputText "<br><FONT face=3>Клинки/Дроб. ор./Рук. бой (<FONT color=00FF00>%g+</FONT><FONT face=3>/%g+) = <FONT color=00FF00>%.3f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalSkillPartiallyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalSkillFullyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalSkillReward
+	else
+		InsertInInputText "<br><FONT face=3>Клинки/Дроб. ор./Рук. бой (%g+/%g+) = %g</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalSkillPartiallyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalSkillFullyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalSkillReward
+	endif
+	if OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalAttributeReward <= -0.25
+		InsertInInputText "<br><FONT face=3>Сила/Ловк./Скор./Вын. (%g+/<FONT color=005b04>%g+</FONT><FONT face=3>) = <FONT color=005b04>%.3f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalAttributePartiallyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalAttributeFullyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalAttributeReward
+	elseif OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalAttributeReward < 0
+		InsertInInputText "<br><FONT face=3>Сила/Ловк./Скор./Вын. (<FONT color=00FF00>%g+</FONT><FONT face=3>/%g+) = <FONT color=00FF00>%.3f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalAttributePartiallyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalAttributeFullyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalAttributeReward
+	else
+		InsertInInputText "<br><FONT face=3>Сила/Ловк./Скор./Вын. (%g+/%g+) = %g</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalAttributePartiallyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalAttributeFullyRewardable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatPhysicalAttributeReward
+	endif
+endif
+
+if OEKSEPCMeleeCombatRegulationConsiderMagic == 1
+	InsertInInputText "<br><FONT face=1><FONT color=7C7C7C>------------<FONT face=3>Штрафы</FONT><FONT face=1><FONT color=7C7C7C>------------</FONT>"
+	if OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatRacePenalty > 0
+		InsertInInputText "<br><FONT face=3>Раса (" 
+		if PlayerRef.IsSpellTarget AbRaceBretonFortifyMagic == 1
+			InsertInInputText "<FONT color=FF0000>Бретонец</FONT><FONT face=3>, Выс. эльф) = "
+		else
+			InsertInInputText "Бретонец, <FONT color=FF0000>Выс. эльф</FONT><FONT face=3>) = "
+		endif
+		InsertInInputText "<FONT color=FF0000>%+.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatRacePenalty
+	else
+		InsertInInputText "<br><FONT face=3>Раса (Бретонец, Выс. эльф) = %g</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatRacePenalty
+	endif
+	if OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatBirthSignPenalty > 0
+		InsertInInputText "<br><FONT face=3>Знак ("
+		if PlayerRef.IsSpellTarget BSApprentice
+			InsertInInputText "<FONT color=FF0000>Ученик</FONT><FONT face=3>, Маг, Атронах) = " 
+		elseif PlayerRef.IsSpellTarget BSMage
+			InsertInInputText "Ученик, <FONT color=FF0000>Маг</FONT><FONT face=3>, Атронах) = " 
+		else
+			InsertInInputText "Ученик, Маг, <FONT color=FF0000>Атронах</FONT><FONT face=3>) = " 
+		endif
+		InsertInInputText "<FONT color=FF0000>%+.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatBirthSignPenalty
+	else
+		InsertInInputText "<br><FONT face=3>Знак (Ученик, Маг, Атронах) = %g</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatBirthSignPenalty
+	endif
+	if OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalSkillPenalty > 0
+		InsertInInputText "<br><FONT face=3>Мистицизм/Разр./Колд. ("
+		if OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalSkillPenalty >= 0.3
+			InsertInInputText "<FONT color=FF0000>%g+</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalSkillPunishable
+		else
+			InsertInInputText "<FONT color=F39C12>%g+</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalSkillPunishable
+		endif
+		InsertInInputText "<FONT face=3>) = "
+		if OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalSkillPenalty >= 0.3
+			InsertInInputText "<FONT color=FF0000>%+.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalSkillPenalty
+		else
+			InsertInInputText "<FONT color=F39C12>%+.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalSkillPenalty
+		endif
+	else
+		InsertInInputText "<br><FONT face=3>Мистицизм/Разр./Колд. (%g+) = %g</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalSkillPunishable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalSkillPenalty
+	endif
+
+	if OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributePenalty > 0
+		InsertInInputText "<br><FONT face=3>Интеллект/Сила воли ("
+		if OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributePenalty >= 0.45
+			InsertInInputText "%g+/<FONT color=FF0000>%g+</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributePartiallyPunishable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributeFullyPunishable
+		else
+			InsertInInputText "<FONT color=F39C12>%g+</FONT><FONT face=3>/%g+" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributePartiallyPunishable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributeFullyPunishable
+		endif
+		InsertInInputText ") = "
+		if OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributePenalty >= 0.45
+			InsertInInputText "<FONT color=FF0000>%+.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributePenalty
+		else
+			InsertInInputText "<FONT color=F39C12>%+.2f</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributePenalty
+		endif
+	else
+		InsertInInputText "<br><FONT face=3>Интеллект/Сила воли (%g+/%g+) = %g</FONT>" OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributePartiallyPunishable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributeFullyPunishable OEKSEGlobalAndPCVariablesUpdateQ.OEKSEPCMeleeCombatMagicalAttributePenalty
+	endif
+endif
+
+InsertInInputText "<br><FONT face=1><FONT color=7C7C7C>----------------------------</FONT>"
+InsertInInputText "<br><FONT face=3>Итоговое количество одновременно атакующих игрока врагов в ближнем бою: не более <FONT color=0000FF>%.2f</FONT><FONT face=3> (среднее значение)</FONT>" OEKSEInitQ.OEKSEPCAttackersCountBase
+
+end

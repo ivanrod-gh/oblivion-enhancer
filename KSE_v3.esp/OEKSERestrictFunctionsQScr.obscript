@@ -59,7 +59,7 @@ if OEKSERestrictFunctions == 1
 
 	if OEKSEDoOncePerInstance2 == 1
 		set OEKSEAttributesModMax to player.getlevel * 2
-		set OEKSEAttributeSpeedModMax to player.getlevel * 4
+		set OEKSEAttributeSpeedModMax to player.getlevel * 3
 		set OEKSEAttributeLuckModMax to player.getlevel ;/ 2
 		set OEKSESkillsModMax to player.getlevel * 1.5
 		set OEKSESkillAcrobaticsModMax to OEKSESkillsModMax

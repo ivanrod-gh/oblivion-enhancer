@@ -1,0 +1,37 @@
+﻿scn OEManageReflectDamageReductionFScr
+
+short CriticalMult
+short SourceModIndex
+short ArraySize1
+short Index1
+float ReflectDamageNew
+
+ref ActorRef
+
+begin function { ActorRef CriticalMult }
+
+debugprint "Вызов функции OEManageReflectDamageReductionFScr - установка сниженного значения отражения урона актера или возвращение стандартного значения"
+
+if OEActorsAmplificationSystem == 1 && OEAdditionalReflectDamage == 1
+	let SourceModIndex := GetSourceModIndex ActorRef
+	if SourceModIndex == 255 || (SourceModIndex < 255 &&  OEAmpUnicActors == 1)
+		let ReflectDamageNew := Call OEAddReflectDamageValueFScr ActorRef CriticalMult
+		let ArraySize1 := ar_size OEGlobalWatchQ.OECapturedActorsArray
+		let Index1 := 0
+		while Index1 < ArraySize1
+			if eval(OEGlobalWatchQ.OECapturedActorsArray[Index1][0] == ActorRef)
+				let OEGlobalWatchQ.OECapturedActorsArray[Index1][9] := ReflectDamageNew
+				break
+			endif
+			let Index1 += 1
+		loop
+	endif
+else
+	let ReflectDamageNew := ActorRef.GetTotalActiveEffectMagnitude REDG
+	if CriticalMult > 1
+		let ReflectDamageNew := ReflectDamageNew / CriticalMult - ActorRef.GetBaseAV ReflectDamage
+	endif
+	ActorRef.SetAVModC 59 max ReflectDamageNew
+endif
+
+end

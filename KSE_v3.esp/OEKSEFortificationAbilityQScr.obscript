@@ -13,7 +13,6 @@ short OEKSEPCHasEnemyNearbyOld
 short OEKSEPCEnemyCount
 short OEKSEPCEnemyCountOld
 short OEKSEMustRecalcStats
-short OEKSEBaseVal
 short OEKSEQuestLocked
 short OEKSESlowMoLevel
 short OEKSESlowMoLevelOld
@@ -71,40 +70,18 @@ endif
 
 if OEKSEMustRecalcStats == 1
 	debugprint "Выполняется перерасчет эффекта от способности Укрепление"
-	let OEKSEBaseVal := -999
-	if PlayerRef.getbaseav blade > OEKSEBaseVal
-		let OEKSEBaseVal := PlayerRef.getbaseav blade
-	endif
-	if PlayerRef.getbaseav blunt > OEKSEBaseVal
-		let OEKSEBaseVal := PlayerRef.getbaseav blunt
-	endif
-	if PlayerRef.getbaseav HandToHand > OEKSEBaseVal
-		let OEKSEBaseVal := PlayerRef.getbaseav HandToHand
-	endif
-	if KeaSkillExtender.KskillLongBlade > OEKSEBaseVal
-		let OEKSEBaseVal := KeaSkillExtender.KskillLongBlade
-	endif
-	if KeaSkillExtender.KskillShortBlade > OEKSEBaseVal
-		let OEKSEBaseVal := KeaSkillExtender.KskillShortBlade
-	endif
-	if KeaSkillExtender.KskillBlunt > OEKSEBaseVal
-		let OEKSEBaseVal := KeaSkillExtender.KskillBlunt
-	endif
-	if KeaSkillExtender.KskillAxe > OEKSEBaseVal
-		let OEKSEBaseVal := KeaSkillExtender.KskillAxe
-	endif
-	if OEKSEBaseVal < 25
+	if OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < 25
 		let OEKSEAbilityLevel := 0
-	elseif OEKSEBaseVal < 50
+	elseif OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < 50
 		let OEKSEAbilityLevel := 1
 		let OEKSEFortificationEffectRef := OEKSESpFortificationLevel1
-	elseif OEKSEBaseVal < 75
+	elseif OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < 75
 		let OEKSEAbilityLevel := 2
 		let OEKSEFortificationEffectRef := OEKSESpFortificationLevel2
-	elseif OEKSEBaseVal < 100
+	elseif OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue < 100
 		let OEKSEAbilityLevel := 3
 		let OEKSEFortificationEffectRef := OEKSESpFortificationLevel3
-	elseif OEKSEBaseVal >= 100
+	elseif OEKSEInitQ.OEKSEPCMeleeBestBaseSkillValue >= 100
 		let OEKSEAbilityLevel := 4
 		let OEKSEFortificationEffectRef := OEKSESpFortificationLevel4
 	endif
@@ -118,6 +95,7 @@ if OEKSEMustRecalcStats == 1
 		PlayerRef.Dispel OEKSESpFortificationLevel4
 		OEKSECaster.moveto PlayerRef 0 0 150
 		OEKSECaster.Cast OEKSEFortificationEffectRef PlayerRef
+		PlayerRef.PlaySound3D SPLRestorationHit
 	endif
 	
 	let OEKSEAbilityLevelOld := OEKSEAbilityLevel
@@ -185,7 +163,6 @@ if OEKSEAbilityActive == 0
 	debugprint "Переключение режима работы [0 -> -1]"
 	if OEKSEFortificationAbBulletTime == 1
 		debugprint "У игрока отнимаются усиления от способности Укрепление, скорость игры устанавливается равной 1"
-		let OEKSEFortificationAbilitySlowMotion := 0
 		con_SetIniSetting "fGlobalTimeMultiplier:General" 1.0
 	endif
 	
@@ -216,7 +193,6 @@ endif
 if OEKSEAbilityActive == 1
 	debugprint "Переключение режима работы [1 -> 2]"
 	debugprint "Игроку добавляются усиления от способности Укрепление, включается контроль за замедлением времени"
-	let OEKSEFortificationAbilitySlowMotion := 1
 	
 	let OEKSEFAMagickaDrain := (PlayerRef.getbaseav magicka + ( PlayerRef.GetTotalAENonAbilityMagnitude FOSP Magicka ) + ( PlayerRef.GetTotalAENonAbilityMagnitude DRSP Magicka )) / 2
 	if OEKSERestrictFunctions == 0
@@ -236,6 +212,7 @@ if OEKSEAbilityActive == 1
 		PlayerRef.Dispel OEKSESpFortificationLevel4
 		OEKSECaster.moveto PlayerRef 0 0 150
 		OEKSECaster.Cast OEKSEFortificationEffectRef PlayerRef
+		PlayerRef.PlaySound3D SPLRestorationHit
 	endif
 	let OEKSETimer500msec := 0
 
@@ -476,6 +453,7 @@ if OEKSEAbilityActive == 2
 			PlayerRef.Dispel OEKSESpFortificationLevel4
 			OEKSECaster.moveto PlayerRef 0 0 150
 			OEKSECaster.Cast OEKSEFortificationEffectRef PlayerRef
+			PlayerRef.PlaySound3D SPLRestorationHit
 		endif
 		
 		let OEKSETimer500msec := 0

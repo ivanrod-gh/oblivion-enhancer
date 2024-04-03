@@ -172,7 +172,7 @@ while OEIndex1 >= 0
 	if IsFormValid OEScriptTarget == 1
 		set OESourceModIndex to GetSourceModIndex OEScriptTarget
 		set OEActorHealth to OEScriptTarget.getbaseav health
-		if OESourceModIndex == 255 && OEActorHealth < (player.getlevel * 20 / 10)
+		if OESourceModIndex == 255 && OEActorHealth < (player.getlevel * 2)
 			debugprint "Удаление2 актера %n из массива Distance0_2000" OEScriptTarget
 			ar_erase OECapturedActorsArray OEIndex1
 			set OEIndex1 to OEIndex1 - 1

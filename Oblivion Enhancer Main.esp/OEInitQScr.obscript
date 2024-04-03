@@ -636,8 +636,6 @@ if OEGameLoadedOrRestarted
 	endif
 	;блок наначения параметров
 	
-;ref OELeveledListRef
-;ref OELeveledItemRef
 	
 	;блок настройки переключателей
 	;блок настройки переключателей
@@ -689,16 +687,22 @@ if OEGameLoadedOrRestarted
 	if OEActorsDrainedHealthRestoreWithSpells == 1
 		SetEventHandler "OnMagicApply" OEActorsDrainedHealthRestoreWithSpellsFScr
 	endif
+	
+	if OEMitigatePCMeleeSneakAttackReflectDamage == 1
+		SetEventHandler "OnHit" OEActorReduceReflectDamageFScr second::PlayerRef
+	endif
 	;блок отслеживания событий (EventHandler)
 	
-	set OEInitializationCount to 3
+	let OEInitializationCount := 4
 	;поддерживаемые квестовые скрипты:
-	;OEGlobalWatchQScr
-	;OEGlobalVariablesUpdateQScr
-	;OEEmergencyWipeQScr
+	;1 OEGlobalWatchQScr
+	;2 OEGlobalVariablesUpdateQScr
+	;3 OEEmergencyWipeQScr
+	;4 OEPCSneakAttackObserverQScr
 	let OEGlobalWatchQ.OEQuestLocked := -1
 	let OEGlobalVariablesUpdateQ.OEQuestLocked := -1
 	let OEEmergencyWipeQ.OEQuestLocked := -1
+	let OEPCSneakAttackObserverQ.OEQuestLocked := -1
 
 	;костыль, правит вылет игры при загрузке сохранений и использовании перерасчета уровневых списков
 	if OELeveledListRefactor == 1 && OEGameRestarted == 0

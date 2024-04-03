@@ -147,9 +147,11 @@ if OEKSEMustRecalcStats == 1
 	if ( OEKSEAbilityLevelOld != 0 && OEKSEAbilityLevel == 0 ) || OEKSEAtronachBirthsign == 1
 		let OEKSEAbilityActive := 0
 	elseif OEKSEAbilityActive == 2 && OEKSEAbilityLevel != OEKSEAbilityLevelOld && OEKSEAtronachBirthsign == 0
-		PlayerRef.Dispel OEKSEArcaneArcherEffectRef
+		PlayerRef.Dispel OEKSESpArcaneArcherNoLevel
 		OEKSECaster.moveto PlayerRef 0 0 150
 		OEKSECaster.Cast OEKSEArcaneArcherEffectRef PlayerRef
+		PlayerRef.PlayMagicEffectVisuals FTHR
+		PlayerRef.PlaySound3D SPLAlterationHit
 	endif
 	
 	let OEKSEAbilityLevelOld := OEKSEAbilityLevel
@@ -216,7 +218,7 @@ endif
 if OEKSEAbilityActive == 0
 	debugprint "Переключение режима работы [0 -> -1]"
 
-	PlayerRef.Dispel OEKSEArcaneArcherEffectRef
+	PlayerRef.Dispel OEKSESpArcaneArcherNoLevel
 	PlayerRef.RemoveSpellNS OEKSEAbArcaneArcherStuntedMagicka
 
 	let OEKSEAbilityActive := -1
@@ -229,10 +231,12 @@ if OEKSEAbilityActive == 1
 	debugprint "Переключение режима работы [1 -> 2]"
 	debugprint "Игрок получает эффект замороженной магии и регенерацию маны только от ловкости, а не от количества маны/силы воли"
 
-	PlayerRef.Dispel OEKSEArcaneArcherEffectRef
+	PlayerRef.Dispel OEKSESpArcaneArcherNoLevel
 
 	OEKSECaster.moveto PlayerRef 0 0 150
 	OEKSECaster.Cast OEKSEArcaneArcherEffectRef PlayerRef
+	PlayerRef.PlayMagicEffectVisuals FTHR
+	PlayerRef.PlaySound3D SPLAlterationHit
 	PlayerRef.AddSpellNS OEKSEAbArcaneArcherStuntedMagicka
 
 	let OEKSEAbilityActive := 2
@@ -485,6 +489,8 @@ if OEKSEAbilityActive == 2
 		if PlayerRef.IsSpellTarget OEKSEArcaneArcherEffectRef == 0
 			OEKSECaster.moveto PlayerRef 0 0 150
 			OEKSECaster.Cast OEKSEArcaneArcherEffectRef PlayerRef
+			PlayerRef.PlayMagicEffectVisuals FTHR
+			PlayerRef.PlaySound3D SPLAlterationHit
 		endif
 		
 		let OEKSETimer500msec := 0

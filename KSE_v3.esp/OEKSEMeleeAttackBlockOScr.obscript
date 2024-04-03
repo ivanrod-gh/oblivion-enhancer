@@ -1,0 +1,62 @@
+﻿scn OEKSEMeleeAttackBlockOScr
+
+short DoOnce
+float ScriptWorkTimer
+float ActivationTimer
+
+ref Self
+ref CombatTarget
+ref AnimRef
+
+begin gamemode
+
+if keaEffectExtender.kObjectScriptsBlockTimer > 0
+	return
+endif
+
+if Self == 0
+	let Self := GetContainer
+	if Self == 0
+		return
+	endif
+endif
+if Self != 0 && IsFormValid Self == 1 && Self.GetDisabled == 1
+	return
+endif
+if Self.GetDead == 1
+	removeme
+endif
+
+if DoOnce == 0
+	let ScriptWorkTimer := 0.5
+	let DoOnce := 1
+endif
+
+let ActivationTimer := ActivationTimer - GetSecondsPassed
+if ActivationTimer <= 0
+	if Self.IsAttacking == 1 && Self.IsCasting == 0 && Self.IsIdlePlaying == 0 && Self.IsAnimGroupPlaying BlockHit == 0 && Self.IsAnimGroupPlaying BlockAttack == 0
+		if Self.GetObjectType == 36
+			Self.PlayGroup Recoil, 1
+			Self.PlayGroup Idle, 1
+		else
+			let CombatTarget := Self.GetCombatTarget
+			if ( CombatTarget.IsAttacking == 0 || CombatTarget.IsCasting == 1 )
+				set AnimRef to KeaPlayerAttackStop
+				Self.PlayIdle AnimRef 1
+			else
+				Self.PlayGroup BlockHit, 1
+				Self.PlayGroup idle, 1
+			endif
+		endif
+	endif
+else
+	let ActivationTimer := 0.1
+endif
+
+let ScriptWorkTimer := ScriptWorkTimer - 0.1
+if ScriptWorkTimer <= 0
+	ar_erase OEKSEMeleeCombatObserverQ.OEKSEPCMeleeAttackersArray GetRawFormIDString Self
+	removeme
+endif
+
+end

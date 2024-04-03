@@ -59,7 +59,7 @@ if OEKSEAddDamageCritChancePC < 0 || OEKSEAddDamageCritChancePC > 100
 	set OEKSEAddDamageCritChancePC to 20
 endif
 if OEKSEAddDamagePowCritChancePC < 0 || OEKSEAddDamagePowCritChancePC > 100
-	set OEKSEAddDamagePowCritChancePC to 10
+	set OEKSEAddDamagePowCritChancePC to 50
 endif
 if OEKSERSMAConstEffEnchFactor < 0 || OEKSERSMAConstEffEnchFactor > 50
 	set OEKSERSMAConstEffEnchFactor to 9
@@ -513,6 +513,104 @@ endif
 ;v1.1.2
 if OEKSERapidFireCriticalChanceMod < 0.1 || OEKSERapidFireCriticalChanceMod > 10
 	set OEKSERapidFireCriticalChanceMod to 1
+endif
+
+;v1.1.3
+if OEKSEBladeGoverningSpeed < 0 || OEKSEBladeGoverningSpeed > 1
+	set OEKSEBladeGoverningSpeed to 0
+endif
+if OEKSEPCToughness < 0 || OEKSEPCToughness > 1
+	set OEKSEPCToughness to 1
+endif
+if OEKSEPCHealthPenaltyRestriction < 0 || OEKSEPCHealthPenaltyRestriction > 1
+	set OEKSEPCHealthPenaltyRestriction to 1
+endif
+if OEKSEPCHealthPenaltyRestrictionBaseAttack < 0 || OEKSEPCHealthPenaltyRestrictionBaseAttack > 1
+	set OEKSEPCHealthPenaltyRestrictionBaseAttack to 0.15
+endif
+if OEKSEPCHealthPenaltyRestrictionPowerAttack < 0 || OEKSEPCHealthPenaltyRestrictionPowerAttack > 1
+	set OEKSEPCHealthPenaltyRestrictionPowerAttack to 0.25
+endif
+if OEKSEPCMeleeCombatRegulation < 0 || OEKSEPCMeleeCombatRegulation > 1
+	set OEKSEPCMeleeCombatRegulation to 1
+endif
+if OEKSEPCMeleeCombatRegulationConsiderCreatures < 0 || OEKSEPCMeleeCombatRegulationConsiderCreatures > 1
+	set OEKSEPCMeleeCombatRegulationConsiderCreatures to 1
+endif
+if OEKSEPCMeleeCombatRegulationRaceImperial < 1 || OEKSEPCMeleeCombatRegulationRaceImperial > 4
+	set OEKSEPCMeleeCombatRegulationRaceImperial to 2.65
+endif
+if OEKSEPCMeleeCombatRegulationRaceKhajiit < 1 || OEKSEPCMeleeCombatRegulationRaceKhajiit > 4
+	set OEKSEPCMeleeCombatRegulationRaceKhajiit to 2.2
+endif
+if OEKSEPCMeleeCombatRegulationRaceWoodElf < 1 || OEKSEPCMeleeCombatRegulationRaceWoodElf > 4
+	set OEKSEPCMeleeCombatRegulationRaceWoodElf to 2.35
+endif
+if OEKSEPCMeleeCombatRegulationRaceNord < 1 || OEKSEPCMeleeCombatRegulationRaceNord > 4
+	set OEKSEPCMeleeCombatRegulationRaceNord to 2.5
+endif
+if OEKSEPCMeleeCombatRegulationRaceOrc < 1 || OEKSEPCMeleeCombatRegulationRaceOrc > 4
+	set OEKSEPCMeleeCombatRegulationRaceOrc to 2.5
+endif
+if OEKSEPCMeleeCombatRegulationRaceRedguard < 1 || OEKSEPCMeleeCombatRegulationRaceRedguard > 4
+	set OEKSEPCMeleeCombatRegulationRaceRedguard to 2.5
+endif
+if OEKSEPCMeleeCombatRegulationRaceDarkElf < 1 || OEKSEPCMeleeCombatRegulationRaceDarkElf > 4
+	set OEKSEPCMeleeCombatRegulationRaceDarkElf to 2.65
+endif
+if OEKSEPCMeleeCombatRegulationRaceArgonian < 1 || OEKSEPCMeleeCombatRegulationRaceArgonian > 4
+	set OEKSEPCMeleeCombatRegulationRaceArgonian to 2.2
+endif
+if OEKSEPCMeleeCombatRegulationRaceBreton < 1 || OEKSEPCMeleeCombatRegulationRaceBreton > 4
+	set OEKSEPCMeleeCombatRegulationRaceBreton to 2.8
+endif
+if OEKSEPCMeleeCombatRegulationRaceHighElf < 1 || OEKSEPCMeleeCombatRegulationRaceHighElf > 4
+	set OEKSEPCMeleeCombatRegulationRaceHighElf to 2.95
+endif
+if OEKSEPCMeleeCombatRegulationConsiderPhysics < 0 || OEKSEPCMeleeCombatRegulationConsiderPhysics > 1
+	set OEKSEPCMeleeCombatRegulationConsiderPhysics to 1
+endif
+if OEKSEPCMeleeCombatRegulationConsiderMagic < 0 || OEKSEPCMeleeCombatRegulationConsiderMagic > 1
+	set OEKSEPCMeleeCombatRegulationConsiderMagic to 1
+endif
+if OEKSEPCMeleeCombatRegulationInfo < 0 || OEKSEPCMeleeCombatRegulationInfo > 1
+	set OEKSEPCMeleeCombatRegulationInfo to 1
+endif
+if OEKSEPCMeleeCombatEnhancedDamage < 0 || OEKSEPCMeleeCombatEnhancedDamage > 1
+	set OEKSEPCMeleeCombatEnhancedDamage to 1
+endif
+if OEKSEPCMeleeCombatEnhancedDamageRaceImperial < 0.5 || OEKSEPCMeleeCombatEnhancedDamageRaceImperial > 2.0
+	set OEKSEPCMeleeCombatEnhancedDamageRaceImperial to 1.1
+endif
+if OEKSEPCMeleeCombatEnhancedDamageRaceKhajiit < 0.5 || OEKSEPCMeleeCombatEnhancedDamageRaceKhajiit > 2.0
+	set OEKSEPCMeleeCombatEnhancedDamageRaceKhajiit to 0.95
+endif
+if OEKSEPCMeleeCombatEnhancedDamageRaceWoodElf < 0.5 || OEKSEPCMeleeCombatEnhancedDamageRaceWoodElf > 2.0
+	set OEKSEPCMeleeCombatEnhancedDamageRaceWoodElf to 1.0
+endif
+if OEKSEPCMeleeCombatEnhancedDamageRaceNord < 0.5 || OEKSEPCMeleeCombatEnhancedDamageRaceNord > 2.0
+	set OEKSEPCMeleeCombatEnhancedDamageRaceNord to 1.25
+endif
+if OEKSEPCMeleeCombatEnhancedDamageRaceOrc < 0.5 || OEKSEPCMeleeCombatEnhancedDamageRaceOrc > 2.0
+	set OEKSEPCMeleeCombatEnhancedDamageRaceOrc to 1.3
+endif
+if OEKSEPCMeleeCombatEnhancedDamageRaceRedguard < 0.5 || OEKSEPCMeleeCombatEnhancedDamageRaceRedguard > 2.0
+	set OEKSEPCMeleeCombatEnhancedDamageRaceRedguard to 1.2
+endif
+if OEKSEPCMeleeCombatEnhancedDamageRaceDarkElf < 0.5 || OEKSEPCMeleeCombatEnhancedDamageRaceDarkElf > 2.0
+	set OEKSEPCMeleeCombatEnhancedDamageRaceDarkElf to 1.1
+endif
+if OEKSEPCMeleeCombatEnhancedDamageRaceArgonian < 0.5 || OEKSEPCMeleeCombatEnhancedDamageRaceArgonian > 2.0
+	set OEKSEPCMeleeCombatEnhancedDamageRaceArgonian to 0.95
+endif
+if OEKSEPCMeleeCombatEnhancedDamageRaceBreton < 0.5 || OEKSEPCMeleeCombatEnhancedDamageRaceBreton > 2.0
+	set OEKSEPCMeleeCombatEnhancedDamageRaceBreton to 0.85
+endif
+if OEKSEPCMeleeCombatEnhancedDamageRaceHighElf < 0.5 || OEKSEPCMeleeCombatEnhancedDamageRaceHighElf > 2.0
+	set OEKSEPCMeleeCombatEnhancedDamageRaceHighElf to 0.75
+endif
+if OEKSEPCMeleeCombatEnhancedDamageInfo < 0 || OEKSEPCMeleeCombatEnhancedDamageInfo > 1
+	set OEKSEPCMeleeCombatEnhancedDamageInfo to 1
 endif
 
 End

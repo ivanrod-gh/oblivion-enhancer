@@ -1,0 +1,12 @@
+﻿scn OEKSECatchPCUsesCommandSpells
+
+int EffectCode
+
+ref ActorRef
+
+begin function {ActorRef, EffectCode}
+
+;в случае применения кем угодно заклинаний типа "приказ" квестовый скрипт OEKSEBattleEnvironmentObserverQScr начинает проверять актеров на наличие такого эффекта вплоть до выхода игрока из боя
+let OEKSEBattleEnvironmentObserverQ.OEKSECommandSpellWasCasted := 1
+
+end

@@ -26,7 +26,7 @@ ref ItemRef
 
 begin function { TransitArray }
 
-debugprint "Вызов функции OECalcArmorPriceFScr - рассчет стоимости брони (незачарованной)"
+debugprint "Вызов функции OECalcArmorPriceFScr - расчет стоимости брони (незачарованной)"
 
 let ItemRef := TransitArray[0]
 let ArmorDefence := TransitArray[1]

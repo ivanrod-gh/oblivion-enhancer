@@ -12,7 +12,9 @@ short ReflectDamageHighTokenCount
 short ActorHasReflectDamage100
 short ActorHasMaximumReflectDamage
 
-float ReflectDamagemagsum
+short ReflectDamageReduceCriticalMult
+
+float ReflectDamageMagSum
 
 float ReflectDamageMod
 float ReflectDamageNormal
@@ -20,14 +22,13 @@ float ReflectDamageExisted
 
 float ReflectDamageNew
 
-begin function { ScriptTarget }
+begin function { ScriptTarget ReflectDamageReduceCriticalMult }
 
-set ReflectDamagemagsum to ScriptTarget.GetTotalAEAbilityMagnitude REDG  + ScriptTarget.GetTotalAELesserPowerMagnitude REDG + ScriptTarget.GetTotalAEPowerMagnitude REDG
-
-
+set ReflectDamageMagSum to ScriptTarget.GetTotalAEAbilityMagnitude REDG  + ScriptTarget.GetTotalAELesserPowerMagnitude REDG + ScriptTarget.GetTotalAEPowerMagnitude REDG
 set ReflectDamage100TokenCount to ScriptTarget.getitemcount OEReflectDamage100Token
 set MaximumReflectDamageTokenCount to ScriptTarget.getitemcount OEReflectDamageMaximumToken
-if ReflectDamagemagsum >= 100
+
+if ReflectDamageMagSum >= 100
 	;debugprint "У актера [%n] есть 100-процентное отражение урона" ScriptTarget
 	set ActorHasReflectDamage100 to 1
 elseif ReflectDamage100TokenCount > 0
@@ -42,7 +43,8 @@ if ActorHasMaximumReflectDamage == 1
 	set ReflectDamageMod to OEActorReflectDamageMax
 	;debugprint "Актер [%n], ReflectDamageMod = %g" ScriptTarget ReflectDamageMod
 elseif ActorHasReflectDamage100 == 1
-	set ReflectDamageMod to 200
+	set ReflectDamageMod to 101
+	;увеличение отраженного урона выше 100 приводит к реальному увеличению ответного урона, в отличие от сопротивления стихиям
 	;debugprint "Актер [%n], ReflectDamageMod = %g" ScriptTarget ReflectDamageMod
 elseif ActorHasReflectDamage100 == 0 && ActorHasMaximumReflectDamage == 0
 	set ReflectDamageNormal to ScriptTarget.GetTotalActiveEffectMagnitude REDG
@@ -78,25 +80,22 @@ elseif ActorHasReflectDamage100 == 0 && ActorHasMaximumReflectDamage == 0
 	endif
 
 	;debugprint "Актер [%n], ReflectDamageMod = %g, ReflectDamageNormal = %g" ScriptTarget ReflectDamageMod ReflectDamageNormal
-
-	;if ReflectDamageMod < ReflectDamageNormal					;ограничение, не позволяющее сопротивлению от стихии становиться меньшим, чем было до дополнительного увеличения (после диминишинга)
-	;	set ReflectDamageMod to ReflectDamageNormal
-	;	;debugprint "Актер [%n], усиленный резист оказался ниже нормального, возращение значения, ReflectDamageMod = %g" ScriptTarget ReflectDamageMod
-	;endif
 endif
 
-set ReflectDamageMod to ReflectDamageMod - ScriptTarget.getbaseav ReflectDamage; - ScriptTarget.GetAVModC 61 script
+if ReflectDamageReduceCriticalMult > 1		;снижение отраженного урона актера - используется, когда игрок делает
+											;скрытую атаку ближнего боя по актеру с множителем более Х1
+	let ReflectDamageMod := ReflectDamageMod / ReflectDamageReduceCriticalMult
+endif
+set ReflectDamageMod to ReflectDamageMod - ScriptTarget.getbaseav ReflectDamage
 ScriptTarget.SetAVModC 59 max ReflectDamageMod
 set ReflectDamageExisted to ScriptTarget.getav ReflectDamage
 
 ;debugprint "Актер [%n], назначенное значение  ReflectDamageMod = %g, ReflectDamageExisted = %g" ScriptTarget ReflectDamageMod ReflectDamageExisted
-
 
 set ReflectDamageNew to ReflectDamageExisted
 ;debugprint "Вывод переменной ReflectDamageNew = %g из функции обратно в скрипт" ReflectDamageNew
 SetFunctionValue ReflectDamageNew
 
 ;debugprint "конец функции"
-
 
 end
